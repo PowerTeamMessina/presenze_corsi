@@ -3019,9 +3019,10 @@ if is_manager():
             st.markdown("---")
                     
             conferma_elimina = st.checkbox(
-                "Confermo eliminazione istruttore"
+                f"Confermo eliminazione di {dettagli['nome']}",
+                key=f"conferma_elimina_{istruttore_id}"
             )
-                    
+                                
             if st.button(
                 "🗑️ Elimina istruttore"
             ):
