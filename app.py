@@ -5,6 +5,9 @@ from datetime import date
 import hashlib
 import secrets
 import smtplib
+import json
+import os
+from datetime import datetime
 from email.mime.text import MIMEText
 
 # ============================================================
@@ -35,6 +38,100 @@ c = conn.cursor()
 # ============================================================
 # FUNZIONI PASSWORD
 # ============================================================
+def crea_backup():
+
+    backup = {}
+
+    tabelle = [
+        "utenti",
+        "corsi",
+        "corso_giorni",
+        "bambini",
+        "assegnazioni_istruttori",
+        "presenze",
+        "stagioni"
+    ]
+
+    for tabella in tabelle:
+
+        try:
+
+            df = pd.read_sql(
+                f"SELECT * FROM {tabella}",
+                conn
+            )
+
+            backup[tabella] = df.to_dict(
+                orient="records"
+            )
+
+        except:
+
+            pass
+
+    with open(
+        "backup_completo.json",
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            backup,
+            f,
+            ensure_ascii=False,
+            indent=4
+        )
+        
+def ripristina_backup():
+
+    with open(
+        "backup_completo.json",
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        backup = json.load(f)
+
+    ordine = [
+        "presenze",
+        "assegnazioni_istruttori",
+        "bambini",
+        "corso_giorni",
+        "corsi",
+        "utenti",
+        "stagioni"
+    ]
+
+    for tabella in ordine:
+
+        try:
+
+            c.execute(
+                f"DELETE FROM {tabella}"
+            )
+
+        except:
+
+            pass
+
+    conn.commit()
+
+    for tabella, records in backup.items():
+
+        if len(records) == 0:
+            continue
+
+        df = pd.DataFrame(records)
+
+        df.to_sql(
+            tabella,
+            conn,
+            if_exists="append",
+            index=False
+        )
+
+    conn.commit()
+
 
 def hash_password(password, salt=None):
 
@@ -157,6 +254,15 @@ CREATE TABLE IF NOT EXISTS stagioni (
     attiva INTEGER DEFAULT 1
 )
 """)
+
+c.execute("""
+CREATE TABLE IF NOT EXISTS sistema (
+    chiave TEXT PRIMARY KEY,
+    valore TEXT
+)
+""")
+
+conn.commit()
 
 conn.commit()    
 
@@ -1237,6 +1343,42 @@ def get_stagioni():
 
     return df["stagione"].tolist()
 
+def backup_giornaliero():
+
+    oggi = datetime.today().strftime(
+        "%Y-%m-%d"
+    )
+
+    df = pd.read_sql(
+        """
+        SELECT *
+        FROM sistema
+        WHERE chiave='ultimo_backup'
+        """,
+        conn
+    )
+
+    if (
+        df.empty
+        or
+        df.iloc[0]["valore"] != oggi
+    ):
+
+        crea_backup()
+
+        c.execute(
+            """
+            INSERT OR REPLACE INTO sistema
+            VALUES(
+                'ultimo_backup',
+                ?
+            )
+            """,
+            (oggi,)
+        )
+
+        conn.commit()
+        
 # ============================================================
 # INTERFACCIA
 # ============================================================
@@ -1290,7 +1432,8 @@ if is_manager():
             "📅 Stagioni",
             "👨‍🏫 Istruttori",
             "🔗 Assegnazioni",
-            "🗂️ Storico"
+            "🗂️ Storico",
+            "💾 Backup"
         ]
     )
 
@@ -2605,3 +2748,61 @@ with tab_storico:
             "storico_presenze_corsi.csv",
             "text/csv"
         )
+        
+    if is_manager():
+
+        with tab_backup:        
+            st.header("💾 Backup e Ripristino")
+        
+            if st.button(
+                "💾 Crea backup"
+            ):
+        
+                crea_backup()
+        
+                st.success(
+                    "Backup creato correttamente."
+                )
+
+            if os.path.exists(
+                "backup_completo.json"
+            ):
+            
+                 with open(
+                    "backup_completo.json",
+                    "rb"
+                ) as f:
+            
+                    st.download_button(
+                        "📥 Scarica backup",
+                        f,
+                        file_name="backup_completo.json",
+                        mime="application/json"
+                    )
+
+            uploaded_file = st.file_uploader(
+                "Carica backup",
+                type=["json"]
+            )
+
+            if uploaded_file:
+                    with open(
+                        "backup_completo.json",
+                        "wb"
+                    ) as f:
+        
+                        f.write(
+                            uploaded_file.getbuffer()
+                        )
+        
+                    if st.button(
+                        "♻️ Ripristina backup"
+                    ):
+        
+                        ripristina_backup()
+        
+                        st.success(
+                            "Backup ripristinato."
+                        )
+        
+                        st.rerun()
