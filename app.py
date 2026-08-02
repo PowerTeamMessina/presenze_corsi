@@ -1559,14 +1559,6 @@ if is_manager():
 
         st.subheader("➕ Nuovo corso")
 
-        numero_giorni = st.number_input(
-            "Numero giorni settimanali",
-            min_value=1,
-            max_value=5,
-            value=1,
-            step=1
-        )
-
         with st.form(
             "form_nuovo_corso",
             clear_on_submit=True
@@ -1587,11 +1579,36 @@ if is_manager():
                 value="2026/2027"
             )
 
+            giorni_selezionati = st.multiselect(
+                "Giorni del corso",
+                [
+                    "Lunedì",
+                    "Martedì",
+                    "Mercoledì",
+                    "Giovedì",
+                    "Venerdì",
+                    "Sabato",
+                    "Domenica"
+                ],
+                max_selections=5
+            )
+            
             giorni_orari = []
-
-            st.markdown("### Giorni e orari")
-
-            for i in range(int(numero_giorni)):
+            
+            for giorno in giorni_selezionati:
+            
+                orario = st.text_input(
+                    f"Orario {giorno}",
+                    placeholder="es. 16:00-17:00",
+                    key=f"nuovo_orario_{giorno}"
+                )
+            
+                giorni_orari.append(
+                    (
+                        giorno,
+                        orario
+                    )
+                )
 
                 col_giorno, col_orario = st.columns(2)
 
@@ -1626,11 +1643,16 @@ if is_manager():
                         "Inserisci il nome del corso."
                     )
 
-                elif any(orario.strip() == "" for _, orario in giorni_orari):
+                elif len(giorni_orari) == 0:
 
                     st.error(
-                        "Inserisci tutti gli orari."
+                        "Seleziona almeno un giorno."
                     )
+                
+                elif any(
+                    orario.strip() == ""
+                    for _, orario in giorni_orari
+                ):
 
                 elif len(set(giorno for giorno, _ in giorni_orari)) != len(giorni_orari):
 
@@ -1766,40 +1788,54 @@ if is_manager():
 
             st.markdown("### Giorni e orari del corso")
 
-            for i in range(int(nuovo_numero_giorni)):
-
-                if i < len(giorni_attuali):
-
-                    giorno_default = giorni_attuali.iloc[i]["giorno"]
-
-                    orario_default = giorni_attuali.iloc[i]["orario"]
-
+            giorni_settimana = [
+                "Lunedì",
+                "Martedì",
+                "Mercoledì",
+                "Giovedì",
+                "Venerdì",
+                "Sabato",
+                "Domenica"
+            ]
+            
+            giorni_predefiniti = (
+                giorni_attuali["giorno"].tolist()
+                if not giorni_attuali.empty
+                else []
+            )
+            
+            giorni_selezionati = st.multiselect(
+                "Giorni del corso",
+                giorni_settimana,
+                default=giorni_predefiniti,
+                max_selections=5,
+                key=f"giorni_corso_{corso_id}"
+            )
+            
+            nuovi_giorni_orari = []
+            
+            for giorno in giorni_selezionati:
+            
+                riga = giorni_attuali[
+                    giorni_attuali["giorno"] == giorno
+                ]
+            
+                if not riga.empty:
+            
+                    orario_default = (
+                        riga.iloc[0]["orario"]
+                    )
+            
                 else:
-
-                    giorno_default = "Lunedì"
+            
                     orario_default = ""
-
-                indice_giorno = (
-                    giorni_settimana.index(giorno_default)
-                    if giorno_default in giorni_settimana
-                    else 0
-                )
-
-                col_giorno, col_orario = st.columns(2)
-
-                giorno = col_giorno.selectbox(
-                    f"Giorno {i + 1}",
-                    giorni_settimana,
-                    index=indice_giorno,
-                    key=f"mod_giorno_{corso_id}_{i}"
-                )
-
-                orario = col_orario.text_input(
-                    f"Orario {i + 1}",
+            
+                orario = st.text_input(
+                    f"Orario {giorno}",
                     value=orario_default,
-                    key=f"mod_orario_{corso_id}_{i}"
+                    key=f"orario_corso_{corso_id}_{giorno}"
                 )
-
+            
                 nuovi_giorni_orari.append(
                     (
                         giorno,
@@ -1817,11 +1853,16 @@ if is_manager():
                         "Il nome del corso non può essere vuoto."
                     )
 
-                elif any(orario.strip() == "" for _, orario in nuovi_giorni_orari):
+                elif len(nuovi_giorni_orari) == 0:
 
                     st.error(
-                        "Inserisci tutti gli orari."
+                        "Seleziona almeno un giorno."
                     )
+                
+                elif any(
+                    orario.strip() == ""
+                    for _, orario in nuovi_giorni_orari
+                ):
 
                 elif len(set(giorno for giorno, _ in nuovi_giorni_orari)) != len(nuovi_giorni_orari):
 
