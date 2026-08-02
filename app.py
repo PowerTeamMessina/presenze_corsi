@@ -1774,7 +1774,7 @@ with tab_stagioni:
         hide_index=True
     )
 
-  def elimina_istruttore(
+def elimina_istruttore(
     istruttore_id
 ):
 
