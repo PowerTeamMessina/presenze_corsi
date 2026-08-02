@@ -1,74 +1,10 @@
 {
-    "utenti": [
-        {
-            "id": 38,
-            "username": "gabrielegrifo@gmail.com",
-            "nome": "Gabriele",
-            "ruolo": "istruttore",
-            "password_hash": "cfa71bbd6d8bdad07acba7178893a1497e2d094a6dd63613f1cf9f59b4f6519a",
-            "salt": "203862bb63b2cddfe8f346eb2bafafd7",
-            "attivo": 1,
-            "password_visibile": null
-        },
-        {
-            "id": 124,
-            "username": "gabriele",
-            "nome": "Manager",
-            "ruolo": "manager",
-            "password_hash": "d948c06f0a15425619d49a501f6100e35249104949667b6cc83b5c72173937d0",
-            "salt": "a255a8b82ea80f518699c25a4caa59c2",
-            "attivo": 1,
-            "password_visibile": null
-        }
-    ],
-    "corsi": [
-        {
-            "id": 2,
-            "nome": "Corso Pre-Agonismo Luca",
-            "livello": "Pre-Agonismo",
-            "giorno": "",
-            "orario": "",
-            "stagione": "2026/2027",
-            "attivo": 1
-        }
-    ],
-    "corso_giorni": [
-        {
-            "id": 3,
-            "corso_id": 2,
-            "giorno": "Lunedì",
-            "orario": "15:50-16:40",
-            "ordine": 1
-        },
-        {
-            "id": 4,
-            "corso_id": 2,
-            "giorno": "Mercoledì",
-            "orario": "15:50-16:40",
-            "ordine": 2
-        },
-        {
-            "id": 5,
-            "corso_id": 2,
-            "giorno": "Venerdì",
-            "orario": "15:50-16:40",
-            "ordine": 3
-        }
-    ],
+    "utenti": [],
+    "corsi": [],
+    "corso_giorni": [],
     "bambini": [],
     "assegnazioni_istruttori": [],
     "presenze": [],
-    "stagioni": [
-        {
-            "id": 1,
-            "nome": "2026/2027",
-            "attiva": 1
-        }
-    ],
-    "sistema": [
-        {
-            "chiave": "ultimo_backup_github",
-            "valore": "2026-08-02"
-        }
-    ]
+    "stagioni": [],
+    "sistema": []
 }
