@@ -1,0 +1,27 @@
+{
+    "utenti": [
+        {
+            "id": 38,
+            "username": "gabrielegrifo@gmail.com",
+            "nome": "Gabriele",
+            "ruolo": "istruttore",
+            "password_hash": "cfa71bbd6d8bdad07acba7178893a1497e2d094a6dd63613f1cf9f59b4f6519a",
+            "salt": "203862bb63b2cddfe8f346eb2bafafd7",
+            "attivo": 1,
+            "password_visibile": null
+        }
+    ],
+    "corsi": [],
+    "corso_giorni": [],
+    "bambini": [],
+    "assegnazioni_istruttori": [],
+    "presenze": [],
+    "stagioni": [
+        {
+            "id": 1,
+            "nome": "2026/2027",
+            "attiva": 1
+        }
+    ],
+    "sistema": []
+}
