@@ -152,12 +152,12 @@ def crea_manager_default():
 
         username = st.secrets.get(
             "MANAGER_USERNAME",
-            "editor"
+            "manager"
         )
 
         password = st.secrets.get(
             "MANAGER_PASSWORD",
-            "pattern95@"
+            "manager123"
         )
 
         password_hash, salt = hash_password(password)
