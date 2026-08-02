@@ -158,22 +158,6 @@ CREATE TABLE IF NOT EXISTS stagioni (
 )
 """)
 
-c.execute(
-        """
-        DELETE FROM assegnazioni_istruttori
-        WHERE istruttore_id = ?
-        """,
-        (istruttore_id,)
-    )
-
-c.execute(
-    """
-    DELETE FROM utenti
-    WHERE id = ?
-    """,
-    (istruttore_id,)
-)
-
 conn.commit()    
 
 try:
@@ -1773,10 +1757,6 @@ with tab_stagioni:
         use_container_width=True,
         hide_index=True
     )
-
-def elimina_istruttore(
-    istruttore_id
-):
 
 # ============================================================
 # TAB CORSI
