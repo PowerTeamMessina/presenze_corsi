@@ -4,7 +4,8 @@ import pandas as pd
 from datetime import date
 import hashlib
 import secrets
-
+import smtplib
+from email.mime.text import MIMEText
 
 # ============================================================
 # CONFIGURAZIONE
@@ -56,7 +57,10 @@ def verifica_password(password_inserita, password_hash, salt):
 
     return nuovo_hash == password_hash
 
+def genera_password_casuale():
 
+    return secrets.token_urlsafe(9)
+    
 # ============================================================
 # TABELLE
 # ============================================================
@@ -95,8 +99,6 @@ CREATE TABLE IF NOT EXISTS corso_giorni (
     FOREIGN KEY(corso_id) REFERENCES corsi(id)
 )
 """)
-
-conn.commit()
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS bambini (
@@ -146,6 +148,14 @@ CREATE TABLE IF NOT EXISTS presenze (
 c.execute("""
 DELETE FROM utenti
 WHERE ruolo='manager'
+""")
+
+c.execute("""
+CREATE TABLE IF NOT EXISTS stagioni (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT UNIQUE NOT NULL,
+    attiva INTEGER DEFAULT 1
+)
 """)
 
 conn.commit()
@@ -257,11 +267,95 @@ def crea_manager_default():
 
 crea_manager_default()
 
+def get_stagioni():
+
+    return pd.read_sql(
+        """
+        SELECT *
+        FROM stagioni
+        WHERE attiva = 1
+        ORDER BY nome DESC
+        """,
+        conn
+    )
+
+
+def aggiungi_stagione(nome):
+
+    c.execute(
+        """
+        INSERT INTO stagioni(
+            nome,
+            attiva
+        )
+        VALUES(?,1)
+        """,
+        (nome,)
+    )
+
+    conn.commit()
 
 # ============================================================
 # FUNZIONI UTENTI
 # ============================================================
+def invia_credenziali_istruttore_email(
+    email_destinatario,
+    nome,
+    password
+):
 
+    mittente = st.secrets["GMAIL_ADDRESS"]
+    password_mittente = st.secrets["GMAIL_PASSWORD"]
+
+    app_url = st.secrets.get(
+        "APP_URL",
+        "link dell'app Streamlit"
+    )
+
+    testo = f"""
+Ciao {nome},
+
+il tuo account istruttore per lo Statino Corsi Nuoto è stato creato.
+
+Credenziali di accesso:
+
+Email: {email_destinatario}
+Password: {password}
+
+Link app:
+{app_url}
+
+Ti consigliamo di conservare queste credenziali con attenzione.
+
+Power Team Messina
+"""
+
+    msg = MIMEText(
+        testo,
+        "plain",
+        "utf-8"
+    )
+
+    msg["Subject"] = "Credenziali accesso Statino Corsi Nuoto"
+    msg["From"] = mittente
+    msg["To"] = email_destinatario
+
+    server = smtplib.SMTP(
+        "smtp.gmail.com",
+        587
+    )
+
+    server.starttls()
+
+    server.login(
+        mittente,
+        password_mittente
+    )
+
+    server.send_message(msg)
+
+    server.quit()
+    
 def get_utenti():
 
     st.code(query)
@@ -306,9 +400,13 @@ def get_istruttori(attivi_solo=True):
     )
 
 
-def aggiungi_istruttore(username, nome, password):
+def aggiungi_istruttore(email, nome):
 
-    password_hash, salt = hash_password(password)
+    password_generata = genera_password_casuale()
+
+    password_hash, salt = hash_password(
+        password_generata
+    )
 
     c.execute(
         """
@@ -323,8 +421,8 @@ def aggiungi_istruttore(username, nome, password):
         VALUES(?,?,?,?,?,1)
         """,
         (
-            username,
-            nome,
+            email.strip().lower(),
+            nome.strip(),
             "istruttore",
             password_hash,
             salt
@@ -333,6 +431,7 @@ def aggiungi_istruttore(username, nome, password):
 
     conn.commit()
 
+    return password_generata
 
 def aggiorna_password_utente(utente_id, nuova_password):
 
@@ -410,7 +509,7 @@ def login():
         return
 
     username = st.sidebar.text_input(
-        "Username"
+        "Email istruttore / username"
     )
 
     password = st.sidebar.text_input(
@@ -1161,6 +1260,7 @@ if is_manager():
             "📋 Presenze",
             "👶 Bambini",
             "🏊 Corsi",
+            "📅 Stagioni",
             "👨‍🏫 Istruttori",
             "🔗 Assegnazioni",
             "🗂️ Storico"
@@ -1170,9 +1270,10 @@ if is_manager():
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
     tab_corsi = tabs[2]
-    tab_istruttori = tabs[3]
-    tab_assegnazioni = tabs[4]
-    tab_storico = tabs[5]
+    tab_stagioni = tabs[3]
+    tab_istruttori = tabs[4]
+    tab_assegnazioni = tabs[5]
+    tab_storico = tabs[6]
 
 else:
 
@@ -1585,6 +1686,51 @@ with tab_bambini:
                         st.rerun()
 
 
+with tab_stagioni:
+
+    st.header("📅 Gestione stagioni")
+
+    nuova_stagione = st.text_input(
+        "Nuova stagione",
+        placeholder="es. 2027/2028"
+    )
+
+    if st.button("➕ Aggiungi stagione"):
+
+        if nuova_stagione.strip() == "":
+
+            st.error(
+                "Inserisci il nome della stagione."
+            )
+
+        else:
+
+            try:
+
+                aggiungi_stagione(
+                    nuova_stagione.strip()
+                )
+
+                st.success(
+                    "Stagione aggiunta."
+                )
+
+                st.rerun()
+
+            except:
+
+                st.error(
+                    "Stagione già esistente."
+                )
+
+    st.markdown("---")
+
+    st.dataframe(
+        get_stagioni(),
+        use_container_width=True,
+        hide_index=True
+    )
+    
 # ============================================================
 # TAB CORSI
 # ============================================================
@@ -2008,56 +2154,77 @@ if is_manager():
             "form_nuovo_istruttore",
             clear_on_submit=True
         ):
-
-            username = st.text_input(
-                "Username"
+        
+            email = st.text_input(
+                "Email istruttore"
             )
-
+        
             nome = st.text_input(
                 "Nome istruttore"
             )
-
-            password = st.text_input(
-                "Password iniziale",
-                type="password"
-            )
-
+        
             crea = st.form_submit_button(
-                "➕ Crea istruttore"
+                "➕ Crea istruttore e invia credenziali"
             )
-
+        
             if crea:
-
+        
                 if (
-                    username.strip() == ""
+                    email.strip() == ""
                     or nome.strip() == ""
-                    or password.strip() == ""
                 ):
-
+        
                     st.error(
-                        "Compila tutti i campi."
+                        "Compila email e nome istruttore."
                     )
-
+        
+                elif "@" not in email.strip():
+        
+                    st.error(
+                        "Inserisci un indirizzo email valido."
+                    )
+        
                 else:
-
+        
                     try:
-
-                        aggiungi_istruttore(
-                            username.strip(),
-                            nome.strip(),
-                            password.strip()
+        
+                        password_generata = aggiungi_istruttore(
+                            email.strip(),
+                            nome.strip()
                         )
-
-                        st.success(
-                            "Istruttore creato correttamente."
-                        )
-
+        
+                        try:
+        
+                            invia_credenziali_istruttore_email(
+                                email.strip().lower(),
+                                nome.strip(),
+                                password_generata
+                            )
+        
+                            st.success(
+                                "Istruttore creato e credenziali inviate via email."
+                            )
+        
+                        except Exception as e:
+        
+                            st.warning(
+                                "Istruttore creato, ma invio email non riuscito."
+                            )
+        
+                            st.info(
+                                f"Password generata da comunicare manualmente: {password_generata}"
+                            )
+        
+                            st.error(
+                                f"Errore email: {e}"
+                            )
+        
                         st.rerun()
-
+        
                     except sqlite3.IntegrityError:
-
+        
                         st.error(
-                            "Username già esistente."
+                            "Esiste già un istruttore con questa email."
                         )
 
         st.markdown("---")
@@ -2076,8 +2243,14 @@ if is_manager():
 
         else:
 
+            istruttori_visibili = istruttori.rename(
+                columns={
+                    "username": "email"
+                }
+            )
+            
             st.dataframe(
-                istruttori,
+                istruttori_visibili,
                 use_container_width=True,
                 hide_index=True
             )
