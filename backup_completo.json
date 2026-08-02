@@ -21,8 +21,40 @@
             "password_visibile": null
         }
     ],
-    "corsi": [],
-    "corso_giorni": [],
+    "corsi": [
+        {
+            "id": 2,
+            "nome": "Corso Pre-Agonismo Luca",
+            "livello": "Pre-Agonismo",
+            "giorno": "",
+            "orario": "",
+            "stagione": "2026/2027",
+            "attivo": 1
+        }
+    ],
+    "corso_giorni": [
+        {
+            "id": 3,
+            "corso_id": 2,
+            "giorno": "Lunedì",
+            "orario": "15:50-16:40",
+            "ordine": 1
+        },
+        {
+            "id": 4,
+            "corso_id": 2,
+            "giorno": "Mercoledì",
+            "orario": "15:50-16:40",
+            "ordine": 2
+        },
+        {
+            "id": 5,
+            "corso_id": 2,
+            "giorno": "Venerdì",
+            "orario": "15:50-16:40",
+            "ordine": 3
+        }
+    ],
     "bambini": [],
     "assegnazioni_istruttori": [],
     "presenze": [],
