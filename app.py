@@ -3016,37 +3016,37 @@ if is_manager():
                         "Password aggiornata."
                     )
 
-        st.markdown("---")
+            st.markdown("---")
 
-        st.subheader("🗑️ Elimina istruttore")
+            st.subheader("🗑️ Elimina istruttore")
             
-        conferma_elimina = st.checkbox(
-            f"Confermo eliminazione di {dettagli['nome']}",
-            key=f"elimina_{istruttore_id}"
-        )
+            conferma_elimina = st.checkbox(
+                f"Confermo eliminazione di {dettagli['nome']}",
+                key=f"elimina_{istruttore_id}"
+            )
+                
+            if st.button(
+                "🗑️ Elimina istruttore",
+                key=f"btn_elimina_{istruttore_id}"
+            ):
+                
+                if not conferma_elimina:
+                
+                    st.error(
+                        "Devi confermare l'eliminazione."
+                    )
             
-        if st.button(
-            "🗑️ Elimina istruttore",
-            key=f"btn_elimina_{istruttore_id}"
-        ):
+                else:
+                
+                    elimina_istruttore(
+                        istruttore_id
+                    )
             
-            if not conferma_elimina:
+                    st.success(
+                        "Istruttore eliminato."
+                    )
             
-                st.error(
-                    "Devi confermare l'eliminazione."
-                )
-        
-            else:
-            
-                elimina_istruttore(
-                    istruttore_id
-                )
-        
-                st.success(
-                    "Istruttore eliminato."
-                )
-        
-                st.rerun()
+                    st.rerun()
 
 
 # ============================================================
