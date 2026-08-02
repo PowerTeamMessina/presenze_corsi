@@ -84,7 +84,32 @@ def crea_backup():
             ensure_ascii=False,
             indent=4
         )
-        
+
+def elimina_istruttore(istruttore_id):
+
+    c.execute(
+        """
+        DELETE FROM assegnazioni_istruttori
+        WHERE istruttore_id = ?
+        """,
+        (istruttore_id,)
+    )
+
+    c.execute(
+        """
+        DELETE FROM utenti
+        WHERE id = ?
+        AND ruolo = 'istruttore'
+        """,
+        (istruttore_id,)
+    )
+
+    conn.commit()
+
+    upload_backup_github(
+        mostra_messaggio=False
+    )
+
 def ripristina_backup():
 
     with open(
