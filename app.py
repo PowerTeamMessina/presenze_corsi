@@ -130,8 +130,12 @@ CREATE TABLE IF NOT EXISTS presenze (
 )
 """)
 
-conn.commit()
+c.execute("""
+DELETE FROM utenti
+WHERE ruolo='manager'
+""")
 
+conn.commit()
 
 # ============================================================
 # CREAZIONE MANAGER DEFAULT
