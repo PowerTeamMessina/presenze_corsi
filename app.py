@@ -1366,7 +1366,6 @@ def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
             mostra_messaggio=False
         )
 
-
 def elimina_corso(corso_id):
 
     c.execute(
@@ -3017,33 +3016,33 @@ if is_manager():
                         "Password aggiornata."
                     )
 
-                    st.markdown("---")
+            st.markdown("---")
                     
-                    conferma_elimina = st.checkbox(
-                        "Confermo eliminazione istruttore"
+            conferma_elimina = st.checkbox(
+                "Confermo eliminazione istruttore"
+            )
+                    
+            if st.button(
+                "🗑️ Elimina istruttore"
+            ):
+                    
+                if not conferma_elimina:
+                    
+                    st.error(
+                        "Devi confermare."
                     )
                     
-                    if st.button(
-                        "🗑️ Elimina istruttore"
-                    ):
+                else:
                     
-                        if not conferma_elimina:
+                    elimina_istruttore(
+                        istruttore_id
+                    )
                     
-                            st.error(
-                                "Devi confermare."
-                            )
+                    st.success(
+                        "Istruttore eliminato."
+                    )
                     
-                        else:
-                    
-                            elimina_istruttore(
-                                istruttore_id
-                            )
-                    
-                            st.success(
-                                "Istruttore eliminato."
-                            )
-                    
-                            st.rerun()
+                    st.rerun()
 
 
 # ============================================================
