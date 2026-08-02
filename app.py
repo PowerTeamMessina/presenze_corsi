@@ -119,6 +119,10 @@ def ripristina_backup():
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
     for tabella, records in backup.items():
 
         if len(records) == 0:
@@ -134,6 +138,10 @@ def ripristina_backup():
         )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 def hash_password(password, salt=None):
@@ -265,7 +273,12 @@ CREATE TABLE IF NOT EXISTS sistema (
 )
 """)
 
-conn.commit()
+c.execute("""
+CREATE TABLE IF NOT EXISTS sistema (
+    chiave TEXT PRIMARY KEY,
+    valore TEXT
+)
+""")
 
 conn.commit()    
 
@@ -289,6 +302,365 @@ conn.commit()
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
 # ============================================================
+
+def crea_backup_completo():
+
+    backup = {}
+
+    tabelle = [
+        "utenti",
+        "corsi",
+        "corso_giorni",
+        "bambini",
+        "assegnazioni_istruttori",
+        "presenze",
+        "stagioni",
+        "sistema"
+    ]
+
+    for tabella in tabelle:
+
+        try:
+
+            df = pd.read_sql(
+                f"SELECT * FROM {tabella}",
+                conn
+            )
+
+            backup[tabella] = df.to_dict(
+                orient="records"
+            )
+
+        except Exception:
+
+            backup[tabella] = []
+
+    with open(
+        "backup_completo.json",
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            backup,
+            f,
+            ensure_ascii=False,
+            indent=4
+        )
+
+    return "backup_completo.json"
+
+def upload_backup_github(
+    mostra_messaggio=True
+):
+
+    token = st.secrets["GITHUB_TOKEN"]
+    owner = st.secrets["GITHUB_OWNER"]
+    repo = st.secrets["GITHUB_REPO"]
+
+    path = st.secrets.get(
+        "GITHUB_BACKUP_PATH",
+        "backup_completo.json"
+    )
+
+    file_locale = crea_backup_completo()
+
+    with open(
+        file_locale,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        contenuto = f.read()
+
+    contenuto_b64 = base64.b64encode(
+        contenuto.encode("utf-8")
+    ).decode("utf-8")
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repo}/contents/{path}"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    sha = None
+
+    risposta = requests.get(
+        url,
+        headers=headers
+    )
+
+    if risposta.status_code == 200:
+
+        sha = risposta.json()["sha"]
+
+    payload = {
+        "message": "Aggiornamento backup completo gestionale",
+        "content": contenuto_b64
+    }
+
+    if sha is not None:
+
+        payload["sha"] = sha
+
+    upload = requests.put(
+        url,
+        headers=headers,
+        json=payload
+    )
+
+    if upload.status_code in [200, 201]:
+
+        if mostra_messaggio:
+
+            st.success(
+                "Backup salvato su GitHub."
+            )
+
+        return True
+
+    else:
+
+        if mostra_messaggio:
+
+            st.error(
+                f"Errore salvataggio GitHub: {upload.status_code}"
+            )
+
+            try:
+
+                st.code(upload.text)
+
+            except Exception:
+
+                pass
+
+        return False
+
+def scarica_backup_github():
+
+    token = st.secrets["GITHUB_TOKEN"]
+    owner = st.secrets["GITHUB_OWNER"]
+    repo = st.secrets["GITHUB_REPO"]
+
+    path = st.secrets.get(
+        "GITHUB_BACKUP_PATH",
+        "backup_completo.json"
+    )
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{owner}/{repo}/contents/{path}"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    risposta = requests.get(
+        url,
+        headers=headers
+    )
+
+    if risposta.status_code != 200:
+
+        return False
+
+    data = risposta.json()
+
+    contenuto = base64.b64decode(
+        data["content"]
+    ).decode("utf-8")
+
+    with open(
+        "backup_completo.json",
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        f.write(contenuto)
+
+    return True
+
+def ripristina_backup_locale():
+
+    if not os.path.exists(
+        "backup_completo.json"
+    ):
+
+        return False
+
+    with open(
+        "backup_completo.json",
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+        backup = json.load(f)
+
+    ordine_delete = [
+        "presenze",
+        "assegnazioni_istruttori",
+        "bambini",
+        "corso_giorni",
+        "corsi",
+        "utenti",
+        "stagioni",
+        "sistema"
+    ]
+
+    for tabella in ordine_delete:
+
+        try:
+
+            c.execute(
+                f"DELETE FROM {tabella}"
+            )
+
+        except Exception:
+
+            pass
+
+    conn.commit()
+
+    upload_backup_github(
+        mostra_messaggio=False
+    )
+
+    ordine_insert = [
+        "utenti",
+        "stagioni",
+        "corsi",
+        "corso_giorni",
+        "bambini",
+        "assegnazioni_istruttori",
+        "presenze",
+        "sistema"
+    ]
+
+    for tabella in ordine_insert:
+
+        records = backup.get(
+            tabella,
+            []
+        )
+
+        if len(records) == 0:
+            continue
+
+        df = pd.DataFrame(records)
+
+        df.to_sql(
+            tabella,
+            conn,
+            if_exists="append",
+            index=False
+        )
+
+    conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
+    return True
+
+def database_vuoto():
+
+    try:
+
+        utenti = pd.read_sql(
+            """
+            SELECT COUNT(*) AS totale
+            FROM utenti
+            """,
+            conn
+        ).iloc[0]["totale"]
+
+        corsi = pd.read_sql(
+            """
+            SELECT COUNT(*) AS totale
+            FROM corsi
+            """,
+            conn
+        ).iloc[0]["totale"]
+
+        bambini = pd.read_sql(
+            """
+            SELECT COUNT(*) AS totale
+            FROM bambini
+            """,
+            conn
+        ).iloc[0]["totale"]
+
+        return (
+            utenti == 0
+            and corsi == 0
+            and bambini == 0
+        )
+
+    except Exception:
+
+        return True
+
+def ripristino_iniziale_da_github():
+
+    if database_vuoto():
+
+        if scarica_backup_github():
+
+            ripristina_backup_locale()
+
+def backup_giornaliero_github():
+
+    oggi = datetime.today().strftime(
+        "%Y-%m-%d"
+    )
+
+    df = pd.read_sql(
+        """
+        SELECT valore
+        FROM sistema
+        WHERE chiave = 'ultimo_backup_github'
+        """,
+        conn
+    )
+
+    if (
+        df.empty
+        or df.iloc[0]["valore"] != oggi
+    ):
+
+        ok = upload_backup_github(
+            mostra_messaggio=False
+        )
+
+        if ok:
+
+            c.execute(
+                """
+                INSERT OR REPLACE INTO sistema(
+                    chiave,
+                    valore
+                )
+                VALUES(?,?)
+                """,
+                (
+                    "ultimo_backup_github",
+                    oggi
+                )
+            )
+
+            conn.commit()
+
+            upload_backup_github(
+                    mostra_messaggio=False
+                )
 
 def migra_giorni_corsi_vecchi():
 
@@ -334,6 +706,10 @@ def migra_giorni_corsi_vecchi():
             )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 migra_giorni_corsi_vecchi()
@@ -390,6 +766,10 @@ def crea_manager_default():
 
         conn.commit()
 
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+
 
 crea_manager_default()
 
@@ -420,6 +800,10 @@ def aggiungi_stagione(nome):
     )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 # ============================================================
 # FUNZIONI UTENTI
@@ -559,6 +943,10 @@ def aggiungi_istruttore(email, nome):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
     return password_generata
 
 def aggiorna_password_utente(
@@ -589,6 +977,10 @@ def aggiorna_password_utente(
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
 
 def cambia_stato_utente(utente_id, attivo):
 
@@ -605,6 +997,10 @@ def cambia_stato_utente(utente_id, attivo):
     )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 def login():
@@ -851,6 +1247,10 @@ def aggiungi_corso(nome, livello, stagione):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
     return c.lastrowid
 
 def salva_giorni_corso(corso_id, giorni_orari):
@@ -891,6 +1291,10 @@ def salva_giorni_corso(corso_id, giorni_orari):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
 def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
 
     c.execute(
@@ -912,6 +1316,10 @@ def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
     )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 def elimina_corso(corso_id):
@@ -958,6 +1366,10 @@ def elimina_corso(corso_id):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
 def giorno_settimana_italiano(data_evento):
 
     giorni = {
@@ -1000,6 +1412,10 @@ def assegna_istruttore(istruttore_id, corso_id, data_specifica=None):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
 
 def get_assegnazioni():
 
@@ -1035,6 +1451,10 @@ def elimina_assegnazione(assegnazione_id):
     )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 def istruttore_abilitato_corso_data(istruttore_id, corso_id, data_evento):
@@ -1199,6 +1619,10 @@ def aggiungi_bambino(nome, cognome, data_nascita, corso_id, note):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
 
 def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
 
@@ -1224,6 +1648,10 @@ def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
 
     conn.commit()
 
+    upload_backup_github(
+            mostra_messaggio=False
+        )
+
 
 def elimina_bambino(bambino_id):
 
@@ -1244,6 +1672,10 @@ def elimina_bambino(bambino_id):
     )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 # ============================================================
@@ -1303,6 +1735,10 @@ def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
     )
 
     conn.commit()
+
+    upload_backup_github(
+            mostra_messaggio=False
+        )
 
 
 def storico_presenze():
@@ -1381,10 +1817,18 @@ def backup_giornaliero():
         )
 
         conn.commit()
+
+        upload_backup_github(
+                mostra_messaggio=False
+            )
         
 # ============================================================
 # INTERFACCIA
 # ============================================================
+
+ripristino_iniziale_da_github()
+
+backup_giornaliero_github()
 
 st.title("🏊 Statino Presenze Corsi di Nuoto")
 
@@ -2757,58 +3201,102 @@ with tab_storico:
         
     if is_manager():
 
-        with tab_backup:        
-            st.header("💾 Backup e Ripristino")
-        
+        with tab_backup:
+    
+            st.header("💾 Backup GitHub")
+    
+            st.info(
+                "Il backup contiene istruttori, password, corsi, bambini, assegnazioni, presenze e stagioni."
+            )
+    
             if st.button(
-                "💾 Crea backup"
+                "💾 Salva backup su GitHub"
             ):
-        
-                crea_backup()
-        
-                st.success(
-                    "Backup creato correttamente."
+    
+                upload_backup_github(
+                    mostra_messaggio=True
                 )
-
+    
+            st.markdown("---")
+    
             if os.path.exists(
                 "backup_completo.json"
             ):
-            
-                 with open(
+    
+                with open(
                     "backup_completo.json",
                     "rb"
                 ) as f:
-            
+    
                     st.download_button(
-                        "📥 Scarica backup",
+                        "📥 Scarica backup JSON",
                         f,
                         file_name="backup_completo.json",
                         mime="application/json"
                     )
-
+    
+            st.markdown("---")
+    
+            st.subheader("📤 Carica backup manuale")
+    
             uploaded_file = st.file_uploader(
-                "Carica backup",
+                "Carica file backup_completo.json",
                 type=["json"]
             )
-
-            if uploaded_file:
-                    with open(
-                        "backup_completo.json",
-                        "wb"
-                    ) as f:
-        
-                        f.write(
-                            uploaded_file.getbuffer()
-                        )
-        
-                    if st.button(
-                        "♻️ Ripristina backup"
-                    ):
-        
-                        ripristina_backup()
-        
+    
+            if uploaded_file is not None:
+    
+                with open(
+                    "backup_completo.json",
+                    "wb"
+                ) as f:
+    
+                    f.write(
+                        uploaded_file.getbuffer()
+                    )
+    
+                if st.button(
+                    "♻️ Ripristina backup caricato"
+                ):
+    
+                    if ripristina_backup_locale():
+    
                         st.success(
-                            "Backup ripristinato."
+                            "Backup ripristinato correttamente."
                         )
-        
+    
+                        upload_backup_github(
+                            mostra_messaggio=True
+                        )
+    
                         st.rerun()
+    
+                    else:
+    
+                        st.error(
+                            "Impossibile ripristinare il backup."
+                        )
+    
+            st.markdown("---")
+    
+            st.subheader("☁️ Ripristino da GitHub")
+    
+            if st.button(
+                "📥 Scarica e ripristina backup da GitHub"
+            ):
+    
+                if scarica_backup_github():
+    
+                    ripristina_backup_locale()
+    
+                    st.success(
+                        "Backup scaricato da GitHub e ripristinato."
+                    )
+    
+                    st.rerun()
+    
+                else:
+    
+                    st.error(
+                        "Nessun backup trovato su GitHub oppure accesso non riuscito."
+                    )
