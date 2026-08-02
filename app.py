@@ -158,6 +158,25 @@ CREATE TABLE IF NOT EXISTS stagioni (
 )
 """)
 
+c.execute(
+        """
+        DELETE FROM assegnazioni_istruttori
+        WHERE istruttore_id = ?
+        """,
+        (istruttore_id,)
+    )
+
+    c.execute(
+        """
+        DELETE FROM utenti
+        WHERE id = ?
+        """,
+        (istruttore_id,)
+    )
+
+    conn.commit()
+    
+
 try:
 
     c.execute(
@@ -1760,24 +1779,6 @@ with tab_stagioni:
     istruttore_id
 ):
 
-    c.execute(
-        """
-        DELETE FROM assegnazioni_istruttori
-        WHERE istruttore_id = ?
-        """,
-        (istruttore_id,)
-    )
-
-    c.execute(
-        """
-        DELETE FROM utenti
-        WHERE id = ?
-        """,
-        (istruttore_id,)
-    )
-
-    conn.commit()
-    
 # ============================================================
 # TAB CORSI
 # ============================================================
