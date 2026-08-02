@@ -9,6 +9,16 @@
             "salt": "203862bb63b2cddfe8f346eb2bafafd7",
             "attivo": 1,
             "password_visibile": null
+        },
+        {
+            "id": 113,
+            "username": "gabriele",
+            "nome": "Manager",
+            "ruolo": "manager",
+            "password_hash": "b95599adeccc6f47ac84898bd6b1baf89f8c6c6b860e8566b4accf1a539fb162",
+            "salt": "f58c8226a4e06dc8bad458ac92f4778e",
+            "attivo": 1,
+            "password_visibile": null
         }
     ],
     "corsi": [
