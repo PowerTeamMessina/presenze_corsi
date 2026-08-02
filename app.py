@@ -828,8 +828,8 @@ def get_corsi_visibili_per_utente(data_evento=None):
         query = f"""
             SELECT DISTINCT
                 c.*,
-                cg.giorno AS gi*rno_lezione,
-                cg.or*rio AS orario_lezione
+                cg.giorno AS giorno_lezione,
+                cg.orario AS orario_lezione
             FROM corsi c
             JOIN corso_giorni cg
                 ON cg.corso_id = c.id
@@ -870,7 +870,11 @@ def get_corsi_visibili_per_utente(data_evento=None):
             ORDER BY c.nome, cg.ordine, cg.giorno, cg.orario
         """
 
-        data_str = str(data_evento) if data_evento is not None else None
+        data_str = (
+            str(data_evento)
+            if data_evento is not None
+            else None
+        )
 
         params = (
             [istruttore_id]
