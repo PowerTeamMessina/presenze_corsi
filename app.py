@@ -264,6 +264,9 @@ crea_manager_default()
 
 def get_utenti():
 
+    st.code(query)
+    st.write(params_extra)
+
     return pd.read_sql(
         """
         SELECT
