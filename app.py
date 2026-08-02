@@ -393,10 +393,10 @@ def upload_backup_github(
         url,
         headers=headers
     )
-
+    
     if risposta.status_code == 200:
-
-        sha = risposta.json()["sha"]
+    
+        sha = risposta.json().get("sha")
 
     payload = {
         "message": "Aggiornamento backup completo gestionale",
@@ -407,11 +407,31 @@ def upload_backup_github(
 
         payload["sha"] = sha
 
-    upload = requests.put(
-        url,
-        headers=headers,
-        json=payload
-    )
+        upload = requests.put(
+            url,
+            headers=headers,
+            json=payload
+        )
+        
+        # se qualcuno ha aggiornato il file prima di noi
+        # recuperiamo il nuovo sha e riproviamo
+        
+        if upload.status_code == 409:
+        
+            risposta = requests.get(
+                url,
+                headers=headers
+            )
+        
+            if risposta.status_code == 200:
+        
+                payload["sha"] = risposta.json()["sha"]
+        
+                upload = requests.put(
+                    url,
+                    headers=headers,
+                    json=payload
+                )
 
     if upload.status_code in [200, 201]:
 
