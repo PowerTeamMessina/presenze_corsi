@@ -174,8 +174,7 @@ c.execute(
     (istruttore_id,)
 )
 
-    conn.commit()
-    
+conn.commit()    
 
 try:
 
