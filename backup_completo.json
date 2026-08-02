@@ -11,12 +11,12 @@
             "password_visibile": null
         },
         {
-            "id": 97,
+            "id": 98,
             "username": "gabriele",
             "nome": "Manager",
             "ruolo": "manager",
-            "password_hash": "a159633c1bb4ee8aff700113d98ee4fa275b494ffa812113dd0bef8e41f411b6",
-            "salt": "57e46217ee717df2f6b603b8d79e2f09",
+            "password_hash": "2aeae4e922ed5a95d2e6a8df0ec6c1e50eba20cc845dedc8daf0397fa61eb3da",
+            "salt": "1268b12e6a8d39c24db78ae58070723b",
             "attivo": 1,
             "password_visibile": null
         }
