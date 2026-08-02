@@ -1837,27 +1837,6 @@ if is_manager():
                     )
                 )
 
-                col_giorno, col_orario = st.columns(2)
-
-                giorno = col_giorno.selectbox(
-                    f"Giorno {i + 1}",
-                    giorni_settimana,
-                    key=f"nuovo_giorno_{i}"
-                )
-
-                orario = col_orario.text_input(
-                    f"Orario {i + 1}",
-                    placeholder="es. 16:00-17:00",
-                    key=f"nuovo_orario_{i}"
-                )
-
-                giorni_orari.append(
-                    (
-                        giorno,
-                        orario
-                    )
-                )
-
             crea = st.form_submit_button(
                 "➕ Crea corso"
             )
