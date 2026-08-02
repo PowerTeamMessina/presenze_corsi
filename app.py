@@ -3017,32 +3017,35 @@ if is_manager():
                     )
 
             st.markdown("---")
-                    
+
+            st.subheader("🗑️ Elimina istruttore")
+            
             conferma_elimina = st.checkbox(
                 f"Confermo eliminazione di {dettagli['nome']}",
-                key=f"conferma_elimina_{istruttore_id}"
+                key=f"elimina_{istruttore_id}"
             )
-                                
+            
             if st.button(
-                "🗑️ Elimina istruttore"
+                "🗑️ Elimina istruttore",
+                key=f"btn_elimina_{istruttore_id}"
             ):
-                    
+            
                 if not conferma_elimina:
-                    
+            
                     st.error(
-                        "Devi confermare."
+                        "Devi confermare l'eliminazione."
                     )
-                    
+            
                 else:
-                    
+            
                     elimina_istruttore(
                         istruttore_id
                     )
-                    
+            
                     st.success(
                         "Istruttore eliminato."
                     )
-                    
+            
                     st.rerun()
 
 
