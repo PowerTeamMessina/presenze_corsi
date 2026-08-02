@@ -1653,30 +1653,36 @@ if is_manager():
                     orario.strip() == ""
                     for _, orario in giorni_orari
                 ):
-
-                elif len(set(giorno for giorno, _ in giorni_orari)) != len(giorni_orari):
-
+                
+                    st.error(
+                        "Inserisci tutti gli orari."
+                    )
+                
+                elif len(
+                    set(giorno for giorno, _ in giorni_orari)
+                ) != len(giorni_orari):
+                
                     st.error(
                         "Non puoi inserire due volte lo stesso giorno nello stesso corso."
                     )
-
+                
                 else:
-
+                
                     corso_id = aggiungi_corso(
                         nome.strip(),
                         livello.strip(),
                         stagione.strip()
                     )
-
+                
                     salva_giorni_corso(
                         corso_id,
                         giorni_orari
                     )
-
+                
                     st.success(
                         "Corso creato correttamente."
                     )
-
+                
                     st.rerun()
 
         st.markdown("---")
