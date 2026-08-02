@@ -166,13 +166,13 @@ c.execute(
         (istruttore_id,)
     )
 
-    c.execute(
-        """
-        DELETE FROM utenti
-        WHERE id = ?
-        """,
-        (istruttore_id,)
-    )
+c.execute(
+    """
+    DELETE FROM utenti
+    WHERE id = ?
+    """,
+    (istruttore_id,)
+)
 
     conn.commit()
     
