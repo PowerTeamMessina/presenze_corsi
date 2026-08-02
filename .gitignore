@@ -1,0 +1,20 @@
+# database
+*.db
+*.sqlite
+*.sqlite3
+
+# backup
+*.json
+
+# streamlit
+.streamlit/secrets.toml
+
+# python
+__pycache__/
+*.pyc
+
+# mac
+.DS_Store
+
+# vscode
+.vscode/
