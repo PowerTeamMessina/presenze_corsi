@@ -86,6 +86,19 @@ CREATE TABLE IF NOT EXISTS corsi (
 """)
 
 c.execute("""
+CREATE TABLE IF NOT EXISTS corso_giorni (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    corso_id INTEGER NOT NULL,
+    giorno TEXT NOT NULL,
+    orario TEXT NOT NULL,
+    ordine INTEGER DEFAULT 1,
+    FOREIGN KEY(corso_id) REFERENCES corsi(id)
+)
+""")
+
+conn.commit()
+
+c.execute("""
 CREATE TABLE IF NOT EXISTS bambini (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
@@ -136,6 +149,58 @@ WHERE ruolo='manager'
 """)
 
 conn.commit()
+
+# ============================================================
+# MIGRAZIONE CORSI VECCHI
+# ============================================================
+
+def migra_giorni_corsi_vecchi():
+
+    corsi_vecchi = pd.read_sql(
+        """
+        SELECT id, giorno, orario
+        FROM corsi
+        WHERE giorno IS NOT NULL
+        AND giorno != ''
+        """,
+        conn
+    )
+
+    for _, row in corsi_vecchi.iterrows():
+
+        esiste = pd.read_sql(
+            """
+            SELECT *
+            FROM corso_giorni
+            WHERE corso_id = ?
+            """,
+            conn,
+            params=(int(row["id"]),)
+        )
+
+        if esiste.empty:
+
+            c.execute(
+                """
+                INSERT INTO corso_giorni(
+                    corso_id,
+                    giorno,
+                    orario,
+                    ordine
+                )
+                VALUES(?,?,?,1)
+                """,
+                (
+                    int(row["id"]),
+                    row["giorno"],
+                    row["orario"] if pd.notna(row["orario"]) else ""
+                )
+            )
+
+    conn.commit()
+
+
+migra_giorni_corsi_vecchi()
 
 # ============================================================
 # CREAZIONE MANAGER DEFAULT
@@ -425,7 +490,7 @@ def get_corsi(attivi_solo=True):
         query += " WHERE attivo = 1"
 
     query += """
-        ORDER BY stagione, giorno, orario, nome
+        ORDER BY stagione, nome
     """
 
     return pd.read_sql(
@@ -433,6 +498,58 @@ def get_corsi(attivi_solo=True):
         conn
     )
 
+def get_giorni_corso(corso_id):
+
+    return pd.read_sql(
+        """
+        SELECT *
+        FROM corso_giorni
+        WHERE corso_id = ?
+        ORDER BY ordine, giorno, orario
+        """,
+        conn,
+        params=(corso_id,)
+    )
+
+
+def descrizione_giorni_corso(corso_id):
+
+    giorni = get_giorni_corso(corso_id)
+
+    if giorni.empty:
+        return "Nessun giorno assegnato"
+
+    testi = []
+
+    for _, row in giorni.iterrows():
+
+        testi.append(
+            f"{row['giorno']} {row['orario']}"
+        )
+
+    return " | ".join(testi)
+
+
+def get_corsi_con_giorni(attivi_solo=True):
+
+    corsi = get_corsi(attivi_solo=attivi_solo)
+
+    if corsi.empty:
+        return corsi
+
+    descrizioni = []
+
+    for _, row in corsi.iterrows():
+
+        descrizioni.append(
+            descrizione_giorni_corso(
+                int(row["id"])
+            )
+        )
+
+    corsi["giorni_orari"] = descrizioni
+
+    return corsi
 
 def get_corso_by_id(corso_id):
 
@@ -447,7 +564,7 @@ def get_corso_by_id(corso_id):
     )
 
 
-def aggiungi_corso(nome, livello, giorno, orario, stagione):
+def aggiungi_corso(nome, livello, stagione):
 
     c.execute(
         """
@@ -464,24 +581,61 @@ def aggiungi_corso(nome, livello, giorno, orario, stagione):
         (
             nome,
             livello,
-            giorno,
-            orario,
+            "",
+            "",
             stagione
         )
     )
 
     conn.commit()
 
+    return c.lastrowid
 
-def aggiorna_corso(corso_id, nome, livello, giorno, orario, stagione, attivo):
+def salva_giorni_corso(corso_id, giorni_orari):
+
+    c.execute(
+        """
+        DELETE FROM corso_giorni
+        WHERE corso_id = ?
+        """,
+        (corso_id,)
+    )
+
+    ordine = 1
+
+    for giorno, orario in giorni_orari:
+
+        if giorno.strip() != "" and orario.strip() != "":
+
+            c.execute(
+                """
+                INSERT INTO corso_giorni(
+                    corso_id,
+                    giorno,
+                    orario,
+                    ordine
+                )
+                VALUES(?,?,?,?)
+                """,
+                (
+                    corso_id,
+                    giorno.strip(),
+                    orario.strip(),
+                    ordine
+                )
+            )
+
+            ordine += 1
+
+    conn.commit()
+
+def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
 
     c.execute(
         """
         UPDATE corsi
         SET nome = ?,
             livello = ?,
-            giorno = ?,
-            orario = ?,
             stagione = ?,
             attivo = ?
         WHERE id = ?
@@ -489,8 +643,6 @@ def aggiorna_corso(corso_id, nome, livello, giorno, orario, stagione, attivo):
         (
             nome,
             livello,
-            giorno,
-            orario,
             stagione,
             int(attivo),
             corso_id
@@ -528,6 +680,14 @@ def elimina_corso(corso_id):
 
     c.execute(
         """
+        DELETE FROM corso_giorni
+        WHERE corso_id = ?
+        """,
+        (corso_id,)
+    )
+
+    c.execute(
+        """
         DELETE FROM corsi
         WHERE id = ?
         """,
@@ -536,7 +696,20 @@ def elimina_corso(corso_id):
 
     conn.commit()
 
+def giorno_settimana_italiano(data_evento):
 
+    giorni = {
+        0: "Lunedì",
+        1: "Martedì",
+        2: "Mercoledì",
+        3: "Giovedì",
+        4: "Venerdì",
+        5: "Sabato",
+        6: "Domenica"
+    }
+
+    return giorni[pd.Timestamp(data_evento).weekday()]
+    
 # ============================================================
 # FUNZIONI ASSEGNAZIONI
 # ============================================================
@@ -631,51 +804,81 @@ def istruttore_abilitato_corso_data(istruttore_id, corso_id, data_evento):
 
 def get_corsi_visibili_per_utente(data_evento=None):
 
+    filtro_giorno = ""
+
+    params_extra = []
+
+    if data_evento is not None:
+
+        giorno_evento = giorno_settimana_italiano(
+            data_evento
+        )
+
+        filtro_giorno = """
+            AND cg.giorno = ?
+        """
+
+        params_extra.append(giorno_evento)
+
     if is_manager():
 
-        return get_corsi(attivi_solo=True)
+        query = f"""
+            SELECT DISTINCT
+                c.*,
+                cg.giorno AS gi*rno_lezione,
+                cg.or*rio AS orario_lezione
+            FROM corsi c
+            JOIN corso_giorni cg
+                ON cg.corso_id = c.id
+            WHERE c.attivo = 1
+            {filtro_giorno}
+            ORDER BY c.nome, cg.ordine, cg.giorno, cg.orario
+        """
+
+        return pd.read_sql(
+            query,
+            conn,
+            params=tuple(params_extra)
+        )
 
     if is_istruttore():
 
         istruttore_id = st.session_state.utente_id
 
-        if data_evento is None:
-
-            return pd.read_sql(
-                """
-                SELECT DISTINCT c.*
-                FROM corsi c
-                JOIN assegnazioni_istruttori ai
-                    ON ai.corso_id = c.id
-                WHERE ai.istruttore_id = ?
-                AND ai.attiva = 1
-                AND c.attivo = 1
-                ORDER BY c.giorno, c.orario, c.nome
-                """,
-                conn,
-                params=(istruttore_id,)
-            )
-
-        return pd.read_sql(
-            """
-            SELECT DISTINCT c.*
+        query = f"""
+            SELECT DISTINCT
+                c.*,
+                cg.giorno AS giorno_lezione,
+                cg.orario AS orario_lezione
             FROM corsi c
+            JOIN corso_giorni cg
+                ON cg.corso_id = c.id
             JOIN assegnazioni_istruttori ai
                 ON ai.corso_id = c.id
             WHERE ai.istruttore_id = ?
             AND ai.attiva = 1
             AND c.attivo = 1
+            {filtro_giorno}
             AND (
                 ai.data_specifica IS NULL
                 OR ai.data_specifica = ?
+                OR ? IS NULL
             )
-            ORDER BY c.giorno, c.orario, c.nome
-            """,
+            ORDER BY c.nome, cg.ordine, cg.giorno, cg.orario
+        """
+
+        data_str = str(data_evento) if data_evento is not None else None
+
+        params = (
+            [istruttore_id]
+            + params_extra
+            + [data_str, data_str]
+        )
+
+        return pd.read_sql(
+            query,
             conn,
-            params=(
-                istruttore_id,
-                str(data_evento)
-            )
+            params=tuple(params)
         )
 
     return pd.DataFrame()
@@ -953,8 +1156,12 @@ with tab_presenze:
 
     else:
 
+        corsi_visibili = get_corsi_con_giorni(
+            attivi_solo=True
+        ) if is_manager() else get_corsi_visibili_per_utente()
+        
         opzioni_corsi = {
-            f"{row['nome']} | {row['giorno']} | {row['orario']}": int(row["id"])
+            f"{row['nome']} | {row.get('giorni_orari', row.get('giorno_lezione', ''))}": int(row["id"])
             for _, row in corsi_visibili.iterrows()
         }
 
@@ -1329,6 +1536,20 @@ if is_manager():
 
         st.header("🏊 Gestione corsi")
 
+        giorni_settimana = [
+            "Lunedì",
+            "Martedì",
+            "Mercoledì",
+            "Giovedì",
+            "Venerdì",
+            "Sabato",
+            "Domenica"
+        ]
+
+        # =====================================================
+        # NUOVO CORSO
+        # =====================================================
+
         st.subheader("➕ Nuovo corso")
 
         with st.form(
@@ -1346,28 +1567,45 @@ if is_manager():
                 placeholder="es. Principianti"
             )
 
-            giorno = st.selectbox(
-                "Giorno",
-                [
-                    "Lunedì",
-                    "Martedì",
-                    "Mercoledì",
-                    "Giovedì",
-                    "Venerdì",
-                    "Sabato",
-                    "Domenica"
-                ]
-            )
-
-            orario = st.text_input(
-                "Orario",
-                placeholder="es. 16:00-17:00"
-            )
-
             stagione = st.text_input(
                 "Stagione",
                 value="2026/2027"
             )
+
+            numero_giorni = st.number_input(
+                "Numero giorni settimanali",
+                min_value=1,
+                max_value=5,
+                value=1,
+                step=1
+            )
+
+            giorni_orari = []
+
+            st.markdown("### Giorni e orari")
+
+            for i in range(int(numero_giorni)):
+
+                col_giorno, col_orario = st.columns(2)
+
+                giorno = col_giorno.selectbox(
+                    f"Giorno {i + 1}",
+                    giorni_settimana,
+                    key=f"nuovo_giorno_{i}"
+                )
+
+                orario = col_orario.text_input(
+                    f"Orario {i + 1}",
+                    placeholder="es. 16:00-17:00",
+                    key=f"nuovo_orario_{i}"
+                )
+
+                giorni_orari.append(
+                    (
+                        giorno,
+                        orario
+                    )
+                )
 
             crea = st.form_submit_button(
                 "➕ Crea corso"
@@ -1381,14 +1619,29 @@ if is_manager():
                         "Inserisci il nome del corso."
                     )
 
+                elif any(orario.strip() == "" for _, orario in giorni_orari):
+
+                    st.error(
+                        "Inserisci tutti gli orari."
+                    )
+
+                elif len(set(giorno for giorno, _ in giorni_orari)) != len(giorni_orari):
+
+                    st.error(
+                        "Non puoi inserire due volte lo stesso giorno nello stesso corso."
+                    )
+
                 else:
 
-                    aggiungi_corso(
+                    corso_id = aggiungi_corso(
                         nome.strip(),
                         livello.strip(),
-                        giorno,
-                        orario.strip(),
                         stagione.strip()
+                    )
+
+                    salva_giorni_corso(
+                        corso_id,
+                        giorni_orari
                     )
 
                     st.success(
@@ -1399,10 +1652,14 @@ if is_manager():
 
         st.markdown("---")
 
+        # =====================================================
+        # LISTA CORSI
+        # =====================================================
+
         st.subheader("📋 Corsi presenti")
 
-        corsi = get_corsi(
-            attivi_solo=False
+        corsi = get_corsi_con_giorni(
+            attivi_solo=True
         )
 
         if corsi.empty:
@@ -1414,17 +1671,30 @@ if is_manager():
         else:
 
             st.dataframe(
-                corsi,
+                corsi[
+                    [
+                        "id",
+                        "nome",
+                        "livello",
+                        "stagione",
+                        "giorni_orari",
+                        "attivo"
+                    ]
+                ],
                 use_container_width=True,
                 hide_index=True
             )
 
             st.markdown("---")
 
+            # =====================================================
+            # MODIFICA CORSO
+            # =====================================================
+
             st.subheader("✏️ Modifica corso")
 
             opzioni_corsi = {
-                f"{row['nome']} | {row['giorno']} | {row['orario']}": int(row["id"])
+                f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
                 for _, row in corsi.iterrows()
             }
 
@@ -1442,80 +1712,144 @@ if is_manager():
 
             nuovo_nome = st.text_input(
                 "Nome corso",
-                value=dati_corso["nome"]
+                value=dati_corso["nome"],
+                key="mod_nome_corso"
             )
 
             nuovo_livello = st.text_input(
                 "Livello",
-                value=dati_corso["livello"] if pd.notna(dati_corso["livello"]) else ""
-            )
-
-            nuovo_giorno = st.selectbox(
-                "Giorno",
-                [
-                    "Lunedì",
-                    "Martedì",
-                    "Mercoledì",
-                    "Giovedì",
-                    "Venerdì",
-                    "Sabato",
-                    "Domenica"
-                ],
-                index=[
-                    "Lunedì",
-                    "Martedì",
-                    "Mercoledì",
-                    "Giovedì",
-                    "Venerdì",
-                    "Sabato",
-                    "Domenica"
-                ].index(dati_corso["giorno"])
-                if dati_corso["giorno"] in [
-                    "Lunedì",
-                    "Martedì",
-                    "Mercoledì",
-                    "Giovedì",
-                    "Venerdì",
-                    "Sabato",
-                    "Domenica"
-                ]
-                else 0
-            )
-
-            nuovo_orario = st.text_input(
-                "Orario",
-                value=dati_corso["orario"] if pd.notna(dati_corso["orario"]) else ""
+                value=dati_corso["livello"] if pd.notna(dati_corso["livello"]) else "",
+                key="mod_livello_corso"
             )
 
             nuova_stagione = st.text_input(
                 "Stagione",
-                value=dati_corso["stagione"] if pd.notna(dati_corso["stagione"]) else ""
+                value=dati_corso["stagione"] if pd.notna(dati_corso["stagione"]) else "",
+                key="mod_stagione_corso"
             )
 
             nuovo_attivo = st.checkbox(
                 "Corso attivo",
-                value=bool(dati_corso["attivo"])
+                value=bool(dati_corso["attivo"]),
+                key="mod_attivo_corso"
             )
+
+            giorni_attuali = get_giorni_corso(
+                corso_id
+            )
+
+            numero_giorni_attuale = max(
+                1,
+                min(
+                    5,
+                    len(giorni_attuali)
+                )
+            )
+
+            nuovo_numero_giorni = st.number_input(
+                "Numero giorni settimanali",
+                min_value=1,
+                max_value=5,
+                value=numero_giorni_attuale,
+                step=1,
+                key="mod_numero_giorni"
+            )
+
+            nuovi_giorni_orari = []
+
+            st.markdown("### Giorni e orari del corso")
+
+            for i in range(int(nuovo_numero_giorni)):
+
+                if i < len(giorni_attuali):
+
+                    giorno_default = giorni_attuali.iloc[i]["giorno"]
+
+                    orario_default = giorni_attuali.iloc[i]["orario"]
+
+                else:
+
+                    giorno_default = "Lunedì"
+                    orario_default = ""
+
+                indice_giorno = (
+                    giorni_settimana.index(giorno_default)
+                    if giorno_default in giorni_settimana
+                    else 0
+                )
+
+                col_giorno, col_orario = st.columns(2)
+
+                giorno = col_giorno.selectbox(
+                    f"Giorno {i + 1}",
+                    giorni_settimana,
+                    index=indice_giorno,
+                    key=f"mod_giorno_{corso_id}_{i}"
+                )
+
+                orario = col_orario.text_input(
+                    f"Orario {i + 1}",
+                    value=orario_default,
+                    key=f"mod_orario_{corso_id}_{i}"
+                )
+
+                nuovi_giorni_orari.append(
+                    (
+                        giorno,
+                        orario
+                    )
+                )
 
             if st.button(
                 "💾 Aggiorna corso"
             ):
 
-                aggiorna_corso(
-                    corso_id,
-                    nuovo_nome.strip(),
-                    nuovo_livello.strip(),
-                    nuovo_giorno,
-                    nuovo_orario.strip(),
-                    nuova_stagione.strip(),
-                    nuovo_attivo
-                )
+                if nuovo_nome.strip() == "":
 
-                st.success(
-                    "Corso aggiornato."
-                )
+                    st.error(
+                        "Il nome del corso non può essere vuoto."
+                    )
 
-                st.rerun()
+                elif any(orario.strip() == "" for _, orario in nuovi_giorni_orari):
+
+                    st.error(
+                        "Inserisci tutti gli orari."
+                    )
+
+                elif len(set(giorno for giorno, _ in nuovi_giorni_orari)) != len(nuovi_giorni_orari):
+
+                    st.error(
+                        "Non puoi inserire due volte lo stesso giorno nello stesso corso."
+                    )
+
+                else:
+
+                    aggiorna_corso(
+                        corso_id,
+                        nuovo_nome.strip(),
+                        nuovo_livello.strip(),
+                        nuova_stagione.strip(),
+                        nuovo_attivo
+                    )
+
+                    salva_giorni_corso(
+                        corso_id,
+                        nuovi_giorni_orari
+                    )
+
+                    st.success(
+                        "Corso aggiornato correttamente."
+                    )
+
+                    st.rerun()
+
+            st.markdown("---")
+
+            # =====================================================
+            # ELIMINA CORSO
+            # =====================================================
+
+            st.subheader("🗑️ Elimina corso")
 
             conferma_elimina_corso = st.checkbox(
                 "Confermo eliminazione definitiva corso"
@@ -1738,8 +2072,8 @@ if is_manager():
             }
 
             opzioni_corsi = {
-                f"{row['nome']} | {row['giorno']} | {row['orario']}": int(row["id"])
-                for _, row in corsi.iterrows()
+                f"{row['nome']} | {row['giorno_lezione']} | {row['orario_lezione']}": int(row["id"])
+                for _, row in corsi_visibili.iterrows()
             }
 
             istruttore_label = st.selectbox(
