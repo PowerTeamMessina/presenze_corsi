@@ -158,6 +158,21 @@ CREATE TABLE IF NOT EXISTS stagioni (
 )
 """)
 
+try:
+
+    c.execute(
+        """
+        ALTER TABLE utenti
+        ADD COLUMN password_visibile TEXT
+        """
+    )
+
+    conn.commit()
+
+except:
+
+    pass
+
 conn.commit()
 
 # ============================================================
@@ -416,16 +431,18 @@ def aggiungi_istruttore(email, nome):
             ruolo,
             password_hash,
             salt,
+            password_visibile,
             attivo
         )
-        VALUES(?,?,?,?,?,1)
+        VALUES(?,?,?,?,?,?,1)
         """,
         (
             email.strip().lower(),
             nome.strip(),
             "istruttore",
             password_hash,
-            salt
+            salt,
+            password_generata
         )
     )
 
@@ -433,20 +450,28 @@ def aggiungi_istruttore(email, nome):
 
     return password_generata
 
-def aggiorna_password_utente(utente_id, nuova_password):
+def aggiorna_password_utente(
+    utente_id,
+    nuova_password
+):
 
-    password_hash, salt = hash_password(nuova_password)
+    password_hash, salt = hash_password(
+        nuova_password
+    )
 
     c.execute(
         """
         UPDATE utenti
-        SET password_hash = ?,
-            salt = ?
+        SET
+            password_hash = ?,
+            salt = ?,
+            password_visibile = ?
         WHERE id = ?
         """,
         (
             password_hash,
             salt,
+            nuova_password,
             utente_id
         )
     )
@@ -1730,6 +1755,28 @@ with tab_stagioni:
         use_container_width=True,
         hide_index=True
     )
+
+  def elimina_istruttore(
+    istruttore_id
+):
+
+    c.execute(
+        """
+        DELETE FROM assegnazioni_istruttori
+        WHERE istruttore_id = ?
+        """,
+        (istruttore_id,)
+    )
+
+    c.execute(
+        """
+        DELETE FROM utenti
+        WHERE id = ?
+        """,
+        (istruttore_id,)
+    )
+
+    conn.commit()
     
 # ============================================================
 # TAB CORSI
@@ -2243,10 +2290,19 @@ if is_manager():
 
         else:
 
-            istruttori_visibili = istruttori.rename(
-                columns={
-                    "username": "email"
-                }
+            istruttori_visibili = pd.read_sql(
+                """
+                SELECT
+                    id,
+                    nome,
+                    username AS email,
+                    password_visibile,
+                    attivo
+                FROM utenti
+                WHERE ruolo='istruttore'
+                ORDER BY nome
+                """,
+                conn
             )
             
             st.dataframe(
@@ -2276,11 +2332,51 @@ if is_manager():
                 istruttori["id"] == istruttore_id
             ].iloc[0]
 
+            dettagli = pd.read_sql(
+                """
+                SELECT *
+                FROM utenti
+                WHERE id = ?
+                """,
+                conn,
+                params=(istruttore_id,)
+            ).iloc[0]
+
             attivo = st.checkbox(
                 "Account attivo",
                 value=bool(dati_istruttore["attivo"]),
                 key="stato_istruttore"
             )
+
+            st.text_input(
+                "Email",
+                value=dettagli["username"],
+                disabled=True
+            )
+
+            st.text_input(
+                "Password corrente",
+                value=dettagli["password_visibile"]
+                    if pd.notna(
+                        dettagli["password_visibile"]
+                    )
+                    else "",
+                disabled=True
+            )
+
+            if st.button(
+                "📧 Reinvia credenziali"
+            ):
+            
+                invia_credenziali_istruttore_email(
+                    dettagli["username"],
+                    dettagli["nome"],
+                    dettagli["password_visibile"]
+                )
+            
+                st.success(
+                    "Credenziali inviate."
+                )
 
             if st.button(
                 "💾 Aggiorna stato account"
@@ -2324,7 +2420,33 @@ if is_manager():
                         "Password aggiornata."
                     )
 
-                    st.rerun()
+                    st.markdown("---")
+                    
+                    conferma_elimina = st.checkbox(
+                        "Confermo eliminazione istruttore"
+                    )
+                    
+                    if st.button(
+                        "🗑️ Elimina istruttore"
+                    ):
+                    
+                        if not conferma_elimina:
+                    
+                            st.error(
+                                "Devi confermare."
+                            )
+                    
+                        else:
+                    
+                            elimina_istruttore(
+                                istruttore_id
+                            )
+                    
+                            st.success(
+                                "Istruttore eliminato."
+                            )
+                    
+                            st.rerun()
 
 
 # ============================================================
