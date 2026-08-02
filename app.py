@@ -482,23 +482,41 @@ def is_loggato():
 # FUNZIONI CORSI
 # ============================================================
 
-def get_corsi(attivi_solo=True):
+def get_corsi(
+    attivi_solo=True,
+    stagione=None
+):
 
     query = """
         SELECT *
         FROM corsi
+        WHERE 1=1
     """
 
+    params = []
+
     if attivi_solo:
-        query += " WHERE attivo = 1"
+
+        query += """
+            AND attivo = 1
+        """
+
+    if stagione is not None:
+
+        query += """
+            AND stagione = ?
+        """
+
+        params.append(stagione)
 
     query += """
-        ORDER BY stagione, nome
+        ORDER BY nome
     """
 
     return pd.read_sql(
         query,
-        conn
+        conn,
+        params=params
     )
 
 def get_giorni_corso(corso_id):
@@ -533,9 +551,15 @@ def descrizione_giorni_corso(corso_id):
     return " | ".join(testi)
 
 
-def get_corsi_con_giorni(attivi_solo=True):
+def get_corsi_con_giorni(
+    attivi_solo=True,
+    stagione=None
+):
 
-    corsi = get_corsi(attivi_solo=attivi_solo)
+    corsi = get_corsi(
+        attivi_solo=attivi_solo,
+        stagione=stagione
+    )
 
     if corsi.empty:
         return corsi
@@ -1072,12 +1096,40 @@ def storico_presenze():
         conn
     )
 
+def get_stagioni():
+
+    df = pd.read_sql(
+        """
+        SELECT DISTINCT stagione
+        FROM corsi
+        WHERE stagione IS NOT NULL
+        AND stagione != ''
+        ORDER BY stagione DESC
+        """,
+        conn
+    )
+
+    return df["stagione"].tolist()
 
 # ============================================================
 # INTERFACCIA
 # ============================================================
 
 st.title("🏊 Statino Presenze Corsi di Nuoto")
+
+stagioni = get_stagioni()
+
+if len(stagioni) > 0:
+
+    stagione_selezionata = st.selectbox(
+        "Stagione",
+        stagioni,
+        key="stagione_corrente"
+    )
+
+else:
+
+    stagione_selezionata = None
 
 login()
 
@@ -1574,9 +1626,11 @@ if is_manager():
                 placeholder="es. Principianti"
             )
 
-            stagione = st.text_input(
+            stagione = st.selectbox(
                 "Stagione",
-                value="2026/2027"
+                list(dict.fromkeys(
+                    ["2026/2027"] + get_stagioni()
+                ))
             )
 
             giorni_selezionati = st.multiselect(
@@ -2114,8 +2168,9 @@ if is_manager():
             attivi_solo=True
         )
 
-        corsi = get_corsi(
-            attivi_solo=True
+        get_corsi(
+            attivi_solo=False,
+            stagione=stagione_selezionata
         )
 
         if istruttori.empty or corsi.empty:
