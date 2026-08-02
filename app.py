@@ -1858,9 +1858,9 @@ if is_manager():
                     st.error(
                         "Il nome del corso non può essere vuoto."
                     )
-
+                
                 elif len(nuovi_giorni_orari) == 0:
-
+                
                     st.error(
                         "Seleziona almeno un giorno."
                     )
@@ -1869,15 +1869,21 @@ if is_manager():
                     orario.strip() == ""
                     for _, orario in nuovi_giorni_orari
                 ):
-
-                elif len(set(giorno for giorno, _ in nuovi_giorni_orari)) != len(nuovi_giorni_orari):
-
+                
+                    st.error(
+                        "Inserisci tutti gli orari."
+                    )
+                
+                elif len(
+                    set(giorno for giorno, _ in nuovi_giorni_orari)
+                ) != len(nuovi_giorni_orari):
+                
                     st.error(
                         "Non puoi inserire due volte lo stesso giorno nello stesso corso."
                     )
-
+                
                 else:
-
+                
                     aggiorna_corso(
                         corso_id,
                         nuovo_nome.strip(),
@@ -1885,16 +1891,16 @@ if is_manager():
                         nuova_stagione.strip(),
                         nuovo_attivo
                     )
-
+                
                     salva_giorni_corso(
                         corso_id,
                         nuovi_giorni_orari
                     )
-
+                
                     st.success(
                         "Corso aggiornato correttamente."
                     )
-
+                
                     st.rerun()
 
             st.markdown("---")
