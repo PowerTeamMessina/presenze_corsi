@@ -1444,6 +1444,7 @@ if is_manager():
     tab_istruttori = tabs[4]
     tab_assegnazioni = tabs[5]
     tab_storico = tabs[6]
+    tab_backup = tabs[7]
 
 else:
 
@@ -1451,13 +1452,15 @@ else:
         [
             "📋 Presenze",
             "👶 Bambini",
-            "🗂️ Storico personale"
+            "🗂️ Storico personale",
+            "💾 Backup"
         ]
     )
 
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
     tab_storico = tabs[2]
+    tab_backup = tabs[3]
 
 
 # ============================================================
