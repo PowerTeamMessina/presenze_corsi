@@ -1559,6 +1559,14 @@ if is_manager():
 
         st.subheader("➕ Nuovo corso")
 
+        numero_giorni = st.number_input(
+            "Numero giorni settimanali",
+            min_value=1,
+            max_value=5,
+            value=1,
+            step=1
+        )
+
         with st.form(
             "form_nuovo_corso",
             clear_on_submit=True
@@ -1577,14 +1585,6 @@ if is_manager():
             stagione = st.text_input(
                 "Stagione",
                 value="2026/2027"
-            )
-
-            numero_giorni = st.number_input(
-                "Numero giorni settimanali",
-                min_value=1,
-                max_value=5,
-                value=1,
-                step=1
             )
 
             giorni_orari = []
