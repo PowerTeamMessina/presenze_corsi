@@ -919,28 +919,31 @@ def crea_manager_default():
 
 crea_manager_default()
 
-def get_bambini(attivi_solo=True):
+def get_bambini_corso(corso_id, attivi_solo=True):
 
     query = """
         SELECT *
         FROM bambini
-        WHERE 1 = 1
+        WHERE corso_id = ?
     """
 
     if attivi_solo:
+        query += " AND attivo = 1"
 
-        query += """
-            AND attivo = 1
-        """
+    query += " ORDER BY cognome, nome"
 
-    query += """
-        ORDER BY cognome, nome
-    """
+    try:
 
-    return pd.read_sql(
-        query,
-        conn
-    )
+        return pd.read_sql(
+            query,
+            conn,
+            params=(corso_id,)
+        )
+
+    except Exception as e:
+
+        st.error(str(e))
+        raise
 
 def get_bambini_corso(corso_id, attivi_solo=True):
 
