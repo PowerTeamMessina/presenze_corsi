@@ -5152,284 +5152,284 @@ with tab_riepilogo:
             key=f"pdf_presenze_bambino_{bambino_id}"
         )
 
-                st.markdown("---")
-                st.subheader("📅 Riepilogo mensile per corso")
+        st.markdown("---")
+        st.subheader("📅 Riepilogo mensile per corso")
                 
-                corsi_riepilogo = get_corsi_con_giorni(
-                    attivi_solo=True,
-                    stagione=stagione_riepilogo
+        corsi_riepilogo = get_corsi_con_giorni(
+            attivi_solo=True,
+            stagione=stagione_riepilogo
+        )
+                
+        if corsi_riepilogo.empty:
+                
+            st.info(
+                "Nessun corso disponibile per questa stagione."
+            )
+                
+        else:
+                
+            opzioni_corsi_mensile = {
+                f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
+                for _, row in corsi_riepilogo.iterrows()
+            }
+                
+            corso_label_mensile = st.selectbox(
+                "Seleziona corso",
+                list(opzioni_corsi_mensile.keys()),
+                key="corso_riepilogo_mensile"
+            )
+                
+            corso_id_mensile = opzioni_corsi_mensile[
+            corso_label_mensile
+            ]
+                
+            dati_corso_mensile = get_corso_by_id(
+                corso_id_mensile
+            )
+                
+            nome_corso_mensile = dati_corso_mensile.iloc[0]["nome"]
+                
+            mesi_riepilogo = [
+                ("Settembre", 9),
+                ("Ottobre", 10),
+                ("Novembre", 11),
+                ("Dicembre", 12),
+                ("Gennaio", 1),
+                ("Febbraio", 2),
+                ("Marzo", 3),
+                ("Aprile", 4),
+                ("Maggio", 5),
+                ("Giugno", 6),
+                ("Luglio", 7),
+                ("Agosto", 8)
+            ]
+                
+            opzioni_mesi = {
+                nome: numero
+                for nome, numero in mesi_riepilogo
+            }
+                
+            mese_label = st.selectbox(
+                "Seleziona mese",
+                list(opzioni_mesi.keys()),
+                key="mese_riepilogo_mensile"
+            )
+                
+            mese_numero = opzioni_mesi[
+            mese_label
+            ]
+                
+            anno_inizio = int(
+                stagione_riepilogo.split("/")[0]
+            )
+                
+            if mese_numero >= 9:
+                
+                anno_mese = anno_inizio
+                
+            else:
+                
+                anno_mese = anno_inizio + 1
+                
+                giorni_corso_mensile = get_giorni_corso(
+                    corso_id_mensile
                 )
                 
-                if corsi_riepilogo.empty:
+                giorni_validi_mensile = (
+                    giorni_corso_mensile["giorno"]
+                    .tolist()
+                )
+                
+                mappa_giorni = {
+                    "Lunedì": 0,
+                    "Martedì": 1,
+                    "Mercoledì": 2,
+                    "Giovedì": 3,
+                    "Venerdì": 4,
+                    "Sabato": 5,
+                    "Domenica": 6
+                }
+                
+                bambini_corso = get_bambini_corso(
+                    corso_id_mensile,
+                    attivi_solo=True
+                )
+                
+                if bambini_corso.empty:
                 
                     st.info(
-                        "Nessun corso disponibile per questa stagione."
+                        "Nessun bambino presente in questo corso."
                     )
                 
                 else:
                 
-                    opzioni_corsi_mensile = {
-                        f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
-                        for _, row in corsi_riepilogo.iterrows()
-                    }
-                
-                    corso_label_mensile = st.selectbox(
-                        "Seleziona corso",
-                        list(opzioni_corsi_mensile.keys()),
-                        key="corso_riepilogo_mensile"
+                    presenze_corso_mese = pd.read_sql(
+                        """
+                        SELECT *
+                        FROM presenze
+                        WHERE corso_id = ?
+                        AND data >= ?
+                        AND data <= ?
+                        """,
+                        conn,
+                        params=(
+                            corso_id_mensile,
+                            f"{anno_mese}-{mese_numero:02d}-01",
+                            f"{anno_mese}-{mese_numero:02d}-{monthrange(anno_mese, mese_numero)[1]:02d}"
+                        )
                     )
                 
-                    corso_id_mensile = opzioni_corsi_mensile[
-                        corso_label_mensile
-                    ]
+                    presenze_mensili_dict = {}
                 
-                    dati_corso_mensile = get_corso_by_id(
-                        corso_id_mensile
-                    )
+                    for _, row in presenze_corso_mese.iterrows():
                 
-                    nome_corso_mensile = dati_corso_mensile.iloc[0]["nome"]
-                
-                    mesi_riepilogo = [
-                        ("Settembre", 9),
-                        ("Ottobre", 10),
-                        ("Novembre", 11),
-                        ("Dicembre", 12),
-                        ("Gennaio", 1),
-                        ("Febbraio", 2),
-                        ("Marzo", 3),
-                        ("Aprile", 4),
-                        ("Maggio", 5),
-                        ("Giugno", 6),
-                        ("Luglio", 7),
-                        ("Agosto", 8)
-                    ]
-                
-                    opzioni_mesi = {
-                        nome: numero
-                        for nome, numero in mesi_riepilogo
-                    }
-                
-                    mese_label = st.selectbox(
-                        "Seleziona mese",
-                        list(opzioni_mesi.keys()),
-                        key="mese_riepilogo_mensile"
-                    )
-                
-                    mese_numero = opzioni_mesi[
-                        mese_label
-                    ]
-                
-                    anno_inizio = int(
-                        stagione_riepilogo.split("/")[0]
-                    )
-                
-                    if mese_numero >= 9:
-                
-                        anno_mese = anno_inizio
-                
-                    else:
-                
-                        anno_mese = anno_inizio + 1
-                
-                    giorni_corso_mensile = get_giorni_corso(
-                        corso_id_mensile
-                    )
-                
-                    giorni_validi_mensile = (
-                        giorni_corso_mensile["giorno"]
-                        .tolist()
-                    )
-                
-                    mappa_giorni = {
-                        "Lunedì": 0,
-                        "Martedì": 1,
-                        "Mercoledì": 2,
-                        "Giovedì": 3,
-                        "Venerdì": 4,
-                        "Sabato": 5,
-                        "Domenica": 6
-                    }
-                
-                    bambini_corso = get_bambini_corso(
-                        corso_id_mensile,
-                        attivi_solo=True
-                    )
-                
-                    if bambini_corso.empty:
-                
-                        st.info(
-                            "Nessun bambino presente in questo corso."
+                        chiave = (
+                            int(row["bambino_id"]),
+                            str(row["data"])
                         )
                 
-                    else:
-                
-                        presenze_corso_mese = pd.read_sql(
-                            """
-                            SELECT *
-                            FROM presenze
-                            WHERE corso_id = ?
-                            AND data >= ?
-                            AND data <= ?
-                            """,
-                            conn,
-                            params=(
-                                corso_id_mensile,
-                                f"{anno_mese}-{mese_numero:02d}-01",
-                                f"{anno_mese}-{mese_numero:02d}-{monthrange(anno_mese, mese_numero)[1]:02d}"
-                            )
+                        presenze_mensili_dict[
+                            chiave
+                        ] = int(
+                            row["presenza"]
                         )
                 
-                        presenze_mensili_dict = {}
+                    chiusure_df = get_chiusure()
                 
-                        for _, row in presenze_corso_mese.iterrows():
+                    chiusure = set(
+                        chiusure_df["data"].tolist()
+                    )
                 
-                            chiave = (
-                                int(row["bambino_id"]),
-                                str(row["data"])
-                            )
+                    festivita_fisse = {
+                        "01-01",
+                        "01-06",
+                        "04-25",
+                        "05-01",
+                        "06-02",
+                        "08-15",
+                        "11-01",
+                        "12-08",
+                        "12-25",
+                        "12-26"
+                    }
                 
-                            presenze_mensili_dict[
-                                chiave
-                            ] = int(
-                                row["presenza"]
-                            )
+                    giorni_mese = monthrange(
+                        anno_mese,
+                        mese_numero
+                    )[1]
                 
-                        chiusure_df = get_chiusure()
+                    righe_mensili = []
                 
-                        chiusure = set(
-                            chiusure_df["data"].tolist()
+                    for _, bambino in bambini_corso.iterrows():
+                
+                        bambino_id_mensile = int(
+                            bambino["id"]
                         )
                 
-                        festivita_fisse = {
-                            "01-01",
-                            "01-06",
-                            "04-25",
-                            "05-01",
-                            "06-02",
-                            "08-15",
-                            "11-01",
-                            "12-08",
-                            "12-25",
-                            "12-26"
+                        nome_bambino_mensile = (
+                            f"{bambino['cognome']} {bambino['nome']}"
+                        )
+                
+                        riga = {
+                            "Bambino": nome_bambino_mensile
                         }
                 
-                        giorni_mese = monthrange(
-                            anno_mese,
-                            mese_numero
-                        )[1]
+                        totale_presenze = 0
+                        totale_assenze = 0
                 
-                        righe_mensili = []
+                        for giorno in range(1, 32):
                 
-                        for _, bambino in bambini_corso.iterrows():
+                            if giorno > giorni_mese:
                 
-                            bambino_id_mensile = int(
-                                bambino["id"]
-                            )
+                                riga[str(giorno)] = ""
                 
-                            nome_bambino_mensile = (
-                                f"{bambino['cognome']} {bambino['nome']}"
-                            )
-                
-                            riga = {
-                                "Bambino": nome_bambino_mensile
-                            }
-                
-                            totale_presenze = 0
-                            totale_assenze = 0
-                
-                            for giorno in range(1, 32):
-                
-                                if giorno > giorni_mese:
-                
-                                    riga[str(giorno)] = ""
-                
-                                    continue
+                                continue
                 
                                 data_corrente = datetime(
-                                    anno_mese,
-                                    mese_numero,
-                                    giorno
-                                )
+                                anno_mese,
+                                mese_numero,
+                                giorno
+                            )
                 
-                                data_str = data_corrente.strftime(
-                                    "%Y-%m-%d"
-                                )
+                            data_str = data_corrente.strftime(
+                                "%Y-%m-%d"
+                            )
                 
-                                corso_previsto = (
-                                    data_corrente.weekday()
-                                    in
-                                    [
-                                        mappa_giorni[g]
-                                        for g in giorni_validi_mensile
-                                    ]
-                                )
+                            corso_previsto = (
+                                data_corrente.weekday()
+                                in
+                                [
+                                    mappa_giorni[g]
+                                    for g in giorni_validi_mensile
+                                ]
+                            )
                 
-                                if data_str in chiusure:
+                            if data_str in chiusure:
                 
-                                    riga[str(giorno)] = "-"
+                                riga[str(giorno)] = "-"
                 
-                                elif (
-                                    data_corrente.strftime("%m-%d")
-                                    in
-                                    festivita_fisse
-                                ):
+                            elif (
+                                data_corrente.strftime("%m-%d")
+                                in
+                                festivita_fisse
+                            ):
                 
-                                    riga[str(giorno)] = "-"
+                                riga[str(giorno)] = "-"
                 
-                                elif not corso_previsto:
+                            elif not corso_previsto:
+            
+                                riga[str(giorno)] = "-"
                 
-                                    riga[str(giorno)] = "-"
+                            elif (
+                                bambino_id_mensile,
+                                data_str
+                            ) in presenze_mensili_dict:
                 
-                                elif (
-                                    bambino_id_mensile,
-                                    data_str
-                                ) in presenze_mensili_dict:
+                                valore = presenze_mensili_dict[
+                                    (
+                                        bambino_id_mensile,
+                                        data_str
+                                    )
+                                ]
                 
-                                    valore = presenze_mensili_dict[
-                                        (
-                                            bambino_id_mensile,
-                                            data_str
-                                        )
-                                    ]
+                                if valore == 1:
                 
-                                    if valore == 1:
-                
-                                        riga[str(giorno)] = "P"
-                                        totale_presenze += 1
-                
-                                    else:
-                
-                                        riga[str(giorno)] = "A"
-                                        totale_assenze += 1
+                                    riga[str(giorno)] = "P"
+                                    totale_presenze += 1
                 
                                 else:
                 
-                                    riga[str(giorno)] = ""
-                
-                            riga["Presenze"] = totale_presenze
-                            riga["Assenze"] = totale_assenze
-                
-                            lezioni_compilate = (
-                                totale_presenze +
-                                totale_assenze
-                            )
-                
-                            if lezioni_compilate > 0:
-                
-                                riga["% Presenza"] = round(
-                                    totale_presenze
-                                    * 100
-                                    / lezioni_compilate,
-                                    2
-                                )
+                                    riga[str(giorno)] = "A"
+                                    totale_assenze += 1
                 
                             else:
                 
-                                riga["% Presenza"] = 0
+                                riga[str(giorno)] = ""
                 
-                            righe_mensili.append(
-                                riga
+                        riga["Presenze"] = totale_presenze
+                        riga["Assenze"] = totale_assenze
+                
+                        lezioni_compilate = (
+                            totale_presenze +
+                            totale_assenze
+                        )
+                
+                        if lezioni_compilate > 0:
+                
+                            riga["% Presenza"] = round(
+                                totale_presenze
+                                * 100
+                                / lezioni_compilate,
+                                2
                             )
+                
+                        else:
+                
+                            riga["% Presenza"] = 0
+            
+                        righe_mensili.append(
+                            riga
+                        )
                 
                         df_mensile = pd.DataFrame(
                             righe_mensili
