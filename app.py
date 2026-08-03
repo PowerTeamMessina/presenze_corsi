@@ -1058,6 +1058,64 @@ Power Team Messina
     server.send_message(msg)
 
     server.quit()
+
+def invia_credenziali_manager_email(
+    email_destinatario,
+    nome,
+    password
+):
+
+    mittente = st.secrets["GMAIL_ADDRESS"]
+    password_mittente = st.secrets["GMAIL_PASSWORD"]
+
+    app_url = st.secrets.get(
+        "APP_URL",
+        ""
+    )
+
+    testo = f"""
+Ciao {nome},
+
+è stato creato un nuovo account MANAGER per l'App Corsi Power Team.
+
+Credenziali di accesso:
+
+Email: {email_destinatario}
+Password: {password}
+
+Link applicazione:
+{app_url}
+
+Con questo account avrai accesso completo alla piattaforma.
+
+Power Team Messina
+"""
+
+    msg = MIMEText(
+        testo,
+        "plain",
+        "utf-8"
+    )
+
+    msg["Subject"] = "Credenziali Manager Gestionale Nuoto"
+    msg["From"] = mittente
+    msg["To"] = email_destinatario
+
+    server = smtplib.SMTP(
+        "smtp.gmail.com",
+        587
+    )
+
+    server.starttls()
+
+    server.login(
+        mittente,
+        password_mittente
+    )
+
+    server.send_message(msg)
+
+    server.quit()
     
 def get_utenti():
 
@@ -3716,7 +3774,7 @@ if is_manager():
                         nome
                     )
 
-                    invia_credenziali_istruttore_email(
+                    invia_credenziali_manager_email(
                         email,
                         nome,
                         password_generata
@@ -3813,7 +3871,7 @@ if is_manager():
             "📧 Reinvia credenziali manager"
         ):
         
-            invia_credenziali_istruttore_email(
+            invia_credenziali_manager_email(
                 dettagli_manager["username"],
                 dettagli_manager["nome"],
                 dettagli_manager["password_visibile"]
