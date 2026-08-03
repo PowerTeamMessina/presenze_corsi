@@ -115,13 +115,6 @@
     ],
     "chiusure": [
         {
-            "id": 2,
-            "data": "2026-08-04",
-            "descrizione": "Prova",
-            "corso_id": null,
-            "attiva": 1
-        },
-        {
             "id": 3,
             "data": "2027-08-04",
             "descrizione": "Prova",
