@@ -3046,14 +3046,12 @@ else:
         [
             "📋 Presenze",
             "👶 Bambini",
-            "🗂️ Storico personale",
             "💾 Backup"
         ]
     )
 
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
-    tab_storico = tabs[2]
     tab_backup = tabs[3]
 
 # ============================================================
