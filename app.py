@@ -2076,14 +2076,24 @@ def aggiungi_bambino(
         raise
 
 
-def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
+def aggiorna_bambino(
+    bambino_id,
+    nome,
+    cognome,
+    data_nascita,
+    corso_id,
+    note,
+    attivo
+):
 
     c.execute(
         """
         UPDATE bambini
-        SET nome = ?,
+        SET
+            nome = ?,
             cognome = ?,
             data_nascita = ?,
+            corso_id = ?,
             note = ?,
             attivo = ?
         WHERE id = ?
@@ -2091,7 +2101,8 @@ def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
         (
             nome,
             cognome,
-            str(data_nascita) if data_nascita else "",
+            data_nascita,
+            corso_id,
             note,
             int(attivo),
             bambino_id
@@ -2100,18 +2111,9 @@ def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
 
     conn.commit()
 
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
-        )
-
+    upload_backup_github(
+        mostra_messaggio=False
+    )
 
 def elimina_bambino(bambino_id):
 
@@ -2283,7 +2285,29 @@ def assegna_bambino(
 
     conn.commit()
 
-    salva_backup_sicuro()
+    upload_backup_github(
+        mostra_messaggio=False
+    )
+
+def get_assegnazioni_bambini():
+
+    return pd.read_sql(
+        """
+        SELECT
+            ab.id,
+            b.cognome || ' ' || b.nome AS bambino,
+            c.nome AS corso,
+            ab.data_specifica,
+            ab.attiva
+        FROM assegnazioni_bambini ab
+        JOIN bambini b
+            ON b.id = ab.bambino_id
+        JOIN corsi c
+            ON c.id = ab.corso_id
+        ORDER BY bambino
+        """,
+        conn
+    )
 
 def backup_giornaliero():
 
@@ -2777,6 +2801,20 @@ with tab_bambini:
                     key="attivo_bambino"
                 )
 
+                corsi = get_corsi(
+                    attivi_solo=False
+                )
+                
+                opzioni_corsi = {
+                    row["nome"]: int(row["id"])
+                    for _, row in corsi.iterrows()
+                }
+
+                nuovo_corso = st.selectbox(
+                    "Corso principale",
+                    list(opzioni_corsi.keys())
+                )
+
                 if st.button(
                     "💾 Aggiorna bambino"
                 ):
@@ -2786,6 +2824,7 @@ with tab_bambini:
                         nuovo_nome.strip(),
                         nuovo_cognome.strip(),
                         nuova_data,
+                        opzioni_corsi[nuovo_corso],
                         nuove_note.strip(),
                         nuovo_attivo
                     )
@@ -4069,24 +4108,24 @@ with tab_assegnazioni_bambini:
         """
         SELECT
             id,
-            cognome || ' ' || nome AS nome_completo
+            cognome || ' ' || nome AS bambino
         FROM bambini
         WHERE attivo = 1
-        ORDER BY cognome, nome
+        ORDER BY cognome,nome
         """,
         conn
     )
-    
+
+    opzioni_bambini = {
+        row["bambino"]: int(row["id"])
+        for _, row in bambini.iterrows()
+    }
+
     corsi = get_corsi_con_giorni(
         attivi_solo=True
     ).drop_duplicates(
         subset=["id"]
     )
-
-    opzioni_bambini = {
-        row["nome_completo"]: int(row["id"])
-        for _, row in bambini.iterrows()
-    }
 
     opzioni_corsi = {
         f"{row['nome']} | {row['giorni_orari']}":
@@ -4116,16 +4155,10 @@ with tab_assegnazioni_bambini:
     
         assegna_bambino(
             opzioni_bambini[
-                st.selectbox(
-                    "Bambino",
-                    list(opzioni_bambini.keys())
-                )
+                bambino_label
             ],
             opzioni_corsi[
-                st.selectbox(
-                    "Corso",
-                    list(opzioni_corsi.keys())
-                )
+                corso_label
             ],
             str(data_specifica)
             if data_specifica
@@ -4137,3 +4170,15 @@ with tab_assegnazioni_bambini:
         )
     
         st.rerun()
+
+    st.markdown("---")
+
+    st.subheader(
+        "📋 Assegnazioni esistenti"
+    )
+    
+    st.dataframe(
+        get_assegnazioni_bambini(),
+        use_container_width=True,
+        hide_index=True
+    )
