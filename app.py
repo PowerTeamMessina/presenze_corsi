@@ -312,6 +312,7 @@ CREATE TABLE IF NOT EXISTS bambini (
     cognome TEXT NOT NULL,
     data_nascita TEXT,
     corso_id INTEGER,
+    email_genitore TEXT,
     note TEXT,
     attivo INTEGER DEFAULT 1
 )
@@ -328,6 +329,18 @@ try:
 except Exception:
     pass
 
+try:
+
+    c.execute("""
+        ALTER TABLE bambini
+        ADD COLUMN email_genitore TEXT
+    """)
+
+    conn.commit()
+
+except:
+    pass
+    
 c.execute("""
 CREATE TABLE IF NOT EXISTS assegnazioni_istruttori (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -407,9 +420,20 @@ CREATE TABLE IF NOT EXISTS chiusure (
 )
 """)
 
-conn.commit()
+c.execute("""
+CREATE TABLE IF NOT EXISTS genitori_bambini (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    utente_id INTEGER NOT NULL,
+    bambino_id INTEGER NOT NULL,
+    UNIQUE(
+        utente_id,
+        bambino_id
+    )
+)
+""")
 
 conn.commit()
+
 
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
@@ -2433,6 +2457,7 @@ def aggiungi_bambino(
     cognome,
     data_nascita,
     corso_id,
+    email_genitore,
     note
 ):
 
@@ -2443,16 +2468,18 @@ def aggiungi_bambino(
             cognome,
             data_nascita,
             corso_id,
+            email_genitore,
             note,
             attivo
         )
-        VALUES(?,?,?,?,?,1)
+        VALUES(?,?,?,?,?,?,1)
         """,
         (
             nome,
             cognome,
             data_nascita,
             corso_id,
+            email_genitore,
             note
         )
     )
@@ -2477,6 +2504,7 @@ def aggiorna_bambino(
     cognome,
     data_nascita,
     corso_id,
+    email_genitore,
     note,
     attivo
 ):
@@ -2489,6 +2517,7 @@ def aggiorna_bambino(
             cognome = ?,
             data_nascita = ?,
             corso_id = ?,
+            email_genitore = ?,
             note = ?,
             attivo = ?
         WHERE id = ?
@@ -2498,6 +2527,7 @@ def aggiorna_bambino(
             cognome,
             data_nascita,
             corso_id,
+            email_genitore,
             note,
             int(attivo),
             bambino_id
@@ -2506,9 +2536,17 @@ def aggiorna_bambino(
 
     conn.commit()
 
-    upload_backup_github(
-        mostra_messaggio=False
-    )
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+
+    except Exception as e:
+
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 def elimina_bambino(bambino_id):
 
@@ -3096,6 +3134,10 @@ with tab_bambini:
             cognome = st.text_input(
                 "Cognome"
             )
+            
+            email_genitore = st.text_input(
+                "Email genitore (facoltativa)"
+            )
 
             corsi = get_corsi(
                 attivi_solo=True
@@ -3158,11 +3200,12 @@ with tab_bambini:
                 else:
     
                     aggiungi_bambino(
-                        nome.strip(),
-                        cognome.strip(),
+                        nome,
+                        cognome,
                         data_nascita,
                         corso_id,
-                        note.strip()
+                        email_genitore,
+                        note
                     )
                         
                     st.success(
@@ -3200,6 +3243,7 @@ with tab_bambini:
                         "id",
                         "cognome",
                         "nome",
+                        "email_genitore",
                         "data_nascita",
                         "note",
                         "attivo"
@@ -3249,6 +3293,13 @@ with tab_bambini:
                     value=dati["data_nascita"] if pd.notna(dati["data_nascita"]) else "",
                     key="nuova_data_bambino"
                 )
+                
+                nuova_email_genitore = st.text_input(
+                    "Email genitore",
+                    value=dati["email_genitore"]
+                    if pd.notna(dati["email_genitore"])
+                    else ""
+                )
 
                 nuove_note = st.text_area(
                     "Note",
@@ -3286,6 +3337,7 @@ with tab_bambini:
                         nuovo_cognome.strip(),
                         nuova_data,
                         opzioni_corsi[nuovo_corso],
+                        nuova_email_genitore.strip(),
                         nuove_note.strip(),
                         nuovo_attivo
                     )
