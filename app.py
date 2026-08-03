@@ -2543,6 +2543,56 @@ def aggiungi_bambino(
             f"Errore backup GitHub: {e}"
         )
 
+def aggiorna_bambino(
+    bambino_id,
+    nome,
+    cognome,
+    data_nascita,
+    corso_id,
+    email_genitore,
+    note,
+    attivo
+):
+
+    c.execute(
+        """
+        UPDATE bambini
+        SET
+            nome = ?,
+            cognome = ?,
+            data_nascita = ?,
+            corso_id = ?,
+            email_genitore = ?,
+            note = ?,
+            attivo = ?
+        WHERE id = ?
+        """,
+        (
+            nome,
+            cognome,
+            data_nascita,
+            corso_id,
+            email_genitore,
+            note,
+            int(attivo),
+            bambino_id
+        )
+    )
+
+    conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+
+    except Exception as e:
+
+        print(
+            f"Errore backup GitHub: {e}"
+        )
+            
 def invia_credenziali_genitore_email(
     email_destinatario,
     nome_bambino,
