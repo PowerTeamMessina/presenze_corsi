@@ -2560,9 +2560,13 @@ with tab_bambini:
 
     else:
 
+        corsi_assegnabili = get_corsi_con_giorni(
+            attivi_solo=True
+        )
+        
         opzioni_corsi = {
-            f"{row['nome']} | {row['giorno']} | {row['orario']}": int(row["id"])
-            for _, row in corsi_visibili.iterrows()
+            f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
+            for _, row in corsi_assegnabili.iterrows()
         }
 
         corso_label = st.selectbox(
@@ -3516,9 +3520,13 @@ if is_manager():
                 for _, row in istruttori.iterrows()
             }
 
+            corsi_assegnabili = get_corsi_con_giorni(
+                attivi_solo=True
+            )
+            
             opzioni_corsi = {
-                f"{row['nome']} | {row['giorno_lezione']} | {row['orario_lezione']}": int(row["id"])
-                for _, row in corsi_visibili.iterrows()
+                f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
+                for _, row in corsi_assegnabili.iterrows()
             }
 
             istruttore_label = st.selectbox(
