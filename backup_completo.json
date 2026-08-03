@@ -19,6 +19,16 @@
             "salt": "bdcd437aff23adfb653228c330fef1bd",
             "attivo": 1,
             "password_visibile": "im8ntO6V_Vfn"
+        },
+        {
+            "id": 3,
+            "username": "gianmarcogrifo@gmail.com",
+            "nome": "Gianmarco Grifò",
+            "ruolo": "istruttore",
+            "password_hash": "b9fb1b472c9c8c2dd51dd078c0dba1f76903980e18dfe1bf2c50cc32e8b0863a",
+            "salt": "bbaface25b0a4e82b7d2f15a43061763",
+            "attivo": 1,
+            "password_visibile": "c9A5Xw7wc6eT"
         }
     ],
     "corsi": [
