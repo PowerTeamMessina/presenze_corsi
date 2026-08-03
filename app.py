@@ -2679,7 +2679,7 @@ with tab_bambini:
 
         st.subheader("📋 Elenco bambini")
 
-        bambini = get_bambini_corso(
+        bambini = get_bambini(
             attivi_solo=False if is_manager() else True
         )
 
