@@ -2548,86 +2548,88 @@ with tab_presenze:
 
 with tab_bambini:
 
-    st.header("👶 Gestione bambini")
+    if is_manager():
 
-    corsi_visibili = get_corsi_visibili_per_utente()
-
-    if corsi_visibili.empty:
-
-        st.warning(
-            "Non hai corsi assegnati."
-        )
-
-    else:
-
-        corsi_assegnabili = get_corsi_con_giorni(
-            attivi_solo=True
-        )
-        
-        opzioni_corsi = {
-            f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
-            for _, row in corsi_assegnabili.iterrows()
-        }
-
-        corso_label = st.selectbox(
-            "Corso",
-            list(opzioni_corsi.keys()),
-            key="corso_bambini"
-        )
-
-        corso_id = opzioni_corsi[corso_label]
-
-        st.subheader("➕ Aggiungi bambino")
-
-        with st.form(
-            "form_aggiungi_bambino",
-            clear_on_submit=True
-        ):
-
-            nome = st.text_input(
-                "Nome"
+        st.header("👶 Gestione bambini")
+    
+        corsi_visibili = get_corsi_visibili_per_utente()
+    
+        if corsi_visibili.empty:
+    
+            st.warning(
+                "Non hai corsi assegnati."
             )
-
-            cognome = st.text_input(
-                "Cognome"
+    
+        else:
+    
+            corsi_assegnabili = get_corsi_con_giorni(
+                attivi_solo=True
             )
-
-            data_nascita = st.date_input(
-                "Data di nascita",
-                value=None
+            
+            opzioni_corsi = {
+                f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
+                for _, row in corsi_assegnabili.iterrows()
+            }
+    
+            corso_label = st.selectbox(
+                "Corso",
+                list(opzioni_corsi.keys()),
+                key="corso_bambini"
             )
-
-            note = st.text_area(
-                "Note"
-            )
-
-            invia = st.form_submit_button(
-                "➕ Aggiungi"
-            )
-
-            if invia:
-
-                if nome.strip() == "" or cognome.strip() == "":
-
-                    st.error(
-                        "Nome e cognome sono obbligatori."
-                    )
-
-                else:
-
-                    aggiungi_bambino(
-                        nome.strip(),
-                        cognome.strip(),
-                        data_nascita,
-                        corso_id,
-                        note.strip()
-                    )
-
-                    st.success(
-                        "Bambino aggiunto correttamente."
-                    )
-
-                    st.rerun()
+    
+            corso_id = opzioni_corsi[corso_label]
+    
+            st.subheader("➕ Aggiungi bambino")
+    
+            with st.form(
+                "form_aggiungi_bambino",
+                clear_on_submit=True
+            ):
+    
+                nome = st.text_input(
+                    "Nome"
+                )
+    
+                cognome = st.text_input(
+                    "Cognome"
+                )
+    
+                data_nascita = st.date_input(
+                    "Data di nascita",
+                    value=None
+                )
+    
+                note = st.text_area(
+                    "Note"
+                )
+    
+                invia = st.form_submit_button(
+                    "➕ Aggiungi"
+                )
+    
+                if invia:
+    
+                    if nome.strip() == "" or cognome.strip() == "":
+    
+                        st.error(
+                            "Nome e cognome sono obbligatori."
+                        )
+    
+                    else:
+    
+                        aggiungi_bambino(
+                            nome.strip(),
+                            cognome.strip(),
+                            data_nascita,
+                            corso_id,
+                            note.strip()
+                        )
+    
+                        st.success(
+                            "Bambino aggiunto correttamente."
+                        )
+    
+                        st.rerun()
 
         st.markdown("---")
 
