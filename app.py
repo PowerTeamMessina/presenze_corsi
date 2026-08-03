@@ -503,32 +503,29 @@ def upload_backup_github(
     if sha is not None:
 
         payload["sha"] = sha
-
-        upload = requests.put(
+    
+    upload = requests.put(
+        url,
+        headers=headers,
+        json=payload
+    )
+    
+    if upload.status_code == 409:
+    
+        risposta = requests.get(
             url,
-            headers=headers,
-            json=payload
+            headers=headers
         )
-        
-        # se qualcuno ha aggiornato il file prima di noi
-        # recuperiamo il nuovo sha e riproviamo
-        
-        if upload.status_code == 409:
-        
-            risposta = requests.get(
+    
+        if risposta.status_code == 200:
+    
+            payload["sha"] = risposta.json()["sha"]
+    
+            upload = requests.put(
                 url,
-                headers=headers
+                headers=headers,
+                json=payload
             )
-        
-            if risposta.status_code == 200:
-        
-                payload["sha"] = risposta.json()["sha"]
-        
-                upload = requests.put(
-                    url,
-                    headers=headers,
-                    json=payload
-                )
 
     if upload.status_code in [200, 201]:
 
