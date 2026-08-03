@@ -87,13 +87,6 @@
             "corso_id": 1,
             "data_specifica": null,
             "attiva": 1
-        },
-        {
-            "id": 2,
-            "istruttore_id": 53,
-            "corso_id": 1,
-            "data_specifica": null,
-            "attiva": 1
         }
     ],
     "presenze": [],
