@@ -79,17 +79,7 @@
             "ordine": 5
         }
     ],
-    "bambini": [
-        {
-            "id": 3,
-            "nome": "Gabriele",
-            "cognome": "Grifo'",
-            "data_nascita": "01/01/2026",
-            "corso_id": 1,
-            "note": "",
-            "attivo": 1
-        }
-    ],
+    "bambini": [],
     "assegnazioni_istruttori": [
         {
             "id": 4,
