@@ -3649,8 +3649,6 @@ with tab_bambini:
                         )
 
                         st.rerun()
-
-
 with tab_stagioni:
 
     st.header("📅 Gestione stagioni")
@@ -4887,117 +4885,115 @@ if is_manager():
         
                     st.rerun()
 
-with tab_storico:
-    if is_manager():
 
-        with tab_riepilogo:
+with tab_riepilogo:
             
-            stagioni = get_stagioni()
+    stagioni = get_stagioni()
 
-            stagione_riepilogo = st.selectbox(
-                "Stagione",
-                stagioni,
-                key="stagione_riepilogo"
+    stagione_riepilogo = st.selectbox(
+        "Stagione",
+        stagioni,
+        key="stagione_riepilogo"
+    )
+    
+    st.header("📊 Riepilogo Presenze")
+        
+    bambini = get_bambini(
+        attivi_solo=False
+    )
+        
+    if bambini.empty:
+        
+        st.info(
+            "Nessun bambino presente."
+        )
+        
+    else:
+        
+        opzioni_bambini = {
+            f"{row['cognome']} {row['nome']}": int(row["id"])
+            for _, row in bambini.iterrows()
+        }
+        
+        bambino_label = st.selectbox(
+            "Seleziona bambino",
+            list(opzioni_bambini.keys())
+        )
+        
+        bambino_id = opzioni_bambini[
+            bambino_label
+        ]
+        
+        dati_bambino = bambini[
+            bambini["id"] == bambino_id
+        ].iloc[0]
+        
+        corso_id = int(
+            dati_bambino["corso_id"]
+        )
+
+        corso_info = get_corso_by_id(
+            corso_id
+        )
+                
+        nome_corso = (
+            corso_info.iloc[0]["nome"]
+        )
+
+        giorni_corso = get_giorni_corso(
+            corso_id
+        )
+        
+        giorni_validi = (
+            giorni_corso["giorno"]
+            .tolist()
+        )
+        
+        presenze = get_presenze_bambino(
+            bambino_id
+        )
+        
+        presenze_dict = {}
+    
+        for _, row in presenze.iterrows():
+        
+            presenze_dict[
+            str(row["data"])
+            ] = int(
+                row["presenza"]
             )
 
-            st.header("📊 Riepilogo Presenze")
-        
-            bambini = get_bambini(
-                attivi_solo=False
+            presenze_totali = sum(
+                1
+                for valore in presenze_dict.values()
+                if valore == 1                
             )
-        
-            if bambini.empty:
-        
-                st.info(
-                    "Nessun bambino presente."
+                
+            assenze_totali = sum(
+                1
+                for valore in presenze_dict.values()
+                if valore == 0
+            )
+                
+            lezioni_programmate = (
+                presenze_totali +
+                assenze_totali
+            )
+                
+            if lezioni_programmate > 0:
+                
+                percentuale_presenza = round(
+                    presenze_totali * 100 /
+                    lezioni_programmate,
+                    2
                 )
-        
+                
             else:
-        
-                opzioni_bambini = {
-                    f"{row['cognome']} {row['nome']}": int(row["id"])
-                    for _, row in bambini.iterrows()
-                }
-        
-                bambino_label = st.selectbox(
-                    "Seleziona bambino",
-                    list(opzioni_bambini.keys())
-                )
-        
-                bambino_id = opzioni_bambini[
-                    bambino_label
-                ]
-        
-                dati_bambino = bambini[
-                    bambini["id"] == bambino_id
-                ].iloc[0]
-        
-                corso_id = int(
-                    dati_bambino["corso_id"]
-                )
-
-                corso_info = get_corso_by_id(
-                    corso_id
-                )
                 
-                nome_corso = (
-                    corso_info.iloc[0]["nome"]
-                )
-
-                giorni_corso = get_giorni_corso(
-                    corso_id
-                )
-        
-                giorni_validi = (
-                    giorni_corso["giorno"]
-                    .tolist()
-                )
-        
-                presenze = get_presenze_bambino(
-                    bambino_id
-                )
-        
-                presenze_dict = {}
-        
-                for _, row in presenze.iterrows():
-        
-                    presenze_dict[
-                        str(row["data"])
-                    ] = int(
-                        row["presenza"]
-                    )
-
-                presenze_totali = sum(
-                    1
-                    for valore in presenze_dict.values()
-                    if valore == 1
-                )
-                
-                assenze_totali = sum(
-                    1
-                    for valore in presenze_dict.values()
-                    if valore == 0
-                )
-                
-                lezioni_programmate = (
-                    presenze_totali +
-                    assenze_totali
-                )
-                
-                if lezioni_programmate > 0:
-                
-                    percentuale_presenza = round(
-                        presenze_totali * 100 /
-                        lezioni_programmate,
-                        2
-                    )
-                
-                else:
-                
-                    percentuale_presenza = 0
+                percentuale_presenza = 0
                     
                 chiusure_df = get_chiusure()
-        
+    
                 chiusure = set(
                     chiusure_df["data"].tolist()
                 )
