@@ -5485,8 +5485,10 @@ with tab_chiusure:
 
         st.rerun()
 
+    chiusure_df = get_chiusure()
+
     st.dataframe(
-        get_chiusure(),
+        chiusure_df,
         use_container_width=True
     )
 
