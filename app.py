@@ -2001,27 +2001,6 @@ def get_corsi_visibili_per_utente(data_evento=None):
 # ============================================================
 # FUNZIONI BAMBINI
 # ============================================================
-
-def get_bambini_corso(corso_id, attivi_solo=True):
-
-    query = """
-        SELECT *
-        FROM bambini
-        WHERE corso_id = ?
-    """
-
-    if attivi_solo:
-        query += " AND attivo = 1"
-
-    query += " ORDER BY cognome, nome"
-
-    return pd.read_sql(
-        query,
-        conn,
-        params=(corso_id,)
-    )
-
-
 def aggiungi_bambino(nome, cognome, data_nascita, note):
 
     c.execute(
