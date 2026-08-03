@@ -35,18 +35,6 @@ conn = sqlite3.connect(
 
 c = conn.cursor()
 
-try:
-
-    c.execute("""
-    ALTER TABLE utenti
-    ADD COLUMN password_visibile TEXT
-    """)
-
-    conn.commit()
-
-except Exception:
-    pass
-
 # ============================================================
 # FUNZIONI PASSWORD
 # ============================================================
@@ -268,6 +256,18 @@ CREATE TABLE IF NOT EXISTS utenti (
 )
 """)
 
+try:
+
+    c.execute("""
+    ALTER TABLE utenti
+    ADD COLUMN password_visibile TEXT
+    """)
+
+    conn.commit()
+
+except Exception:
+    pass
+
 c.execute("""
 CREATE TABLE IF NOT EXISTS corsi (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -334,11 +334,6 @@ CREATE TABLE IF NOT EXISTS presenze (
     FOREIGN KEY(corso_id) REFERENCES corsi(id),
     FOREIGN KEY(inserito_da) REFERENCES utenti(id)
 )
-""")
-
-c.execute("""
-DELETE FROM utenti
-WHERE ruolo='manager'
 """)
 
 c.execute("""
@@ -1207,13 +1202,17 @@ def aggiungi_istruttore(email, nome):
 
     try:
 
-        upload_backup_github(
-            mostra_messaggio=False
+        ok = upload_backup_github(
+            mostra_messaggio=True
+        )
+    
+        st.write(
+            f"Backup GitHub: {ok}"
         )
     
     except Exception as e:
     
-        print(
+        st.error(
             f"Errore backup GitHub: {e}"
         )
 
@@ -1369,25 +1368,27 @@ def login():
         return
 
     username = st.sidebar.text_input(
-        "Email istruttore / username"
+        "Email / username"
     )
-
+    
     password = st.sidebar.text_input(
         "Password",
         type="password"
     )
-
+    
     if st.sidebar.button("Accedi"):
-
+    
+        username_login = username.strip().lower()
+    
         utente = pd.read_sql(
             """
             SELECT *
             FROM utenti
-            WHERE username = ?
+            WHERE lower(username) = ?
             AND attivo = 1
             """,
             conn,
-            params=(username,)
+            params=(username.strip().lower(),)
         )
 
         if utente.empty:
