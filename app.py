@@ -4533,159 +4533,160 @@ if is_manager():
 # TAB STORICO
 # ============================================================
 
-with tab_storico:
+if is_manager():
+    with tab_storico:
 
-    st.header("🗂️ Storico presenze")
-
-    storico = storico_presenze()
-
-    if is_istruttore():
-
-        corsi_visibili = get_corsi_visibili_per_utente()
-
-        ids_corsi = corsi_visibili["id"].tolist()
-
-        storico = storico[
-            storico["corso"].isin(
-                corsi_visibili["nome"].tolist()
-            )
-        ]
-
-    if storico.empty:
-
-        st.info(
-            "Nessuna presenza registrata."
-        )
-
-    else:
-
-        storico["presenza"] = storico["presenza"].map(
-            {
-                1: "Presente",
-                0: "Assente"
-            }
-        )
-
-        st.dataframe(
-            storico,
-            use_container_width=True,
-            hide_index=True
-        )
-
-        csv = storico.to_csv(
-            index=False
-        ).encode(
-            "utf-8"
-        )
-
-        st.download_button(
-            "📥 Scarica storico CSV",
-            csv,
-            "storico_presenze_corsi.csv",
-            "text/csv"
-        )
-        
-    if is_manager():
-
-        with tab_backup:
+        st.header("🗂️ Storico presenze")
     
-            st.header("💾 Backup GitHub")
+        storico = storico_presenze()
+    
+        if is_istruttore():
+    
+            corsi_visibili = get_corsi_visibili_per_utente()
+    
+            ids_corsi = corsi_visibili["id"].tolist()
+    
+            storico = storico[
+                storico["corso"].isin(
+                    corsi_visibili["nome"].tolist()
+                )
+            ]
+    
+        if storico.empty:
     
             st.info(
-                "Il backup contiene istruttori, password, corsi, bambini, assegnazioni, presenze e stagioni."
+                "Nessuna presenza registrata."
             )
     
-            if st.button(
-                "💾 Salva backup su GitHub"
-            ):
+        else:
     
-                upload_backup_github(
-                    mostra_messaggio=True
+            storico["presenza"] = storico["presenza"].map(
+                {
+                    1: "Presente",
+                    0: "Assente"
+                }
+            )
+    
+            st.dataframe(
+                storico,
+                use_container_width=True,
+                hide_index=True
+            )
+    
+            csv = storico.to_csv(
+                index=False
+            ).encode(
+                "utf-8"
+            )
+    
+            st.download_button(
+                "📥 Scarica storico CSV",
+                csv,
+                "storico_presenze_corsi.csv",
+                "text/csv"
+            )
+            
+        if is_manager():
+    
+            with tab_backup:
+        
+                st.header("💾 Backup GitHub")
+        
+                st.info(
+                    "Il backup contiene istruttori, password, corsi, bambini, assegnazioni, presenze e stagioni."
                 )
-    
-            st.markdown("---")
-    
-            if os.path.exists(
-                "backup_completo.json"
-            ):
-    
-                with open(
-                    "backup_completo.json",
-                    "rb"
-                ) as f:
-    
-                    st.download_button(
-                        "📥 Scarica backup JSON",
-                        f,
-                        file_name="backup_completo.json",
-                        mime="application/json"
-                    )
-    
-            st.markdown("---")
-    
-            st.subheader("📤 Carica backup manuale")
-    
-            uploaded_file = st.file_uploader(
-                "Carica file backup_completo.json",
-                type=["json"]
-            )
-    
-            if uploaded_file is not None:
-    
-                with open(
-                    "backup_completo.json",
-                    "wb"
-                ) as f:
-    
-                    f.write(
-                        uploaded_file.getbuffer()
-                    )
-    
+        
                 if st.button(
-                    "♻️ Ripristina backup caricato"
+                    "💾 Salva backup su GitHub"
                 ):
-    
-                    if ripristina_backup_locale():
-    
+        
+                    upload_backup_github(
+                        mostra_messaggio=True
+                    )
+        
+                st.markdown("---")
+        
+                if os.path.exists(
+                    "backup_completo.json"
+                ):
+        
+                    with open(
+                        "backup_completo.json",
+                        "rb"
+                    ) as f:
+        
+                        st.download_button(
+                            "📥 Scarica backup JSON",
+                            f,
+                            file_name="backup_completo.json",
+                            mime="application/json"
+                        )
+        
+                st.markdown("---")
+        
+                st.subheader("📤 Carica backup manuale")
+        
+                uploaded_file = st.file_uploader(
+                    "Carica file backup_completo.json",
+                    type=["json"]
+                )
+        
+                if uploaded_file is not None:
+        
+                    with open(
+                        "backup_completo.json",
+                        "wb"
+                    ) as f:
+        
+                        f.write(
+                            uploaded_file.getbuffer()
+                        )
+        
+                    if st.button(
+                        "♻️ Ripristina backup caricato"
+                    ):
+        
+                        if ripristina_backup_locale():
+        
+                            st.success(
+                                "Backup ripristinato correttamente."
+                            )
+        
+                            upload_backup_github(
+                                mostra_messaggio=True
+                            )
+        
+                            st.rerun()
+        
+                        else:
+        
+                            st.error(
+                                "Impossibile ripristinare il backup."
+                            )
+        
+                st.markdown("---")
+        
+                st.subheader("☁️ Ripristino da GitHub")
+        
+                if st.button(
+                    "📥 Scarica e ripristina backup da GitHub"
+                ):
+        
+                    if scarica_backup_github():
+        
+                        ripristina_backup_locale()
+        
                         st.success(
-                            "Backup ripristinato correttamente."
+                            "Backup scaricato da GitHub e ripristinato."
                         )
-    
-                        upload_backup_github(
-                            mostra_messaggio=True
-                        )
-    
+        
                         st.rerun()
-    
+        
                     else:
-    
+        
                         st.error(
-                            "Impossibile ripristinare il backup."
+                            "Nessun backup trovato su GitHub oppure accesso non riuscito."
                         )
-    
-            st.markdown("---")
-    
-            st.subheader("☁️ Ripristino da GitHub")
-    
-            if st.button(
-                "📥 Scarica e ripristina backup da GitHub"
-            ):
-    
-                if scarica_backup_github():
-    
-                    ripristina_backup_locale()
-    
-                    st.success(
-                        "Backup scaricato da GitHub e ripristinato."
-                    )
-    
-                    st.rerun()
-    
-                else:
-    
-                    st.error(
-                        "Nessun backup trovato su GitHub oppure accesso non riuscito."
-                    )
 
 if is_manager():
 
