@@ -1,5 +1,16 @@
 {
-    "utenti": [],
+    "utenti": [
+        {
+            "id": 15,
+            "username": "gabriele",
+            "nome": "Manager",
+            "ruolo": "manager",
+            "password_hash": "6548d21e55ba516168bf2f34c5cf1f33f409d62b9a91499374903b9bfd525cbe",
+            "salt": "34e23cf41bca50748f2b68a731ffeb56",
+            "attivo": 1,
+            "password_visibile": null
+        }
+    ],
     "corsi": [],
     "corso_giorni": [],
     "bambini": [],
