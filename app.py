@@ -3045,14 +3045,12 @@ else:
     tabs = st.tabs(
         [
             "📋 Presenze",
-            "👶 Bambini",
-            "💾 Backup"
+            "👶 Bambini"
         ]
     )
 
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
-    tab_backup = tabs[2]
 
 # ============================================================
 # TAB PRESENZE
