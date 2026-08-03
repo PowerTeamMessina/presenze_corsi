@@ -8,7 +8,17 @@
             "password_hash": "988ffb0be33268061be7170e80b122604bb6f813f25df2cb139f03f6cf8bb55d",
             "salt": "927d936dafaaaec7ae5e7da3a1c4b998",
             "attivo": 1,
-            "password_visibile": null
+            "password_visibile": NaN
+        },
+        {
+            "id": 33,
+            "username": "gabgrifo@unime.it",
+            "nome": "Gabriele Grifò",
+            "ruolo": "manager",
+            "password_hash": "914ddfc51f078494d45aaadbc598e0854a70020dba095d6a232d4727f14c8580",
+            "salt": "711772813de95a04f22717052b332ba1",
+            "attivo": 1,
+            "password_visibile": "WIUkEQP2CZex"
         }
     ],
     "corsi": [],
