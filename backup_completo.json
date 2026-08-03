@@ -1,16 +1,6 @@
 {
     "utenti": [
         {
-            "id": 10,
-            "username": "gabriele",
-            "nome": "Manager",
-            "ruolo": "manager",
-            "password_hash": "428ae2b967bea50c06ab2227a6a6733237cbe3bf18a016f1ee827101dce94460",
-            "salt": "8a6ef46d8a35cc3040a6c31dae041d53",
-            "attivo": 1,
-            "password_visibile": NaN
-        },
-        {
             "id": 11,
             "username": "gabrielegrifo@gmail.com",
             "nome": "Gabriele Grifò",
