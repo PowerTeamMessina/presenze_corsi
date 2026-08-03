@@ -2558,48 +2558,48 @@ def invia_credenziali_genitore_email(
     )
     
     testo = f"""
-    Ciao,
+        Ciao,
     
-    è stato creato il tuo accesso all'Area Genitore della Power Team Messina.
+        è stato creato il tuo accesso all'Area Genitore della Power Team Messina.
     
-    Credenziali di accesso:
+        Credenziali di accesso:
     
-    Email: {email_destinatario}
-    Password: {password}
+        Email: {email_destinatario}
+        Password: {password}
     
-    Link app:
-    {app_url}
+        Link app:
+        {app_url}
     
-    Ti consigliamo di conservare queste credenziali con attenzione.
+        Ti consigliamo di conservare queste credenziali con attenzione.
     
-    Power Team Messina
+        Power Team Messina
     """
     
-        msg = MIMEText(
-            testo,
-            "plain",
-            "utf-8"
-        )
+    msg = MIMEText(
+        testo,
+        "plain",
+        "utf-8"
+    )
     
-        msg["Subject"] = "Credenziali accesso Corsi Nuoto"
-        msg["From"] = mittente
-        msg["To"] = email_destinatario
+    msg["Subject"] = "Credenziali accesso Corsi Nuoto"
+    msg["From"] = mittente
+    msg["To"] = email_destinatario
     
-        server = smtplib.SMTP(
-            "smtp.gmail.com",
-            587
-        )
+    server = smtplib.SMTP(
+        "smtp.gmail.com",
+        587
+    )
     
-        server.starttls()
+    server.starttls()
     
-        server.login(
-            mittente,
-            password_mittente
-        )
+    server.login(
+        mittente,
+        password_mittente
+    )
     
-        server.send_message(msg)
+    server.send_message(msg)
     
-        server.quit()    
+    server.quit()    
 
 def elimina_bambino(bambino_id):
 
