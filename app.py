@@ -384,6 +384,18 @@ CREATE TABLE IF NOT EXISTS sistema (
 )
 """)
 
+c.execute("""
+CREATE TABLE IF NOT EXISTS chiusure (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    data TEXT NOT NULL,
+    descrizione TEXT,
+    corso_id INTEGER,
+    attiva INTEGER DEFAULT 1
+)
+""")
+
+conn.commit()
+
 conn.commit()
 
 # ============================================================
@@ -590,6 +602,35 @@ def scarica_backup_github():
         f.write(contenuto)
 
     return True
+
+def is_festivo(data):
+
+    festivita = {
+
+        "01-01",
+        "06-01",
+
+        "25-04",
+
+        "01-05",
+
+        "02-06",
+
+        "15-08",
+
+        "01-11",
+
+        "08-12",
+
+        "25-12",
+        "26-12"
+    }
+
+    return (
+        data.strftime("%m-%d")
+        in festivita
+    )
+
 
 def ripristina_backup_locale():
 
@@ -2246,7 +2287,9 @@ def get_presenze_corso_data(corso_id, data_evento):
         )
     )
 
-def get_presenze_bambino(bambino_id):
+def get_presenze_bambino(
+    bambino_id
+):
 
     return pd.read_sql(
         """
@@ -2308,6 +2351,42 @@ def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
             f"Errore backup GitHub: {e}"
         )
 
+def aggiungi_chiusura(
+    data,
+    descrizione,
+    corso_id=None
+):
+
+    c.execute(
+        """
+        INSERT INTO chiusure(
+            data,
+            descrizione,
+            corso_id,
+            attiva
+        )
+        VALUES(?,?,?,1)
+        """,
+        (
+            data,
+            descrizione,
+            corso_id
+        )
+    )
+
+    conn.commit()
+
+def get_chiusure():
+
+    return pd.read_sql(
+        """
+        SELECT *
+        FROM chiusure
+        WHERE attiva = 1
+        ORDER BY data
+        """,
+        conn
+    )
 
 def storico_presenze():
 
@@ -2458,6 +2537,7 @@ if is_manager():
             "👔 Manager",
             "🔗 Assegnazioni",
             "📊 Riepilogo presenze",
+            "🚫 Chiusure",
             "🗂️ Storico",
             "💾 Backup"
         ]
@@ -2471,8 +2551,9 @@ if is_manager():
     tab_manager = tabs[5]
     tab_assegnazioni = tabs[6]
     tab_riepilogo = tabs[7]
-    tab_storico = tabs[8]
-    tab_backup = tabs[9]
+    tab_chiusure = tabs[8]
+    tab_storico = tabs[9]
+    tab_backup = tabs[10]
 
 else:
 
@@ -4176,172 +4257,224 @@ with tab_storico:
     if is_manager():
 
         with tab_riepilogo:
-    
-            st.header("📊 Riepilogo presenze annuale")
-    
+
+            st.header("📊 Riepilogo Presenze")
+        
             bambini = get_bambini(
                 attivi_solo=False
             )
-    
+        
             if bambini.empty:
-    
+        
                 st.info(
                     "Nessun bambino presente."
                 )
-    
+        
             else:
-    
-                opzioni = {
-                    f"{row['cognome']} {row['nome']}":
-                        int(row["id"])
+        
+                opzioni_bambini = {
+                    f"{row['cognome']} {row['nome']}": int(row["id"])
                     for _, row in bambini.iterrows()
                 }
-    
+        
                 bambino_label = st.selectbox(
-                    "Bambino",
-                    list(opzioni.keys())
+                    "Seleziona bambino",
+                    list(opzioni_bambini.keys())
                 )
-    
-                bambino_id = opzioni[
+        
+                bambino_id = opzioni_bambini[
                     bambino_label
                 ]
-    
-                dati = bambini[
+        
+                dati_bambino = bambini[
                     bambini["id"] == bambino_id
                 ].iloc[0]
-    
+        
                 corso_id = int(
-                    dati["corso_id"]
+                    dati_bambino["corso_id"]
                 )
-    
+        
                 giorni_corso = get_giorni_corso(
                     corso_id
                 )
-    
+        
                 giorni_validi = (
                     giorni_corso["giorno"]
                     .tolist()
                 )
-    
-                presenze = (
-                    get_presenze_bambino(
-                        bambino_id
-                    )
+        
+                presenze = get_presenze_bambino(
+                    bambino_id
                 )
-    
+        
                 presenze_dict = {}
-    
+        
                 for _, row in presenze.iterrows():
-    
+        
                     presenze_dict[
                         str(row["data"])
                     ] = int(
                         row["presenza"]
                     )
-    
+        
+                chiusure_df = get_chiusure()
+        
+                chiusure = set(
+                    chiusure_df["data"].tolist()
+                )
+        
+                mappa_giorni = {
+                    "Lunedì": 0,
+                    "Martedì": 1,
+                    "Mercoledì": 2,
+                    "Giovedì": 3,
+                    "Venerdì": 4,
+                    "Sabato": 5,
+                    "Domenica": 6
+                }
+        
                 stagione = stagione_selezionata
-    
+        
                 anno_inizio = int(
                     stagione.split("/")[0]
                 )
-    
+        
                 anno_fine = anno_inizio + 1
-    
+        
                 mesi = [
-                    ("Settembre",9,anno_inizio),
-                    ("Ottobre",10,anno_inizio),
-                    ("Novembre",11,anno_inizio),
-                    ("Dicembre",12,anno_inizio),
-                    ("Gennaio",1,anno_fine),
-                    ("Febbraio",2,anno_fine),
-                    ("Marzo",3,anno_fine),
-                    ("Aprile",4,anno_fine),
-                    ("Maggio",5,anno_fine),
-                    ("Giugno",6,anno_fine),
-                    ("Luglio",7,anno_fine),
-                    ("Agosto",8,anno_fine)
+                    ("Settembre", 9, anno_inizio),
+                    ("Ottobre", 10, anno_inizio),
+                    ("Novembre", 11, anno_inizio),
+                    ("Dicembre", 12, anno_inizio),
+                    ("Gennaio", 1, anno_fine),
+                    ("Febbraio", 2, anno_fine),
+                    ("Marzo", 3, anno_fine),
+                    ("Aprile", 4, anno_fine),
+                    ("Maggio", 5, anno_fine),
+                    ("Giugno", 6, anno_fine),
+                    ("Luglio", 7, anno_fine),
+                    ("Agosto", 8, anno_fine)
                 ]
-    
-                mappa_giorni = {
-                    "Lunedì":0,
-                    "Martedì":1,
-                    "Mercoledì":2,
-                    "Giovedì":3,
-                    "Venerdì":4,
-                    "Sabato":5,
-                    "Domenica":6
+        
+                festivita_fisse = {
+                    "01-01",
+                    "01-06",
+                    "04-25",
+                    "05-01",
+                    "06-02",
+                    "08-15",
+                    "11-01",
+                    "12-08",
+                    "12-25",
+                    "12-26"
                 }
-    
+        
                 tabella = []
-    
+        
                 for nome_mese, mese, anno in mesi:
-    
+        
                     riga = {
                         "Mese": nome_mese
                     }
-    
+        
                     giorni_mese = monthrange(
                         anno,
                         mese
                     )[1]
-    
+        
                     for giorno in range(1, 32):
-    
+        
                         if giorno > giorni_mese:
-    
+        
                             riga[str(giorno)] = ""
+        
                             continue
-    
+        
                         data_corrente = datetime(
                             anno,
                             mese,
                             giorno
                         )
-    
-                        corso_previsto = False
-    
-                        for g in giorni_validi:
-    
-                            if (
-                                data_corrente.weekday()
-                                ==
-                                mappa_giorni[g]
-                            ):
-                                corso_previsto = True
-    
-                        if not corso_previsto:
-    
-                            riga[str(giorno)] = "—"
-                            continue
-    
-                        data_str = (
-                            data_corrente.strftime(
-                                "%Y-%m-%d"
-                            )
+        
+                        data_str = data_corrente.strftime(
+                            "%Y-%m-%d"
                         )
-    
-                        if data_str in presenze_dict:
-    
-                            if (
-                                presenze_dict[data_str]
-                                == 1
-                            ):
+        
+                        corso_previsto = (
+                            data_corrente.weekday()
+                            in
+                            [
+                                mappa_giorni[g]
+                                for g in giorni_validi
+                            ]
+                        )
+        
+                        if data_str in chiusure:
+        
+                            riga[str(giorno)] = "-"
+        
+                        elif (
+                            data_corrente.strftime("%m-%d")
+                            in
+                            festivita_fisse
+                        ):
+        
+                            riga[str(giorno)] = "-"
+        
+                        elif not corso_previsto:
+        
+                            riga[str(giorno)] = "-"
+        
+                        elif data_str in presenze_dict:
+        
+                            if presenze_dict[data_str] == 1:
+        
                                 riga[str(giorno)] = "✅"
+        
                             else:
+        
                                 riga[str(giorno)] = "❌"
-    
+        
                         else:
-    
+        
                             riga[str(giorno)] = ""
-    
-                    tabella.append(riga)
-    
-                df = pd.DataFrame(
+        
+                    tabella.append(
+                        riga
+                    )
+        
+                df_calendario = pd.DataFrame(
                     tabella
                 )
-    
+        
                 st.dataframe(
-                    df,
+                    df_calendario,
                     use_container_width=True,
                     hide_index=True
                 )
+
+with tab_chiusure:
+
+    st.header("🚫 Chiusure")
+
+    data_chiusura = st.date_input(
+        "Data"
+    )
+
+    descrizione = st.text_input(
+        "Descrizione"
+    )
+
+    if st.button("➕ Inserisci chiusura"):
+
+        aggiungi_chiusura(
+            str(data_chiusura),
+            descrizione
+        )
+
+        st.rerun()
+
+    st.dataframe(
+        get_chiusure(),
+        use_container_width=True
+    )
