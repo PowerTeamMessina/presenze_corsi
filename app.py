@@ -10,7 +10,6 @@ import os
 import base64
 import requests
 from datetime import datetime
-from datetime import datetime
 from email.mime.text import MIMEText
 
 # ============================================================
@@ -25,7 +24,6 @@ st.set_page_config(
 
 DB_NAME = "corsi_nuoto.db"
 
-
 # ============================================================
 # DATABASE
 # ============================================================
@@ -36,7 +34,6 @@ conn = sqlite3.connect(
 )
 
 c = conn.cursor()
-
 
 # ============================================================
 # FUNZIONI PASSWORD
@@ -196,7 +193,6 @@ def ripristina_backup():
             f"Errore backup GitHub: {e}"
         )
 
-
 def hash_password(password, salt=None):
 
     if salt is None:
@@ -334,7 +330,6 @@ CREATE TABLE IF NOT EXISTS sistema (
 """)
 
 conn.commit()
-
 
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
