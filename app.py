@@ -3052,7 +3052,7 @@ else:
 
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
-    tab_backup = tabs[3]
+    tab_backup = tabs[2]
 
 # ============================================================
 # TAB PRESENZE
