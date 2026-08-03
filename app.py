@@ -302,6 +302,17 @@ CREATE TABLE IF NOT EXISTS bambini (
     attivo INTEGER DEFAULT 1
 )
 """)
+try:
+
+    c.execute("""
+        ALTER TABLE bambini
+        ADD COLUMN corso_id INTEGER
+    """)
+
+    conn.commit()
+
+except Exception:
+    pass
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS assegnazioni_istruttori (
