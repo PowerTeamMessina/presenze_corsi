@@ -945,27 +945,6 @@ def get_bambini_corso(corso_id, attivi_solo=True):
         st.error(str(e))
         raise
 
-def get_bambini_corso(corso_id, attivi_solo=True):
-
-    query = """
-        SELECT *
-        FROM bambini
-        WHERE corso_id = ?
-    """
-
-    if attivi_solo:
-        query += " AND attivo = 1"
-
-    query += """
-        ORDER BY cognome, nome
-    """
-
-    return pd.read_sql(
-        query,
-        conn,
-        params=(corso_id,)
-    )
-
 def aggiungi_stagione(nome):
 
     c.execute(
