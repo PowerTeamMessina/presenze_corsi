@@ -2359,13 +2359,13 @@ if is_manager():
 
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
-    tab_corsi = tabs[3]
-    tab_stagioni = tabs[4]
-    tab_istruttori = tabs[5]
-    tab_manager = tabs[6]
-    tab_assegnazioni = tabs[7]
-    tab_storico = tabs[8]
-    tab_backup = tabs[9]
+    tab_corsi = tabs[2]
+    tab_stagioni = tabs[3]
+    tab_istruttori = tabs[4]
+    tab_manager = tabs[5]
+    tab_assegnazioni = tabs[6]
+    tab_storico = tabs[7]
+    tab_backup = tabs[8]
 
 else:
 
