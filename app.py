@@ -127,6 +127,28 @@ def elimina_istruttore(istruttore_id):
             f"Errore backup GitHub: {e}"
         )
 
+def elimina_manager(manager_id):
+
+    c.execute(
+        """
+        DELETE FROM utenti
+        WHERE id = ?
+        AND ruolo = 'manager'
+        """,
+        (manager_id,)
+    )
+
+    conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+
+    except:
+        pass
+        
 def ripristina_backup():
 
     with open(
@@ -3732,3 +3754,139 @@ if is_manager():
             use_container_width=True,
             hide_index=True
         )
+
+        st.markdown("---")
+
+        st.subheader("⚙️ Modifica manager")
+
+        opzioni_manager = {
+            f"{row['nome']} ({row['email']})": int(row["id"])
+            for _, row in manager_df.iterrows()
+        }
+        
+        scelta_manager = st.selectbox(
+            "Manager",
+            list(opzioni_manager.keys()),
+            key="manager_modifica"
+        )
+        
+        manager_id = opzioni_manager[
+            scelta_manager
+        ]
+        
+        dettagli_manager = pd.read_sql(
+            """
+            SELECT *
+            FROM utenti
+            WHERE id = ?
+            """,
+            conn,
+            params=(manager_id,)
+        ).iloc[0]
+
+        manager_principale = (
+            dettagli_manager["username"]
+            ==
+            st.secrets.get(
+                "MANAGER_USERNAME",
+                ""
+            )
+        )
+
+        st.text_input(
+            "Email",
+            value=dettagli_manager["username"],
+            disabled=True
+        )
+        
+        st.text_input(
+            "Password corrente",
+            value=dettagli_manager["password_visibile"]
+                if pd.notna(
+                    dettagli_manager["password_visibile"]
+                )
+                else "",
+            disabled=True
+        )
+
+        if st.button(
+            "📧 Reinvia credenziali manager"
+        ):
+        
+            invia_credenziali_istruttore_email(
+                dettagli_manager["username"],
+                dettagli_manager["nome"],
+                dettagli_manager["password_visibile"]
+            )
+        
+            st.success(
+                "Credenziali inviate."
+            )
+
+        nuova_password_manager = st.text_input(
+            "Nuova password manager",
+            type="password",
+            key="password_manager"
+        )
+
+        if st.button(
+            "🔐 Cambia password manager"
+        ):
+        
+            if nuova_password_manager.strip() == "":
+        
+                st.error(
+                    "Inserisci una password."
+                )
+        
+            else:
+        
+                aggiorna_password_utente(
+                    manager_id,
+                    nuova_password_manager.strip()
+                )
+        
+                st.success(
+                    "Password aggiornata."
+                )
+        
+                st.rerun()
+
+        st.markdown("---")
+
+        st.subheader("🗑️ Elimina manager")   
+
+        if manager_principale:
+
+            st.warning(
+                "Il manager principale non può essere eliminato."
+            )
+        
+        else:
+        
+            conferma_elimina_manager = st.checkbox(
+                f"Confermo eliminazione di {dettagli_manager['nome']}",
+                key=f"elimina_manager_{manager_id}"
+            )
+        
+            if st.button(
+                "🗑️ Elimina manager"
+            ):
+        
+                if not conferma_elimina_manager:
+        
+                    st.error(
+                        "Devi confermare."
+                    )
+        
+                else:
+        
+                    elimina_manager(
+                        manager_id
+                    )
+        
+                    st.success(
+                        "Manager eliminato."
+                    )
+        
+                    st.rerun()
