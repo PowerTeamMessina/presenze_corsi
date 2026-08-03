@@ -3659,77 +3659,78 @@ with tab_bambini:
                         )
 
                         st.rerun()
-with tab_stagioni:
+if is_manager():
+    with tab_stagioni:
 
-    st.header("📅 Gestione stagioni")
-
-    nuova_stagione = st.text_input(
-        "Nuova stagione",
-        placeholder="es. 2027/2028"
-    )
-
-    if st.button("➕ Aggiungi stagione"):
-
-        if nuova_stagione.strip() == "":
-
-            st.error(
-                "Inserisci il nome della stagione."
-            )
-
-        else:
-
-            try:
-
-                aggiungi_stagione(
-                    nuova_stagione.strip()
-                )
-
-                st.success(
-                    "Stagione aggiunta."
-                )
-
-                st.rerun()
-
-            except:
-
-                st.error(
-                    "Stagione già esistente."
-                )
-
-    st.markdown("---")
-
-    st.dataframe(
-        get_stagioni(),
-        use_container_width=True,
-        hide_index=True
-    )
-
-    st.markdown("---")
-
-    st.subheader("📊 Riepilogo stagioni")
+        st.header("📅 Gestione stagioni")
     
-    riepilogo_stagioni = get_riepilogo_stagioni()
-    
-    if riepilogo_stagioni.empty:
-    
-        st.info(
-            "Nessuna stagione presente."
+        nuova_stagione = st.text_input(
+            "Nuova stagione",
+            placeholder="es. 2027/2028"
         )
     
-    else:
+        if st.button("➕ Aggiungi stagione"):
+    
+            if nuova_stagione.strip() == "":
+    
+                st.error(
+                    "Inserisci il nome della stagione."
+                )
+    
+            else:
+    
+                try:
+    
+                    aggiungi_stagione(
+                        nuova_stagione.strip()
+                    )
+    
+                    st.success(
+                        "Stagione aggiunta."
+                    )
+    
+                    st.rerun()
+    
+                except:
+    
+                    st.error(
+                        "Stagione già esistente."
+                    )
+    
+        st.markdown("---")
     
         st.dataframe(
-            riepilogo_stagioni.rename(
-                columns={
-                    "stagione": "Stagione",
-                    "numero_corsi": "Numero corsi",
-                    "numero_istruttori": "Numero istruttori",
-                    "numero_bambini": "Numero bambini"
-                }
-            ),
+            get_stagioni(),
             use_container_width=True,
             hide_index=True
         )
+    
+        st.markdown("---")
+    
+        st.subheader("📊 Riepilogo stagioni")
+        
+        riepilogo_stagioni = get_riepilogo_stagioni()
+        
+        if riepilogo_stagioni.empty:
+        
+            st.info(
+                "Nessuna stagione presente."
+            )
+        
+        else:
+        
+            st.dataframe(
+                riepilogo_stagioni.rename(
+                    columns={
+                        "stagione": "Stagione",
+                        "numero_corsi": "Numero corsi",
+                        "numero_istruttori": "Numero istruttori",
+                        "numero_bambini": "Numero bambini"
+                    }
+                ),
+                use_container_width=True,
+                hide_index=True
+            )
 
 # ============================================================
 # TAB CORSI
