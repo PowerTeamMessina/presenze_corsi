@@ -12,6 +12,16 @@ import requests
 from calendar import monthrange
 from datetime import datetime
 from email.mime.text import MIMEText
+from io import BytesIO
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer
+)
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 
 # ============================================================
 # CONFIGURAZIONE
@@ -560,6 +570,97 @@ def upload_backup_github(
 
         return False
 
+def genera_pdf_presenze(
+    bambino,
+    corso,
+    stagione,
+    presenze_totali,
+    assenze_totali,
+    percentuale_presenza,
+    data_generazione,
+    df_calendario
+):
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(buffer)
+
+    styles = getSampleStyleSheet()
+
+    elementi = []
+
+    elementi.append(
+        Paragraph(
+            "POWER TEAM MESSINA",
+            styles["Title"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            "Riepilogo Presenze Stagionale",
+            styles["Heading2"]
+        )
+    )
+
+    elementi.append(Spacer(1,12))
+
+    elementi.append(
+        Paragraph(
+            f"""
+            <b>Bambino:</b> {bambino}<br/>
+            <b>Corso:</b> {corso}<br/>
+            <b>Stagione:</b> {stagione}<br/>
+            <b>Presenze:</b> {presenze_totali}<br/>
+            <b>Assenze:</b> {assenze_totali}<br/>
+            <b>Percentuale presenza:</b> {percentuale_presenza}%<br/>
+            <b>Data generazione:</b> {data_generazione}
+            """,
+            styles["BodyText"]
+        )
+    )
+
+    elementi.append(Spacer(1,12))
+
+    dati_tabella = [
+        df_calendario.columns.tolist()
+    ]
+
+    dati_tabella += (
+        df_calendario.values.tolist()
+    )
+
+    tabella = Table(
+        dati_tabella
+    )
+
+    tabella.setStyle(
+        TableStyle([
+            ("GRID",(0,0),(-1,-1),0.5,colors.black),
+            ("BACKGROUND",(0,0),(-1,0),colors.lightgrey),
+            ("FONTSIZE",(0,0),(-1,-1),7)
+        ])
+    )
+
+    elementi.append(tabella)
+
+    elementi.append(Spacer(1,12))
+
+    elementi.append(
+        Paragraph(
+            "Legenda: ✅ Presenza | ❌ Assenza | - Nessuna lezione / Festività / Chiusura",
+            styles["BodyText"]
+        )
+    )
+
+    doc.build(elementi)
+
+    pdf = buffer.getvalue()
+
+    buffer.close()
+
+    return pdf
+    
 def scarica_backup_github():
 
     token = st.secrets["GITHUB_TOKEN"]
@@ -4335,7 +4436,15 @@ with tab_storico:
                 corso_id = int(
                     dati_bambino["corso_id"]
                 )
-        
+
+                corso_info = get_corso_by_id(
+                    corso_id
+                )
+                
+                nome_corso = (
+                    corso_info.iloc[0]["nome"]
+                )
+
                 giorni_corso = get_giorni_corso(
                     corso_id
                 )
@@ -4358,7 +4467,36 @@ with tab_storico:
                     ] = int(
                         row["presenza"]
                     )
-        
+
+                presenze_totali = sum(
+                    1
+                    for valore in presenze_dict.values()
+                    if valore == 1
+                )
+                
+                assenze_totali = sum(
+                    1
+                    for valore in presenze_dict.values()
+                    if valore == 0
+                )
+                
+                lezioni_programmate = (
+                    presenze_totali +
+                    assenze_totali
+                )
+                
+                if lezioni_programmate > 0:
+                
+                    percentuale_presenza = round(
+                        presenze_totali * 100 /
+                        lezioni_programmate,
+                        2
+                    )
+                
+                else:
+                
+                    percentuale_presenza = 0
+                    
                 chiusure_df = get_chiusure()
         
                 chiusure = set(
@@ -4488,11 +4626,33 @@ with tab_storico:
                 df_calendario = pd.DataFrame(
                     tabella
                 )
-        
+
+                data_generazione = datetime.now().strftime(
+                    "%d/%m/%Y"
+                )
+                
                 st.dataframe(
                     df_calendario,
                     use_container_width=True,
                     hide_index=True
+                )
+
+                pdf_data = genera_pdf_presenze(
+                    bambino_label,
+                    nome_corso,
+                    stagione,
+                    presenze_totali,
+                    assenze_totali,
+                    percentuale_presenza,
+                    data_generazione,
+                    df_calendario
+                )
+
+                st.download_button(
+                    "📄 Scarica PDF",
+                    pdf_data,
+                    file_name=f"presenze_{bambino_label}.pdf",
+                    mime="application/pdf"
                 )
 
 with tab_chiusure:
