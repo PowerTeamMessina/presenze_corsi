@@ -1127,6 +1127,50 @@ def aggiungi_istruttore(email, nome):
 
     return password_generata
 
+def aggiungi_manager(email, nome):
+
+    password_generata = genera_password_casuale()
+
+    password_hash, salt = hash_password(
+        password_generata
+    )
+
+    c.execute(
+        """
+        INSERT INTO utenti(
+            username,
+            nome,
+            ruolo,
+            password_hash,
+            salt,
+            password_visibile,
+            attivo
+        )
+        VALUES(?,?,?,?,?,?,1)
+        """,
+        (
+            email.strip().lower(),
+            nome.strip(),
+            "manager",
+            password_hash,
+            salt,
+            password_generata
+        )
+    )
+
+    conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+
+    except:
+        pass
+
+    return password_generata
+
 def aggiorna_password_utente(
     utente_id,
     nuova_password
@@ -2158,6 +2202,7 @@ if is_manager():
             "🏊 Corsi",
             "📅 Stagioni",
             "👨‍🏫 Istruttori",
+            "👔 Manager",
             "🔗 Assegnazioni",
             "🗂️ Storico",
             "💾 Backup"
@@ -2169,9 +2214,10 @@ if is_manager():
     tab_corsi = tabs[2]
     tab_stagioni = tabs[3]
     tab_istruttori = tabs[4]
-    tab_assegnazioni = tabs[5]
-    tab_storico = tabs[6]
-    tab_backup = tabs[7]
+    tab_manager = tabs[5]
+    tab_assegnazioni = tabs[6]
+    tab_storico = tabs[7]
+    tab_backup = tabs[8]
 
 else:
 
@@ -3613,3 +3659,76 @@ with tab_storico:
                     st.error(
                         "Nessun backup trovato su GitHub oppure accesso non riuscito."
                     )
+
+if is_manager():
+
+    with tab_manager:
+
+        st.header("👔 Gestione Manager")
+
+        st.subheader("➕ Nuovo manager")
+
+        with st.form(
+            "form_nuovo_manager",
+            clear_on_submit=True
+        ):
+
+            email = st.text_input(
+                "Email manager"
+            )
+
+            nome = st.text_input(
+                "Nome manager"
+            )
+
+            crea = st.form_submit_button(
+                "➕ Crea manager e invia credenziali"
+            )
+
+            if crea:
+
+                try:
+
+                    password_generata = aggiungi_manager(
+                        email,
+                        nome
+                    )
+
+                    invia_credenziali_istruttore_email(
+                        email,
+                        nome,
+                        password_generata
+                    )
+
+                    st.success(
+                        "Manager creato correttamente."
+                    )
+
+                    st.rerun()
+
+                except sqlite3.IntegrityError:
+
+                    st.error(
+                        "Email già presente."
+                    )
+        
+        manager_df = pd.read_sql(
+            """
+            SELECT
+                id,
+                nome,
+                username AS email,
+                password_visibile,
+                attivo
+            FROM utenti
+            WHERE ruolo='manager'
+            ORDER BY nome
+            """,
+            conn
+        )
+        
+        st.dataframe(
+            manager_df,
+            use_container_width=True,
+            hide_index=True
+        )
