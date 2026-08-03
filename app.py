@@ -9,6 +9,7 @@ import json
 import os
 import base64
 import requests
+from calendar import monthrange
 from datetime import datetime
 from email.mime.text import MIMEText
 
@@ -2245,6 +2246,18 @@ def get_presenze_corso_data(corso_id, data_evento):
         )
     )
 
+def get_presenze_bambino(bambino_id):
+
+    return pd.read_sql(
+        """
+        SELECT *
+        FROM presenze
+        WHERE bambino_id = ?
+        ORDER BY data
+        """,
+        conn,
+        params=(bambino_id,)
+    )
 
 def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
 
@@ -2444,6 +2457,7 @@ if is_manager():
             "👨‍🏫 Istruttori",
             "👔 Manager",
             "🔗 Assegnazioni",
+            "📊 Riepilogo presenze",
             "🗂️ Storico",
             "💾 Backup"
         ]
@@ -2456,8 +2470,9 @@ if is_manager():
     tab_istruttori = tabs[4]
     tab_manager = tabs[5]
     tab_assegnazioni = tabs[6]
-    tab_storico = tabs[7]
-    tab_backup = tabs[8]
+    tab_riepilogo = tabs[7]
+    tab_storico = tabs[8]
+    tab_backup = tabs[9]
 
 else:
 
@@ -2474,7 +2489,6 @@ else:
     tab_bambini = tabs[1]
     tab_storico = tabs[2]
     tab_backup = tabs[3]
-
 
 # ============================================================
 # TAB PRESENZE
@@ -4157,3 +4171,177 @@ if is_manager():
                     )
         
                     st.rerun()
+
+with tab_storico:
+    if is_manager():
+
+    with tab_riepilogo:
+
+        st.header("📊 Riepilogo presenze annuale")
+
+        bambini = get_bambini(
+            attivi_solo=False
+        )
+
+        if bambini.empty:
+
+            st.info(
+                "Nessun bambino presente."
+            )
+
+        else:
+
+            opzioni = {
+                f"{row['cognome']} {row['nome']}":
+                    int(row["id"])
+                for _, row in bambini.iterrows()
+            }
+
+            bambino_label = st.selectbox(
+                "Bambino",
+                list(opzioni.keys())
+            )
+
+            bambino_id = opzioni[
+                bambino_label
+            ]
+
+            dati = bambini[
+                bambini["id"] == bambino_id
+            ].iloc[0]
+
+            corso_id = int(
+                dati["corso_id"]
+            )
+
+            giorni_corso = get_giorni_corso(
+                corso_id
+            )
+
+            giorni_validi = (
+                giorni_corso["giorno"]
+                .tolist()
+            )
+
+            presenze = (
+                get_presenze_bambino(
+                    bambino_id
+                )
+            )
+
+            presenze_dict = {}
+
+            for _, row in presenze.iterrows():
+
+                presenze_dict[
+                    str(row["data"])
+                ] = int(
+                    row["presenza"]
+                )
+
+            stagione = stagione_selezionata
+
+            anno_inizio = int(
+                stagione.split("/")[0]
+            )
+
+            anno_fine = anno_inizio + 1
+
+            mesi = [
+                ("Settembre",9,anno_inizio),
+                ("Ottobre",10,anno_inizio),
+                ("Novembre",11,anno_inizio),
+                ("Dicembre",12,anno_inizio),
+                ("Gennaio",1,anno_fine),
+                ("Febbraio",2,anno_fine),
+                ("Marzo",3,anno_fine),
+                ("Aprile",4,anno_fine),
+                ("Maggio",5,anno_fine),
+                ("Giugno",6,anno_fine),
+                ("Luglio",7,anno_fine),
+                ("Agosto",8,anno_fine)
+            ]
+
+            mappa_giorni = {
+                "Lunedì":0,
+                "Martedì":1,
+                "Mercoledì":2,
+                "Giovedì":3,
+                "Venerdì":4,
+                "Sabato":5,
+                "Domenica":6
+            }
+
+            tabella = []
+
+            for nome_mese, mese, anno in mesi:
+
+                riga = {
+                    "Mese": nome_mese
+                }
+
+                giorni_mese = monthrange(
+                    anno,
+                    mese
+                )[1]
+
+                for giorno in range(1, 32):
+
+                    if giorno > giorni_mese:
+
+                        riga[str(giorno)] = ""
+                        continue
+
+                    data_corrente = datetime(
+                        anno,
+                        mese,
+                        giorno
+                    )
+
+                    corso_previsto = False
+
+                    for g in giorni_validi:
+
+                        if (
+                            data_corrente.weekday()
+                            ==
+                            mappa_giorni[g]
+                        ):
+                            corso_previsto = True
+
+                    if not corso_previsto:
+
+                        riga[str(giorno)] = "—"
+                        continue
+
+                    data_str = (
+                        data_corrente.strftime(
+                            "%Y-%m-%d"
+                        )
+                    )
+
+                    if data_str in presenze_dict:
+
+                        if (
+                            presenze_dict[data_str]
+                            == 1
+                        ):
+                            riga[str(giorno)] = "✅"
+                        else:
+                            riga[str(giorno)] = "❌"
+
+                    else:
+
+                        riga[str(giorno)] = ""
+
+                tabella.append(riga)
+
+            df = pd.DataFrame(
+                tabella
+            )
+
+            st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True
+            )
