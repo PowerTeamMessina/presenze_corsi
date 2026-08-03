@@ -5275,7 +5275,7 @@ with tab_riepilogo:
                     params=(
                         corso_id_mensile,
                         f"{anno_mese}-{mese_numero:02d}-01",
-                        f"{anno_mese}-{mese_numero:02d}-{monthrange(anno_mese, mese_numero)02d}"
+                        f"{anno_mese}-{mese_numero:02d}-{monthrange(anno_mese, mese_numero)[1]:02d}"
                     )
                 )
         
