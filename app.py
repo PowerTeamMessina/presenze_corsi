@@ -373,6 +373,16 @@ CREATE TABLE IF NOT EXISTS sistema (
 )
 """)
 
+c.execute("""
+CREATE TABLE IF NOT EXISTS assegnazioni_bambini (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bambino_id INTEGER NOT NULL,
+    corso_id INTEGER NOT NULL,
+    data_specifica TEXT,
+    attiva INTEGER DEFAULT 1
+)
+""")
+
 conn.commit()
 
 # ============================================================
