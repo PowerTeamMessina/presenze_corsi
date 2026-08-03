@@ -2601,56 +2601,56 @@ with tab_bambini:
 
         st.header("👶 Gestione bambini")
     
-            st.subheader("➕ Aggiungi bambino")
+        st.subheader("➕ Aggiungi bambino")
     
-            with st.form(
-                "form_aggiungi_bambino",
-                clear_on_submit=True
-            ):
+        with st.form(
+            "form_aggiungi_bambino",
+            clear_on_submit=True
+        ):
     
-                nome = st.text_input(
-                    "Nome"
-                )
+            nome = st.text_input(
+                "Nome"
+            )
     
-                cognome = st.text_input(
-                    "Cognome"
-                )
+            cognome = st.text_input(
+                "Cognome"
+            )
     
-                data_nascita = st.date_input(
-                    "Data di nascita",
-                    value=None
-                )
+            data_nascita = st.date_input(
+                "Data di nascita",
+                value=None
+            )
     
-                note = st.text_area(
-                    "Note"
-                )
+            note = st.text_area(
+                "Note"
+            )
     
-                invia = st.form_submit_button(
-                    "➕ Aggiungi"
-                )
+            invia = st.form_submit_button(
+                "➕ Aggiungi"
+            )
     
-                if invia:
+            if invia:
     
-                    if nome.strip() == "" or cognome.strip() == "":
+                if nome.strip() == "" or cognome.strip() == "":
     
-                        st.error(
-                            "Nome e cognome sono obbligatori."
-                        )
+                    st.error(
+                        "Nome e cognome sono obbligatori."
+                    )
     
-                    else:
+                else:
     
-                        aggiungi_bambino(
-                            nome.strip(),
-                            cognome.strip(),
-                            data_nascita,
-                            note.strip()
-                        )
+                    aggiungi_bambino(
+                        nome.strip(),
+                        cognome.strip(),
+                        data_nascita,
+                        note.strip()
+                    )
     
-                        st.success(
-                            "Bambino aggiunto correttamente."
-                        )
+                    st.success(
+                        "Bambino aggiunto correttamente."
+                    )
     
-                        st.rerun()
+                    st.rerun()
 
         st.markdown("---")
 
