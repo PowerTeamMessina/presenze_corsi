@@ -1961,6 +1961,47 @@ def salva_giorni_corso(corso_id, giorni_orari):
             f"Errore backup GitHub: {e}"
         )
 
+def crea_account_genitore(
+    email,
+    nome_bambino
+):
+
+    password_generata = genera_password_casuale()
+
+    password_hash, salt = hash_password(
+        password_generata
+    )
+
+    c.execute(
+        """
+        INSERT INTO utenti(
+            username,
+            nome,
+            ruolo,
+            password_hash,
+            salt,
+            password_visibile,
+            attivo
+        )
+        VALUES(?,?,?,?,?,?,1)
+        """,
+        (
+            email.strip().lower(),
+            f"Genitore {nome_bambino}",
+            "genitore",
+            password_hash,
+            salt,
+            password_generata
+        )
+    )
+
+    conn.commit()
+
+    return (
+        c.lastrowid,
+        password_generata
+    )
+
 def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
 
     c.execute(
@@ -2483,7 +2524,11 @@ def aggiungi_bambino(
             note
         )
     )
+    
+    bambino_id = c.lastrowid
 
+    return bambino_id
+    
     conn.commit()
 
     try:
@@ -2498,55 +2543,63 @@ def aggiungi_bambino(
             f"Errore backup GitHub: {e}"
         )
 
-def aggiorna_bambino(
-    bambino_id,
-    nome,
-    cognome,
-    data_nascita,
-    corso_id,
-    email_genitore,
-    note,
-    attivo
+def invia_credenziali_genitore_email(
+    email_destinatario,
+    nome_bambino,
+    password
 ):
-
-    c.execute(
-        """
-        UPDATE bambini
-        SET
-            nome = ?,
-            cognome = ?,
-            data_nascita = ?,
-            corso_id = ?,
-            email_genitore = ?,
-            note = ?,
-            attivo = ?
-        WHERE id = ?
-        """,
-        (
-            nome,
-            cognome,
-            data_nascita,
-            corso_id,
-            email_genitore,
-            note,
-            int(attivo),
-            bambino_id
-        )
+    
+    mittente = st.secrets["GMAIL_ADDRESS"]
+    password_mittente = st.secrets["GMAIL_PASSWORD"]
+    
+    app_url = st.secrets.get(
+        "APP_URL",
+        "link dell'app Streamlit"
     )
-
-    conn.commit()
-
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
+    
+    testo = f"""
+    Ciao,
+    
+    è stato creato il tuo accesso all'Area Genitore della Power Team Messina.
+    
+    Credenziali di accesso:
+    
+    Email: {email_destinatario}
+    Password: {password}
+    
+    Link app:
+    {app_url}
+    
+    Ti consigliamo di conservare queste credenziali con attenzione.
+    
+    Power Team Messina
+    """
+    
+        msg = MIMEText(
+            testo,
+            "plain",
+            "utf-8"
         )
-
-    except Exception as e:
-
-        print(
-            f"Errore backup GitHub: {e}"
+    
+        msg["Subject"] = "Credenziali accesso Corsi Nuoto"
+        msg["From"] = mittente
+        msg["To"] = email_destinatario
+    
+        server = smtplib.SMTP(
+            "smtp.gmail.com",
+            587
         )
+    
+        server.starttls()
+    
+        server.login(
+            mittente,
+            password_mittente
+        )
+    
+        server.send_message(msg)
+    
+        server.quit()    
 
 def elimina_bambino(bambino_id):
 
@@ -2773,7 +2826,41 @@ def get_stagioni():
 
     return df["stagione"].tolist()
 
+def get_genitori():
 
+    return pd.read_sql(
+        """
+        SELECT
+            u.id,
+            u.nome,
+            u.username,
+            u.password_visibile,
+            u.attivo
+        FROM utenti u
+        WHERE u.ruolo='genitore'
+        ORDER BY u.nome
+        """,
+        conn
+    )
+
+def get_bambino_associato_genitore(
+    genitore_id
+):
+
+    return pd.read_sql(
+        """
+        SELECT
+            b.nome,
+            b.cognome
+        FROM bambini b
+        JOIN genitori_bambini gb
+            ON gb.bambino_id = b.id
+        WHERE gb.utente_id = ?
+        """,
+        conn,
+        params=(genitore_id,)
+    )
+    
 def backup_giornaliero():
 
     oggi = datetime.today().strftime(
@@ -2879,6 +2966,7 @@ if is_manager():
             "📅 Stagioni",
             "👨‍🏫 Istruttori",
             "👔 Manager",
+            "👨‍👩‍👧 Genitori",
             "🔗 Assegnazioni",
             "📊 Riepilogo presenze",
             "🚫 Chiusure",
@@ -2893,11 +2981,12 @@ if is_manager():
     tab_stagioni = tabs[3]
     tab_istruttori = tabs[4]
     tab_manager = tabs[5]
-    tab_assegnazioni = tabs[6]
-    tab_riepilogo = tabs[7]
-    tab_chiusure = tabs[8]
-    tab_storico = tabs[9]
-    tab_backup = tabs[10]
+    tab_genitori = tabs[6]
+    tab_assegnazioni = tabs[7]
+    tab_riepilogo = tabs[8]
+    tab_chiusure = tabs[9]
+    tab_storico = tabs[10]
+    tab_backup = tabs[11]
 
 else:
 
@@ -3199,7 +3288,7 @@ with tab_bambini:
     
                 else:
     
-                    aggiungi_bambino(
+                    bambino_id = aggiungi_bambino(
                         nome,
                         cognome,
                         data_nascita,
@@ -5244,3 +5333,72 @@ with tab_chiusure:
             )
     
             st.rerun()
+
+with tab_genitori:
+
+    st.header(
+        "👨‍👩‍👧 Gestione Genitori"
+    )
+
+    genitori = get_genitori()
+
+    if genitori.empty:
+
+        st.info(
+            "Nessun genitore presente."
+        )
+
+    else:
+
+        st.dataframe(
+            genitori,
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        opzioni = {
+            f"{r['nome']} ({r['username']})":
+            int(r["id"])
+            for _, r in genitori.iterrows()
+        }
+
+        genitore_label = st.selectbox(
+            "Genitore",
+            list(opzioni.keys())
+        )
+
+        genitore_id = opzioni[
+            genitore_label
+        ]
+
+        dettagli = pd.read_sql(
+            """
+            SELECT *
+            FROM utenti
+            WHERE id = ?
+            """,
+            conn,
+            params=(genitore_id,)
+        ).iloc[0]
+
+        bambino_assoc = (
+            get_bambino_associato_genitore(
+                genitore_id
+            )
+        )
+
+        if not bambino_assoc.empty:
+
+        st.info(
+            f"Bambino associato: "
+            f"{bambino_assoc.iloc[0]['cognome']} "
+            f"{bambino_assoc.iloc[0]['nome']}"
+        )
+
+
+
+
+
+
+
+
