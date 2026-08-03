@@ -2136,7 +2136,8 @@ if is_manager():
             "👨‍🏫 Istruttori",
             "🔗 Assegnazioni",
             "🗂️ Storico",
-            "💾 Backup"
+            "💾 Backup",
+            "💾 CIAO",
         ]
     )
 
