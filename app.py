@@ -21,6 +21,7 @@ from reportlab.platypus import (
     Spacer
 )
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet
 
 # ============================================================
@@ -583,7 +584,16 @@ def genera_pdf_presenze(
 
     buffer = BytesIO()
 
-    doc = SimpleDocTemplate(buffer)
+    from reportlab.lib.pagesizes import landscape, A4
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        leftMargin=15,
+        rightMargin=15,
+        topMargin=15,
+        bottomMargin=15
+    )
 
     styles = getSampleStyleSheet()
 
@@ -622,12 +632,21 @@ def genera_pdf_presenze(
 
     elementi.append(Spacer(1,12))
 
-    dati_tabella = [
-        df_calendario.columns.tolist()
-    ]
+    df_pdf = df_calendario.copy()
 
+    df_pdf = df_pdf.replace(
+        {
+            "✅": "P",
+            "❌": "A"
+        }
+    )
+    
+    dati_tabella = [
+        df_pdf.columns.tolist()
+    ]
+    
     dati_tabella += (
-        df_calendario.values.tolist()
+        df_pdf.values.tolist()
     )
 
     tabella = Table(
@@ -648,7 +667,7 @@ def genera_pdf_presenze(
 
     elementi.append(
         Paragraph(
-            "Legenda: ✅ Presenza | ❌ Assenza | - Nessuna lezione / Festività / Chiusura",
+            "Legenda: P = Presenza | A = Assenza | - = Nessuna lezione / Festività / Chiusura",
             styles["BodyText"]
         )
     )
