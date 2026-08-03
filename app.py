@@ -2753,6 +2753,7 @@ with tab_bambini:
         st.subheader("📋 Elenco bambini")
 
         bambini = get_bambini(
+            corso_id,
             attivi_solo=False if is_manager() else True
         )
 
