@@ -6,10 +6,5 @@
     "assegnazioni_istruttori": [],
     "presenze": [],
     "stagioni": [],
-    "sistema": [
-        {
-            "chiave": "ultimo_backup_github",
-            "valore": "2026-08-03"
-        }
-    ]
+    "sistema": []
 }
