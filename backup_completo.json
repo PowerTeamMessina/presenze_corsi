@@ -8,7 +8,17 @@
             "password_hash": "ecbecc2b656491beb4d5fbbbe283eaa685ffd078b9c1694ec2ae2522758d60cd",
             "salt": "e02af3cf064979ff9c1c28e3c699bb16",
             "attivo": 1,
-            "password_visibile": null
+            "password_visibile": NaN
+        },
+        {
+            "id": 51,
+            "username": "gabrielegrifo@gmail.com",
+            "nome": "Gabriele Grifò",
+            "ruolo": "manager",
+            "password_hash": "4cc78681a56041e6c712a419dd8eb9743215ae3a68325b2a3691e1c6c65bf223",
+            "salt": "04c1496e30f98290c1d661ce9d8a5ece",
+            "attivo": 1,
+            "password_visibile": "T2RjPMrTAu8m"
         }
     ],
     "corsi": [],
