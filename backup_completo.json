@@ -1,16 +1,6 @@
 {
     "utenti": [
         {
-            "id": 11,
-            "username": "gabrielegrifo@gmail.com",
-            "nome": "Gabriele Grifò",
-            "ruolo": "istruttore",
-            "password_hash": "016339c2751ae0d7b8a6fa477ce079090e35af10434560de9cba3b8b24cc7449",
-            "salt": "a3b60435b9e4c31673f1cbd2622007eb",
-            "attivo": 1,
-            "password_visibile": "H0J-ECPGmVqN"
-        },
-        {
             "id": 14,
             "username": "gabriele",
             "nome": "Manager",
@@ -18,7 +8,7 @@
             "password_hash": "53f60bce5db7622675e2b59bea72ae50ec489dd7c5cd7764992d0023c272acf8",
             "salt": "25492acc3529df59ec18fed94575c2c1",
             "attivo": 1,
-            "password_visibile": NaN
+            "password_visibile": null
         }
     ],
     "corsi": [],
