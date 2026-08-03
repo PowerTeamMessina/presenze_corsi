@@ -4954,201 +4954,203 @@ with tab_riepilogo:
         )
         
         presenze_dict = {}
-    
+
         for _, row in presenze.iterrows():
-        
+
             presenze_dict[
-            str(row["data"])
+                str(row["data"])
             ] = int(
                 row["presenza"]
             )
 
-            presenze_totali = sum(
-                1
-                for valore in presenze_dict.values()
-                if valore == 1                
+        presenze_totali = sum(
+            1
+            for valore in presenze_dict.values()
+            if valore == 1
+        )
+
+        assenze_totali = sum(
+            1
+            for valore in presenze_dict.values()
+            if valore == 0
+        )
+
+        lezioni_programmate = (
+            presenze_totali
+            +
+            assenze_totali
+        )
+
+        if lezioni_programmate > 0:
+
+            percentuale_presenza = round(
+                presenze_totali
+                * 100
+                / lezioni_programmate,
+                2
             )
-                
-            assenze_totali = sum(
-                1
-                for valore in presenze_dict.values()
-                if valore == 0
-            )
-                
-            lezioni_programmate = (
-                presenze_totali +
-                assenze_totali
-            )
-                
-            if lezioni_programmate > 0:
-                
-                percentuale_presenza = round(
-                    presenze_totali * 100 /
-                    lezioni_programmate,
-                    2
-                )
-                
-            else:
-                
-                percentuale_presenza = 0
-                    
-                chiusure_df = get_chiusure()
-    
-                chiusure = set(
-                    chiusure_df["data"].tolist()
-                )
-        
-                mappa_giorni = {
-                    "Lunedì": 0,
-                    "Martedì": 1,
-                    "Mercoledì": 2,
-                    "Giovedì": 3,
-                    "Venerdì": 4,
-                    "Sabato": 5,
-                    "Domenica": 6
-                }
-        
-                stagione = stagione_riepilogo
-        
-                anno_inizio = int(
-                    stagione.split("/")[0]
-                )
-        
-                anno_fine = anno_inizio + 1
-        
-                mesi = [
-                    ("Settembre", 9, anno_inizio),
-                    ("Ottobre", 10, anno_inizio),
-                    ("Novembre", 11, anno_inizio),
-                    ("Dicembre", 12, anno_inizio),
-                    ("Gennaio", 1, anno_fine),
-                    ("Febbraio", 2, anno_fine),
-                    ("Marzo", 3, anno_fine),
-                    ("Aprile", 4, anno_fine),
-                    ("Maggio", 5, anno_fine),
-                    ("Giugno", 6, anno_fine),
-                    ("Luglio", 7, anno_fine),
-                    ("Agosto", 8, anno_fine)
-                ]
-        
-                festivita_fisse = {
-                    "01-01",
-                    "01-06",
-                    "04-25",
-                    "05-01",
-                    "06-02",
-                    "08-15",
-                    "11-01",
-                    "12-08",
-                    "12-25",
-                    "12-26"
-                }
-        
-                tabella = []
-        
-                for nome_mese, mese, anno in mesi:
-        
-                    riga = {
-                        "Mese": nome_mese
-                    }
-        
-                    giorni_mese = monthrange(
-                        anno,
-                        mese
-                    )[1]
-        
-                    for giorno in range(1, 32):
-        
-                        if giorno > giorni_mese:
-        
-                            riga[str(giorno)] = ""
-        
-                            continue
-        
-                        data_corrente = datetime(
-                            anno,
-                            mese,
-                            giorno
-                        )
-        
-                        data_str = data_corrente.strftime(
-                            "%Y-%m-%d"
-                        )
-        
-                        corso_previsto = (
-                            data_corrente.weekday()
-                            in
-                            [
-                                mappa_giorni[g]
-                                for g in giorni_validi
-                            ]
-                        )
-        
-                        if data_str in chiusure:
-        
-                            riga[str(giorno)] = "-"
-        
-                        elif (
-                            data_corrente.strftime("%m-%d")
-                            in
-                            festivita_fisse
-                        ):
-        
-                            riga[str(giorno)] = "-"
-        
-                        elif not corso_previsto:
-        
-                            riga[str(giorno)] = "-"
-        
-                        elif data_str in presenze_dict:
-        
-                            if presenze_dict[data_str] == 1:
-        
-                                riga[str(giorno)] = "✅"
-        
-                            else:
-        
-                                riga[str(giorno)] = "❌"
-        
-                        else:
-        
-                            riga[str(giorno)] = ""
-        
-                    tabella.append(
-                        riga
-                    )
-        
-                df_calendario = pd.DataFrame(
-                    tabella
+
+        else:
+
+            percentuale_presenza = 0
+
+        chiusure_df = get_chiusure()
+
+        chiusure = set(
+            chiusure_df["data"].tolist()
+        )
+
+        mappa_giorni = {
+            "Lunedì": 0,
+            "Martedì": 1,
+            "Mercoledì": 2,
+            "Giovedì": 3,
+            "Venerdì": 4,
+            "Sabato": 5,
+            "Domenica": 6
+        }
+
+        stagione = stagione_riepilogo
+
+        anno_inizio = int(
+            stagione.split("/")[0]
+        )
+
+        anno_fine = anno_inizio + 1
+
+        mesi = [
+            ("Settembre", 9, anno_inizio),
+            ("Ottobre", 10, anno_inizio),
+            ("Novembre", 11, anno_inizio),
+            ("Dicembre", 12, anno_inizio),
+            ("Gennaio", 1, anno_fine),
+            ("Febbraio", 2, anno_fine),
+            ("Marzo", 3, anno_fine),
+            ("Aprile", 4, anno_fine),
+            ("Maggio", 5, anno_fine),
+            ("Giugno", 6, anno_fine),
+            ("Luglio", 7, anno_fine),
+            ("Agosto", 8, anno_fine)
+        ]
+
+        festivita_fisse = {
+            "01-01",
+            "01-06",
+            "04-25",
+            "05-01",
+            "06-02",
+            "08-15",
+            "11-01",
+            "12-08",
+            "12-25",
+            "12-26"
+        }
+
+        tabella = []
+
+        for nome_mese, mese, anno in mesi:
+
+            riga = {
+                "Mese": nome_mese
+            }
+
+            giorni_mese = monthrange(
+                anno,
+                mese
+            )[1]
+
+            for giorno in range(1, 32):
+
+                if giorno > giorni_mese:
+
+                    riga[str(giorno)] = ""
+
+                    continue
+
+                data_corrente = datetime(
+                    anno,
+                    mese,
+                    giorno
                 )
 
-                data_generazione = datetime.now().strftime(
-                    "%d/%m/%Y"
-                )
-                
-                st.dataframe(
-                    df_calendario,
-                    use_container_width=True,
-                    hide_index=True
+                data_str = data_corrente.strftime(
+                    "%Y-%m-%d"
                 )
 
-                pdf_data = genera_pdf_presenze(
-                    bambino_label,
-                    nome_corso,
-                    stagione,
-                    presenze_totali,
-                    assenze_totali,
-                    percentuale_presenza,
-                    data_generazione,
-                    df_calendario
+                corso_previsto = (
+                    data_corrente.weekday()
+                    in
+                    [
+                        mappa_giorni[g]
+                        for g in giorni_validi
+                    ]
                 )
 
-                st.download_button(
-                    "📄 Scarica PDF",
-                    pdf_data,
-                    file_name=f"presenze_{bambino_label}.pdf",
-                    mime="application/pdf"
-                )
+                if data_str in chiusure:
+
+                    riga[str(giorno)] = "-"
+
+                elif (
+                    data_corrente.strftime("%m-%d")
+                    in festivita_fisse
+                ):
+
+                    riga[str(giorno)] = "-"
+
+                elif not corso_previsto:
+
+                    riga[str(giorno)] = "-"
+
+                elif data_str in presenze_dict:
+
+                    if presenze_dict[data_str] == 1:
+
+                        riga[str(giorno)] = "✅"
+
+                    else:
+
+                        riga[str(giorno)] = "❌"
+
+                else:
+
+                    riga[str(giorno)] = ""
+
+            tabella.append(
+                riga
+            )
+
+        df_calendario = pd.DataFrame(
+            tabella
+        )
+
+        data_generazione = datetime.now().strftime(
+            "%d/%m/%Y"
+        )
+
+        st.dataframe(
+            df_calendario,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        pdf_data = genera_pdf_presenze(
+            bambino_label,
+            nome_corso,
+            stagione,
+            presenze_totali,
+            assenze_totali,
+            percentuale_presenza,
+            data_generazione,
+            df_calendario
+        )
+
+        st.download_button(
+            "📄 Scarica PDF",
+            pdf_data,
+            file_name=f"presenze_{bambino_label}.pdf",
+            mime="application/pdf",
+            key=f"pdf_presenze_bambino_{bambino_id}"
+        )
 
                 st.markdown("---")
                 st.subheader("📅 Riepilogo mensile per corso")
