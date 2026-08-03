@@ -2858,112 +2858,107 @@ if is_manager():
 
         st.subheader("➕ Nuovo corso")
 
-        with st.form(
-            "form_nuovo_corso",
-            clear_on_submit=True
-        ):
+        nome = st.text_input(
+            "Nome corso",
+            placeholder="es. Corso Bambini 1"
+        )
 
-            nome = st.text_input(
-                "Nome corso",
-                placeholder="es. Corso Bambini 1"
-            )
+        livello = st.text_input(
+            "Livello",
+            placeholder="es. Principianti"
+        )
 
-            livello = st.text_input(
-                "Livello",
-                placeholder="es. Principianti"
-            )
+        stagione = st.selectbox(
+            "Stagione",
+            list(dict.fromkeys(
+                ["2026/2027"] + get_stagioni()
+            ))
+        )
 
-            stagione = st.selectbox(
-                "Stagione",
-                list(dict.fromkeys(
-                    ["2026/2027"] + get_stagioni()
-                ))
-            )
-
-            giorni_selezionati = st.multiselect(
-                "Giorni del corso",
-                [
-                    "Lunedì",
-                    "Martedì",
-                    "Mercoledì",
-                    "Giovedì",
-                    "Venerdì",
-                    "Sabato",
-                    "Domenica"
-                ],
-                max_selections=5
+        giorni_selezionati = st.multiselect(
+            "Giorni del corso",
+            [
+                "Lunedì",
+                "Martedì",
+                "Mercoledì",
+                "Giovedì",
+                "Venerdì",
+                "Sabato",
+                "Domenica"
+            ],
+            max_selections=5
+        )
+            
+        giorni_orari = []
+            
+        for giorno in giorni_selezionati:
+            
+            orario = st.text_input(
+                f"Orario {giorno}",
+                placeholder="es. 16:00-17:00",
+                key=f"nuovo_orario_{giorno}"
             )
             
-            giorni_orari = []
-            
-            for giorno in giorni_selezionati:
-            
-                orario = st.text_input(
-                    f"Orario {giorno}",
-                    placeholder="es. 16:00-17:00",
-                    key=f"nuovo_orario_{giorno}"
+            giorni_orari.append(
+                (
+                    giorno,
+                    orario
                 )
-            
-                giorni_orari.append(
-                    (
-                        giorno,
-                        orario
-                    )
-                )
-
-            crea = st.form_submit_button(
-                "➕ Crea corso"
             )
 
-            if crea:
+        crea = st.button(
+            "➕ Crea corso"
+        )
 
-                if nome.strip() == "":
+        if crea:
 
-                    st.error(
-                        "Inserisci il nome del corso."
-                    )
+            if nome.strip() == "":
 
-                elif len(giorni_orari) == 0:
+                st.error(
+                    "Inserisci il nome del corso."
+                )
 
-                    st.error(
-                        "Seleziona almeno un giorno."
-                    )
+            elif len(giorni_orari) == 0:
+
+                st.error(
+                    "Seleziona almeno un giorno."
+                )
                 
-                elif any(
-                    orario.strip() == ""
-                    for _, orario in giorni_orari
-                ):
+            elif any(
+                orario.strip() == ""
+                for _, orario in giorni_orari
+            ):
                 
-                    st.error(
-                        "Inserisci tutti gli orari."
-                    )
+                st.error(
+                    "Inserisci tutti gli orari."
+                )
                 
-                elif len(
-                    set(giorno for giorno, _ in giorni_orari)
-                ) != len(giorni_orari):
+            elif len(
+                set(giorno for giorno, _ in giorni_orari)
+            ) != len(giorni_orari):
                 
-                    st.error(
-                        "Non puoi inserire due volte lo stesso giorno nello stesso corso."
-                    )
+                st.error(
+                    "Non puoi inserire due volte lo stesso giorno nello stesso corso."
+                )
                 
-                else:
+            else:
                 
-                    corso_id = aggiungi_corso(
-                        nome.strip(),
-                        livello.strip(),
-                        stagione.strip()
-                    )
+                corso_id = aggiungi_corso(
+                    nome.strip(),
+                    livello.strip(),
+                    stagione.strip()
+                )
                 
-                    salva_giorni_corso(
-                        corso_id,
-                        giorni_orari
-                    )
+                salva_giorni_corso(
+                    corso_id,
+                    giorni_orari
+                )
                 
-                    st.success(
-                        "Corso creato correttamente."
-                    )
+                st.success(
+                    "Corso creato correttamente."
+                )
                 
-                    st.rerun()
+                st.rerun()
 
         st.markdown("---")
 
