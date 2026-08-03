@@ -80,15 +80,7 @@
         }
     ],
     "bambini": [],
-    "assegnazioni_istruttori": [
-        {
-            "id": 1,
-            "istruttore_id": 53,
-            "corso_id": 1,
-            "data_specifica": null,
-            "attiva": 1
-        }
-    ],
+    "assegnazioni_istruttori": [],
     "presenze": [],
     "stagioni": [
         {
