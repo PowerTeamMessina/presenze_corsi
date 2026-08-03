@@ -1,12 +1,12 @@
 {
     "utenti": [
         {
-            "id": 1,
+            "id": 2,
             "username": "gabriele",
             "nome": "Manager",
             "ruolo": "manager",
-            "password_hash": "019f8e0e560d81139ebb0b270db2b75bb7e9d639b8b10859af54b3dc6ca2508b",
-            "salt": "45e3f21bd377edb6e2fc23dba5bff877",
+            "password_hash": "9f8dfa2417e5fe681d6dce2668e684553a532836e0c817b62a048b633e8eb43c",
+            "salt": "0cc8ac09d247c20a033caa61402e1667",
             "attivo": 1,
             "password_visibile": null
         }
