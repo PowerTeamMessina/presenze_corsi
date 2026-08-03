@@ -918,18 +918,6 @@ def crea_manager_default():
 
 crea_manager_default()
 
-def get_stagioni():
-
-    return pd.read_sql(
-        """
-        SELECT *
-        FROM stagioni
-        WHERE attiva = 1
-        ORDER BY nome DESC
-        """,
-        conn
-    )
-
 def get_bambini(attivi_solo=True):
 
     query = """
@@ -1003,45 +991,136 @@ def aggiungi_stagione(nome):
 
 def get_riepilogo_stagioni():
 
-    query = """
-        SELECT
-            s.nome AS stagione,
+    # --------------------------------------------------------
+    # Recupero stagioni
+    # --------------------------------------------------------
 
-            COUNT(
-                DISTINCT c.id
-            ) AS numero_corsi,
+    try:
 
-            COUNT(
-                DISTINCT ai.istruttore_id
-            ) AS numero_istruttori,
+        stagioni_df = pd.read_sql(
+            """
+            SELECT nome
+            FROM stagioni
+            WHERE attiva = 1
+            ORDER BY nome DESC
+            """,
+            conn
+        )
 
-            COUNT(
-                DISTINCT b.id
-            ) AS numero_bambini
+    except Exception:
 
-        FROM stagioni s
+        stagioni_df = pd.read_sql(
+            """
+            SELECT DISTINCT stagione AS nome
+            FROM corsi
+            WHERE stagione IS NOT NULL
+            AND stagione != ''
+            ORDER BY stagione DESC
+            """,
+            conn
+        )
 
-        LEFT JOIN corsi c
-            ON c.stagione = s.nome
+    risultati = []
 
-        LEFT JOIN assegnazioni_istruttori ai
-            ON ai.corso_id = c.id
+    for _, stagione_row in stagioni_df.iterrows():
+
+        stagione = stagione_row["nome"]
+
+        # ----------------------------------------------------
+        # Numero corsi
+        # ----------------------------------------------------
+
+        numero_corsi = pd.read_sql(
+            """
+            SELECT COUNT(*) AS totale
+            FROM corsi
+            WHERE stagione = ?
+            """,
+            conn,
+            params=(stagione,)
+        ).iloc[0]["totale"]
+
+        # ----------------------------------------------------
+        # Numero istruttori assegnati ai corsi della stagione
+        # ----------------------------------------------------
+
+        numero_istruttori = pd.read_sql(
+            """
+            SELECT COUNT(DISTINCT ai.istruttore_id) AS totale
+            FROM assegnazioni_istruttori ai
+            JOIN corsi c
+                ON c.id = ai.corso_id
+            WHERE c.stagione = ?
             AND ai.attiva = 1
+            """,
+            conn,
+            params=(stagione,)
+        ).iloc[0]["totale"]
 
-        LEFT JOIN bambini b
-            ON b.corso_id = c.id
-            AND b.attivo = 1
+        # ----------------------------------------------------
+        # Numero bambini
+        # ----------------------------------------------------
+        # Proviamo prima con corso_id nella tabella bambini.
+        # Se la colonna non esiste, usiamo assegnazioni_bambini.
+        # ----------------------------------------------------
 
-        WHERE s.attiva = 1
+        colonne_bambini = pd.read_sql(
+            """
+            PRAGMA table_info(bambini)
+            """,
+            conn
+        )["name"].tolist()
 
-        GROUP BY s.nome
+        if "corso_id" in colonne_bambini:
 
-        ORDER BY s.nome DESC
-    """
+            numero_bambini = pd.read_sql(
+                """
+                SELECT COUNT(DISTINCT b.id) AS totale
+                FROM bambini b
+                JOIN corsi c
+                    ON c.id = b.corso_id
+                WHERE c.stagione = ?
+                AND b.attivo = 1
+                """,
+                conn,
+                params=(stagione,)
+            ).iloc[0]["totale"]
 
-    return pd.read_sql(
-        query,
-        conn
+        else:
+
+            try:
+
+                numero_bambini = pd.read_sql(
+                    """
+                    SELECT COUNT(DISTINCT ab.bambino_id) AS totale
+                    FROM assegnazioni_bambini ab
+                    JOIN corsi c
+                        ON c.id = ab.corso_id
+                    JOIN bambini b
+                        ON b.id = ab.bambino_id
+                    WHERE c.stagione = ?
+                    AND ab.attiva = 1
+                    AND b.attivo = 1
+                    """,
+                    conn,
+                    params=(stagione,)
+                ).iloc[0]["totale"]
+
+            except Exception:
+
+                numero_bambini = 0
+
+        risultati.append(
+            {
+                "stagione": stagione,
+                "numero_corsi": int(numero_corsi),
+                "numero_istruttori": int(numero_istruttori),
+                "numero_bambini": int(numero_bambini)
+            }
+        )
+
+    return pd.DataFrame(
+        risultati
     )
     
 # ============================================================
