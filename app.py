@@ -5389,11 +5389,11 @@ with tab_genitori:
 
         if not bambino_assoc.empty:
 
-        st.info(
-            f"Bambino associato: "
-            f"{bambino_assoc.iloc[0]['cognome']} "
-            f"{bambino_assoc.iloc[0]['nome']}"
-        )
+            st.info(
+                f"Bambino associato: "
+                f"{bambino_assoc.iloc[0]['cognome']} "
+                f"{bambino_assoc.iloc[0]['nome']}"
+            )
 
 
 
