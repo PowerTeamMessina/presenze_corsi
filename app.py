@@ -106,9 +106,17 @@ def elimina_istruttore(istruttore_id):
 
     conn.commit()
 
-    upload_backup_github(
-        mostra_messaggio=False
-    )
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 def ripristina_backup():
 
@@ -144,6 +152,18 @@ def ripristina_backup():
 
     conn.commit()
 
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
+
     upload_backup_github(
             mostra_messaggio=False
         )
@@ -164,8 +184,16 @@ def ripristina_backup():
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -305,7 +333,19 @@ CREATE TABLE IF NOT EXISTS sistema (
 )
 """)
 
-conn.commit()    
+conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )    
 
 try:
 
@@ -317,6 +357,18 @@ try:
     )
 
     conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 except:
 
@@ -573,9 +625,17 @@ def ripristina_backup_locale():
 
     conn.commit()
 
-    upload_backup_github(
-        mostra_messaggio=False
-    )
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
     ordine_insert = [
         "utenti",
@@ -608,6 +668,18 @@ def ripristina_backup_locale():
         )
 
     conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
     upload_backup_github(
             mostra_messaggio=False
@@ -703,8 +775,16 @@ def backup_giornaliero_github():
 
             conn.commit()
 
-            upload_backup_github(
+            try:
+        
+                upload_backup_github(
                     mostra_messaggio=False
+                )
+            
+            except Exception as e:
+            
+                print(
+                    f"Errore backup GitHub: {e}"
                 )
 
 def migra_giorni_corsi_vecchi():
@@ -752,10 +832,17 @@ def migra_giorni_corsi_vecchi():
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
         )
-
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 migra_giorni_corsi_vecchi()
 
@@ -811,10 +898,17 @@ def crea_manager_default():
 
         conn.commit()
 
+    try:
+
         upload_backup_github(
             mostra_messaggio=False
         )
-
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 crea_manager_default()
 
@@ -846,10 +940,18 @@ def aggiungi_stagione(nome):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
         )
-
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
+        
 # ============================================================
 # FUNZIONI UTENTI
 # ============================================================
@@ -988,8 +1090,16 @@ def aggiungi_istruttore(email, nome):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
     return password_generata
@@ -1022,10 +1132,17 @@ def aggiorna_password_utente(
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
         )
-
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 def cambia_stato_utente(utente_id, attivo):
 
@@ -1043,10 +1160,17 @@ def cambia_stato_utente(utente_id, attivo):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
         )
-
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 def login():
 
@@ -1292,10 +1416,18 @@ def aggiungi_corso(nome, livello, stagione):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
         )
-
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
+        )
+        
     return c.lastrowid
 
 def salva_giorni_corso(corso_id, giorni_orari):
@@ -1336,8 +1468,16 @@ def salva_giorni_corso(corso_id, giorni_orari):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
@@ -1362,8 +1502,16 @@ def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 def elimina_corso(corso_id):
@@ -1410,8 +1558,16 @@ def elimina_corso(corso_id):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 def giorno_settimana_italiano(data_evento):
@@ -1456,8 +1612,16 @@ def assegna_istruttore(istruttore_id, corso_id, data_specifica=None):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -1496,8 +1660,16 @@ def elimina_assegnazione(assegnazione_id):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -1663,8 +1835,16 @@ def aggiungi_bambino(nome, cognome, data_nascita, corso_id, note):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -1692,8 +1872,16 @@ def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -1717,8 +1905,16 @@ def elimina_bambino(bambino_id):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -1780,8 +1976,16 @@ def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
 
     conn.commit()
 
-    upload_backup_github(
+    try:
+
+        upload_backup_github(
             mostra_messaggio=False
+        )
+    
+    except Exception as e:
+    
+        print(
+            f"Errore backup GitHub: {e}"
         )
 
 
@@ -1862,8 +2066,16 @@ def backup_giornaliero():
 
         conn.commit()
 
-        upload_backup_github(
+        try:
+    
+            upload_backup_github(
                 mostra_messaggio=False
+            )
+        
+        except Exception as e:
+        
+            print(
+                f"Errore backup GitHub: {e}"
             )
         
 # ============================================================
