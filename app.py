@@ -2022,7 +2022,7 @@ def get_bambini_corso(corso_id, attivi_solo=True):
     )
 
 
-def aggiungi_bambino(nome, cognome, data_nascita, corso_id, note):
+def aggiungi_bambino(nome, cognome, data_nascita, note):
 
     c.execute(
         """
@@ -2030,7 +2030,6 @@ def aggiungi_bambino(nome, cognome, data_nascita, corso_id, note):
             nome,
             cognome,
             data_nascita,
-            corso_id,
             note,
             attivo
         )
@@ -2040,7 +2039,6 @@ def aggiungi_bambino(nome, cognome, data_nascita, corso_id, note):
             nome,
             cognome,
             str(data_nascita) if data_nascita else "",
-            corso_id,
             note
         )
     )
@@ -2603,33 +2601,6 @@ with tab_bambini:
 
         st.header("👶 Gestione bambini")
     
-        corsi_visibili = get_corsi_visibili_per_utente()
-    
-        if corsi_visibili.empty:
-    
-            st.warning(
-                "Non hai corsi assegnati."
-            )
-    
-        else:
-    
-            corsi_assegnabili = get_corsi_con_giorni(
-                attivi_solo=True
-            )
-            
-            opzioni_corsi = {
-                f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
-                for _, row in corsi_assegnabili.iterrows()
-            }
-    
-            corso_label = st.selectbox(
-                "Corso",
-                list(opzioni_corsi.keys()),
-                key="corso_bambini"
-            )
-    
-            corso_id = opzioni_corsi[corso_label]
-    
             st.subheader("➕ Aggiungi bambino")
     
             with st.form(
@@ -2672,7 +2643,6 @@ with tab_bambini:
                             nome.strip(),
                             cognome.strip(),
                             data_nascita,
-                            corso_id,
                             note.strip()
                         )
     
@@ -2687,14 +2657,13 @@ with tab_bambini:
         st.subheader("📋 Elenco bambini")
 
         bambini = get_bambini_corso(
-            corso_id,
             attivi_solo=False if is_manager() else True
         )
 
         if bambini.empty:
 
             st.info(
-                "Nessun bambino presente in questo corso."
+                "Nessun bambino presente."
             )
 
         else:
