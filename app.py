@@ -2045,7 +2045,21 @@ def get_corsi_visibili_per_utente(data_evento=None):
 # ============================================================
 # FUNZIONI BAMBINI
 # ============================================================
-def aggiungi_bambino(nome, cognome, data_nascita, note):
+def aggiungi_bambino(
+    nome,
+    cognome,
+    data_nascita,
+    note
+):
+
+    data_formattata = ""
+
+    if data_nascita:
+
+        data_formattata = (
+            pd.to_datetime(data_nascita)
+            .strftime("%d/%m/%Y")
+        )
 
     c.execute(
         """
@@ -2056,12 +2070,12 @@ def aggiungi_bambino(nome, cognome, data_nascita, note):
             note,
             attivo
         )
-        VALUES(?,?,?,?,?,1)
+        VALUES(?,?,?,?,1)
         """,
         (
             nome,
             cognome,
-            str(data_nascita) if data_nascita else "",
+            data_formattata,
             note
         )
     )
@@ -2073,9 +2087,9 @@ def aggiungi_bambino(nome, cognome, data_nascita, note):
         upload_backup_github(
             mostra_messaggio=False
         )
-    
+
     except Exception as e:
-    
+
         print(
             f"Errore backup GitHub: {e}"
         )
