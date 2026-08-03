@@ -297,7 +297,6 @@ CREATE TABLE IF NOT EXISTS bambini (
     nome TEXT NOT NULL,
     cognome TEXT NOT NULL,
     data_nascita TEXT,
-    corso_id INTEGER NOT NULL,
     note TEXT,
     attivo INTEGER DEFAULT 1,
     FOREIGN KEY(corso_id) REFERENCES corsi(id)
