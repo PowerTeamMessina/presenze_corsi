@@ -1,102 +1,22 @@
 {
     "utenti": [
         {
-            "id": 50,
+            "id": 1,
             "username": "gabriele",
             "nome": "Manager",
             "ruolo": "manager",
-            "password_hash": "ecbecc2b656491beb4d5fbbbe283eaa685ffd078b9c1694ec2ae2522758d60cd",
-            "salt": "e02af3cf064979ff9c1c28e3c699bb16",
+            "password_hash": "88ab83f3391af4068db539f7802ce4ab3ac00a2e9b9bd38300183e89845807c3",
+            "salt": "cb794831afb72d45d06eb9e723135728",
             "attivo": 1,
-            "password_visibile": NaN
-        },
-        {
-            "id": 52,
-            "username": "lucabombaci1980@gmail.com",
-            "nome": "Luca Bombaci",
-            "ruolo": "manager",
-            "password_hash": "663a541e5adab32e66b200bceb068db30328c56f57f783a0b9865501b1ce8d21",
-            "salt": "41ac5d347ff891bd8d6fd9c9f8fbd839",
-            "attivo": 1,
-            "password_visibile": "PY7zS46ka4BR"
-        },
-        {
-            "id": 53,
-            "username": "gianmarcogrifo@gmail.com",
-            "nome": "Gianmarco Grifò",
-            "ruolo": "istruttore",
-            "password_hash": "2c15072cbcc44811e50780364346a0566a95e23466067de4b56ca32381e534a4",
-            "salt": "72ad54147b79915af4cd64126bc4e885",
-            "attivo": 1,
-            "password_visibile": "aU1m0ayV-7Xj"
+            "password_visibile": null
         }
     ],
-    "corsi": [
-        {
-            "id": 1,
-            "nome": "Corso Prova",
-            "livello": "Prova",
-            "giorno": "",
-            "orario": "",
-            "stagione": "2026/2027",
-            "attivo": 1
-        }
-    ],
-    "corso_giorni": [
-        {
-            "id": 1,
-            "corso_id": 1,
-            "giorno": "Lunedì",
-            "orario": "10:00-11:00",
-            "ordine": 1
-        },
-        {
-            "id": 2,
-            "corso_id": 1,
-            "giorno": "Martedì",
-            "orario": "10:00-11:00",
-            "ordine": 2
-        },
-        {
-            "id": 3,
-            "corso_id": 1,
-            "giorno": "Mercoledì",
-            "orario": "10:00-11:00",
-            "ordine": 3
-        },
-        {
-            "id": 4,
-            "corso_id": 1,
-            "giorno": "Giovedì",
-            "orario": "10:00-11:00",
-            "ordine": 4
-        },
-        {
-            "id": 5,
-            "corso_id": 1,
-            "giorno": "Venerdì",
-            "orario": "10:00-11:00",
-            "ordine": 5
-        }
-    ],
+    "corsi": [],
+    "corso_giorni": [],
     "bambini": [],
-    "assegnazioni_istruttori": [
-        {
-            "id": 4,
-            "istruttore_id": 53,
-            "corso_id": 1,
-            "data_specifica": null,
-            "attiva": 1
-        }
-    ],
+    "assegnazioni_istruttori": [],
     "presenze": [],
-    "stagioni": [
-        {
-            "id": 2,
-            "nome": "2026/2027",
-            "attiva": 1
-        }
-    ],
+    "stagioni": [],
     "sistema": [
         {
             "chiave": "ultimo_backup_github",
