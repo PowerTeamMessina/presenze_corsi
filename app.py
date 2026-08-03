@@ -2665,9 +2665,11 @@ with tab_bambini:
                 list(range(1, 13))
             )
             
+            anno_corrente = datetime.now().year
+
             anno = c3.selectbox(
                 "Anno",
-                list(range(2100, 1900, -1))
+                list(range(anno_corrente, 1900, -1))
             )
             
             data_nascita = f"{giorno:02d}/{mese:02d}/{anno}"
