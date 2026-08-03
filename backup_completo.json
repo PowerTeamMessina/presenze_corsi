@@ -87,7 +87,8 @@
             "data_nascita": "01/01/2026",
             "note": "",
             "attivo": 1,
-            "corso_id": 1
+            "corso_id": 1,
+            "email_genitore": null
         }
     ],
     "assegnazioni_istruttori": [
