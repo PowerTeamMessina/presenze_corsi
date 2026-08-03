@@ -2044,37 +2044,44 @@ def aggiungi_bambino(
     nome,
     cognome,
     data_nascita,
+    corso_id,
     note
 ):
 
+    c.execute(
+        """
+        INSERT INTO bambini(
+            nome,
+            cognome,
+            data_nascita,
+            corso_id,
+            note,
+            attivo
+        )
+        VALUES(?,?,?,?,?,1)
+        """,
+        (
+            nome,
+            cognome,
+            data_nascita,
+            corso_id,
+            note
+        )
+    )
+
+    conn.commit()
+
     try:
 
-        c.execute(
-            """
-            INSERT INTO bambini(
-                nome,
-                cognome,
-                data_nascita,
-                note,
-                attivo
-            )
-            VALUES(?,?,?,?,1)
-            """,
-            (
-                nome,
-                cognome,
-                data_nascita,
-                note
-            )
+        upload_backup_github(
+            mostra_messaggio=False
         )
-
-        conn.commit()
 
     except Exception as e:
 
-        st.error(str(e))
-        raise
-
+        print(
+            f"Errore backup GitHub: {e}"
+        )
 
 def aggiorna_bambino(
     bambino_id,
@@ -2701,6 +2708,7 @@ with tab_bambini:
                         nome.strip(),
                         cognome.strip(),
                         data_nascita,
+                        corso_id,
                         note.strip()
                     )
     
