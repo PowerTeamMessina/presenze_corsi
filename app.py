@@ -2526,11 +2526,9 @@ def aggiungi_bambino(
             note
         )
     )
-    
+
     bambino_id = c.lastrowid
 
-    return bambino_id
-    
     conn.commit()
 
     try:
@@ -2544,6 +2542,8 @@ def aggiungi_bambino(
         print(
             f"Errore backup GitHub: {e}"
         )
+
+    return bambino_id
 
 def aggiorna_bambino(
     bambino_id,
@@ -3338,14 +3338,24 @@ with tab_bambini:
     
                 else:
     
-                    bambino_id = aggiungi_bambino(
-                        nome,
-                        cognome,
-                        data_nascita,
-                        corso_id,
-                        email_genitore,
-                        note
-                    )
+                    try:
+
+                        bambino_id = aggiungi_bambino(
+                            nome,
+                            cognome,
+                            data_nascita,
+                            corso_id,
+                            email_genitore,
+                            note
+                        )
+                    
+                        st.success(
+                            f"Bambino salvato. ID={bambino_id}"
+                        )
+                    
+                    except Exception as e:
+                    
+                        st.error(str(e))
                         
                     st.success(
                         "Bambino aggiunto correttamente."
