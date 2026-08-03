@@ -29,6 +29,16 @@
             "salt": "bbaface25b0a4e82b7d2f15a43061763",
             "attivo": 1,
             "password_visibile": "c9A5Xw7wc6eT"
+        },
+        {
+            "id": 4,
+            "username": "gabrielegrifo@gmail.com",
+            "nome": "Genitore Gabriele Grifo'",
+            "ruolo": "genitore",
+            "password_hash": "ee1b1df7098f28c9000877a24af6e9d5530b98756ef85d335b0857f77e539ca2",
+            "salt": "d7fa45f7c921b134c440855eacf552c1",
+            "attivo": 1,
+            "password_visibile": "VqA1EmdZwk8d"
         }
     ],
     "corsi": [
