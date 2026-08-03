@@ -2676,10 +2676,25 @@ with tab_bambini:
                 "Cognome"
             )
 
+            corsi = get_corsi(
+                attivi_solo=True,
+                stagione=stagione_selezionata
+            )
+            
+            opzioni_corsi = {
+                f"{row['nome']} | {row['livello']}":
+                    int(row["id"])
+                for _, row in corsi.iterrows()
+            }
+            
             corso_label = st.selectbox(
                 "Corso principale",
                 list(opzioni_corsi.keys())
             )
+            
+            corso_id = opzioni_corsi[
+                corso_label
+            ]
             
             corso_id = opzioni_corsi[
                 corso_label
