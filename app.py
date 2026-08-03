@@ -3527,19 +3527,21 @@ with tab_bambini:
                     genitore_row = genitore.iloc[0]
                 
                     st.text_input(
-                        "Email genitore",
+                        "Email account genitore",
                         value=genitore_row["username"],
-                        disabled=True
+                        disabled=True,
+                        key=f"email_account_genitore_{bambino_id}"
                     )
-                
+
                     st.text_input(
-                        "Password corrente",
+                        "Password corrente account",
                         value=genitore_row["password_visibile"]
                         if pd.notna(
                             genitore_row["password_visibile"]
                         )
                         else "",
-                        disabled=True
+                        disabled=True,
+                        key=f"password_account_genitore_{bambino_id}"
                     )
 
                     if st.button(
