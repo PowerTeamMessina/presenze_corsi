@@ -5180,7 +5180,7 @@ with tab_riepilogo:
             )
                 
             corso_id_mensile = opzioni_corsi_mensile[
-            corso_label_mensile
+                corso_label_mensile
             ]
                 
             dati_corso_mensile = get_corso_by_id(
@@ -5430,40 +5430,40 @@ with tab_riepilogo:
                         riga
                     )
                     
-                    df_mensile = pd.DataFrame(
-                        righe_mensili
-                    )
+                df_mensile = pd.DataFrame(
+                    righe_mensili
+                )
                     
-                    st.dataframe(
-                        df_mensile,
-                        use_container_width=True,
-                        hide_index=True
-                    )
+                st.dataframe(
+                    df_mensile,
+                    use_container_width=True,
+                    hide_index=True
+                )
                     
-                    data_generazione_mensile = datetime.now().strftime(
-                        "%d/%m/%Y"
-                    )
+                data_generazione_mensile = datetime.now().strftime(
+                    "%d/%m/%Y"
+                )
                     
-                    pdf_mensile = genera_pdf_riepilogo_mensile_corso(
-                        nome_corso_mensile,
-                        mese_label,
-                        anno_mese,
-                        stagione_riepilogo,
-                        df_mensile,
-                        data_generazione_mensile
-                    )
+                pdf_mensile = genera_pdf_riepilogo_mensile_corso(
+                    nome_corso_mensile,
+                    mese_label,
+                    anno_mese,
+                    stagione_riepilogo,
+                    df_mensile,
+                    data_generazione_mensile
+                )
                     
-                    nome_file_corso = nome_corso_mensile.replace(
-                        " ",
-                        "_"
-                    )
+                nome_file_corso = nome_corso_mensile.replace(
+                    " ",
+                    "_"
+                )
                     
-                    st.download_button(
-                        "📄 Scarica PDF riepilogo mensile corso",
-                        pdf_mensile,
-                        file_name=f"riepilogo_mensile_{nome_file_corso}_{mese_label}_{anno_mese}.pdf",
-                        mime="application/pdf"
-                    )
+                st.download_button(
+                    "📄 Scarica PDF riepilogo mensile corso",
+                    pdf_mensile,
+                    file_name=f"riepilogo_mensile_{nome_file_corso}_{mese_label}_{anno_mese}.pdf",
+                    mime="application/pdf"
+                )
 
 with tab_chiusure:
 
