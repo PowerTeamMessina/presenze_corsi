@@ -2087,6 +2087,7 @@ ripristino_iniziale_da_github()
 backup_giornaliero_github()
 
 st.title("🏊 Statino Presenze Corsi di Nuoto")
+st.error("VERSIONE TEST 03/08/2026")
 
 stagioni = get_stagioni()
 
