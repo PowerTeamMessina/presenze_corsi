@@ -112,5 +112,21 @@
             "chiave": "ultimo_backup_github",
             "valore": "2026-08-03"
         }
+    ],
+    "chiusure": [
+        {
+            "id": 1,
+            "data": "2026-08-15",
+            "descrizione": "Ferragosto",
+            "corso_id": null,
+            "attiva": 1
+        },
+        {
+            "id": 2,
+            "data": "2026-08-04",
+            "descrizione": "Prova",
+            "corso_id": null,
+            "attiva": 1
+        }
     ]
 }
