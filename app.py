@@ -2649,6 +2649,17 @@ with tab_bambini:
     if is_manager():
 
         st.header("👶 Gestione bambini")
+
+        corsi = get_corsi(
+            attivi_solo=True,
+            stagione=stagione_selezionata
+        )
+        
+        opzioni_corsi = {
+            f"{row['nome']}":
+                int(row["id"])
+            for _, row in corsi.iterrows()
+        }
     
         st.subheader("➕ Aggiungi bambino")
     
@@ -2664,6 +2675,15 @@ with tab_bambini:
             cognome = st.text_input(
                 "Cognome"
             )
+
+            corso_label = st.selectbox(
+                "Corso principale",
+                list(opzioni_corsi.keys())
+            )
+            
+            corso_id = opzioni_corsi[
+                corso_label
+            ]
     
             c1, c2, c3 = st.columns(3)
 
@@ -2711,7 +2731,7 @@ with tab_bambini:
                         corso_id,
                         note.strip()
                     )
-    
+                        
                     st.success(
                         "Bambino aggiunto correttamente."
                     )
