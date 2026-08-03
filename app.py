@@ -3194,9 +3194,6 @@ if is_manager():
                     st.success(
                         "Password aggiornata."
                     )
-                    st.write("SONO DENTRO")
-
-            st.write("SONO DENTRO IL BLOCCO MODIFICA ISTRUTTORE")
 
             st.markdown("---")
 
