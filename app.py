@@ -35,6 +35,18 @@ conn = sqlite3.connect(
 
 c = conn.cursor()
 
+try:
+
+    c.execute("""
+    ALTER TABLE utenti
+    ADD COLUMN password_visibile TEXT
+    """)
+
+    conn.commit()
+
+except Exception:
+    pass
+
 # ============================================================
 # FUNZIONI PASSWORD
 # ============================================================
@@ -1010,7 +1022,6 @@ def get_istruttori(attivi_solo=True):
         query,
         conn
     )
-
 
 def aggiungi_istruttore(email, nome):
 
