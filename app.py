@@ -50,7 +50,8 @@ def crea_backup():
         "bambini",
         "assegnazioni_istruttori",
         "presenze",
-        "stagioni"
+        "stagioni",
+        "chiusure"
     ]
 
     for tabella in tabelle:
@@ -155,7 +156,8 @@ def ripristina_backup():
         "corso_giorni",
         "corsi",
         "utenti",
-        "stagioni"
+        "stagioni",
+        "chiusure"
     ]
 
     for tabella in ordine:
@@ -414,7 +416,8 @@ def crea_backup_completo():
         "assegnazioni_istruttori",
         "presenze",
         "stagioni",
-        "sistema"
+        "sistema",
+        "chiusure"
     ]
 
     for tabella in tabelle:
@@ -656,7 +659,8 @@ def ripristina_backup_locale():
         "corsi",
         "utenti",
         "stagioni",
-        "sistema"
+        "sistema",
+        "chiusure"
     ]
 
     for tabella in ordine_delete:
@@ -2376,6 +2380,15 @@ def aggiungi_chiusura(
 
     conn.commit()
 
+    try:
+    
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+    
+    except:
+        pass
+
 def get_chiusure():
 
     return pd.read_sql(
@@ -2387,6 +2400,27 @@ def get_chiusure():
         """,
         conn
     )
+
+def elimina_chiusura(chiusura_id):
+
+    c.execute(
+        """
+        DELETE FROM chiusure
+        WHERE id = ?
+        """,
+        (chiusura_id,)
+    )
+
+    conn.commit()
+
+    try:
+
+        upload_backup_github(
+            mostra_messaggio=False
+        )
+
+    except:
+        pass
 
 def storico_presenze():
 
@@ -4257,6 +4291,14 @@ with tab_storico:
     if is_manager():
 
         with tab_riepilogo:
+            
+            stagioni = get_stagioni()
+
+            stagione_riepilogo = st.selectbox(
+                "Stagione",
+                stagioni,
+                key="stagione_riepilogo"
+            )
 
             st.header("📊 Riepilogo Presenze")
         
@@ -4333,7 +4375,7 @@ with tab_storico:
                     "Domenica": 6
                 }
         
-                stagione = stagione_selezionata
+                stagione = stagione_riepilogo
         
                 anno_inizio = int(
                     stagione.split("/")[0]
@@ -4478,3 +4520,30 @@ with tab_chiusure:
         get_chiusure(),
         use_container_width=True
     )
+
+    if not chiusure_df.empty:
+    
+        opzioni = {
+            f"{row['data']} - {row['descrizione']}":
+            int(row["id"])
+            for _, row in chiusure_df.iterrows()
+        }
+    
+        chiusura_label = st.selectbox(
+            "Chiusura da eliminare",
+            list(opzioni.keys())
+        )
+    
+        if st.button(
+            "🗑️ Elimina chiusura"
+        ):
+    
+            elimina_chiusura(
+                opzioni[chiusura_label]
+            )
+    
+            st.success(
+                "Chiusura eliminata."
+            )
+    
+            st.rerun()
