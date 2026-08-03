@@ -5534,66 +5534,67 @@ if is_manager():
         
                 st.rerun()
 
-with tab_genitori:
+if is_manager():
+    with tab_genitori:
 
-    st.header(
-        "👨‍👩‍👧 Gestione Genitori"
-    )
-
-    genitori = get_genitori()
-
-    if genitori.empty:
-
-        st.info(
-            "Nessun genitore presente."
+        st.header(
+            "👨‍👩‍👧 Gestione Genitori"
         )
-
-    else:
-
-        st.dataframe(
-            genitori,
-            use_container_width=True,
-            hide_index=True
-        )
-        
-        opzioni = {
-            f"{r['nome']} ({r['username']})":
-            int(r["id"])
-            for _, r in genitori.iterrows()
-        }
-
-        genitore_label = st.selectbox(
-            "Genitore",
-            list(opzioni.keys())
-        )
-
-        genitore_id = opzioni[
-            genitore_label
-        ]
-
-        dettagli = pd.read_sql(
-            """
-            SELECT *
-            FROM utenti
-            WHERE id = ?
-            """,
-            conn,
-            params=(genitore_id,)
-        ).iloc[0]
-
-        bambino_assoc = (
-            get_bambino_associato_genitore(
-                genitore_id
-            )
-        )
-
-        if not bambino_assoc.empty:
-
+    
+        genitori = get_genitori()
+    
+        if genitori.empty:
+    
             st.info(
-                f"Bambino associato: "
-                f"{bambino_assoc.iloc[0]['cognome']} "
-                f"{bambino_assoc.iloc[0]['nome']}"
+                "Nessun genitore presente."
             )
+    
+        else:
+    
+            st.dataframe(
+                genitori,
+                use_container_width=True,
+                hide_index=True
+            )
+            
+            opzioni = {
+                f"{r['nome']} ({r['username']})":
+                int(r["id"])
+                for _, r in genitori.iterrows()
+            }
+    
+            genitore_label = st.selectbox(
+                "Genitore",
+                list(opzioni.keys())
+            )
+    
+            genitore_id = opzioni[
+                genitore_label
+            ]
+    
+            dettagli = pd.read_sql(
+                """
+                SELECT *
+                FROM utenti
+                WHERE id = ?
+                """,
+                conn,
+                params=(genitore_id,)
+            ).iloc[0]
+    
+            bambino_assoc = (
+                get_bambino_associato_genitore(
+                    genitore_id
+                )
+            )
+    
+            if not bambino_assoc.empty:
+    
+                st.info(
+                    f"Bambino associato: "
+                    f"{bambino_assoc.iloc[0]['cognome']} "
+                    f"{bambino_assoc.iloc[0]['nome']}"
+                )
 
 
 
