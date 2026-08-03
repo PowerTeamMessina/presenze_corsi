@@ -8,7 +8,17 @@
             "password_hash": "ecbecc2b656491beb4d5fbbbe283eaa685ffd078b9c1694ec2ae2522758d60cd",
             "salt": "e02af3cf064979ff9c1c28e3c699bb16",
             "attivo": 1,
-            "password_visibile": null
+            "password_visibile": NaN
+        },
+        {
+            "id": 52,
+            "username": "lucabombaci1980@gmail.com",
+            "nome": "Luca Bombaci",
+            "ruolo": "manager",
+            "password_hash": "663a541e5adab32e66b200bceb068db30328c56f57f783a0b9865501b1ce8d21",
+            "salt": "41ac5d347ff891bd8d6fd9c9f8fbd839",
+            "attivo": 1,
+            "password_visibile": "PY7zS46ka4BR"
         }
     ],
     "corsi": [],
