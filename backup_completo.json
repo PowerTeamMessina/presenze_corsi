@@ -1,26 +1,5 @@
 {
-    "utenti": [
-        {
-            "id": 39,
-            "username": "gabriele",
-            "nome": "Manager",
-            "ruolo": "manager",
-            "password_hash": "bcfc22a3d06264b1423e21ec33963d5587f8510c0142b7c29653aed98b033b7d",
-            "salt": "73efc82763ba594ba144e6e5d13609d8",
-            "attivo": 1,
-            "password_visibile": NaN
-        },
-        {
-            "id": 40,
-            "username": "gabrielegrifo@gmail.com",
-            "nome": "Gabriele Grifò",
-            "ruolo": "manager",
-            "password_hash": "12f01b1dd948040086e96498b05d8b40015c6b0104b6ff5cfa2b2a18efb76139",
-            "salt": "d6b6e90ef32ea46474e73aa583a110ed",
-            "attivo": 1,
-            "password_visibile": "q4bzycBKN2b-"
-        }
-    ],
+    "utenti": [],
     "corsi": [],
     "corso_giorni": [],
     "bambini": [],
