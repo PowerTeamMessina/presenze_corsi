@@ -124,5 +124,13 @@
             "valore": "2026-08-03"
         }
     ],
-    "chiusure": []
+    "chiusure": [
+        {
+            "id": 4,
+            "data": "2026-08-05",
+            "descrizione": "",
+            "corso_id": null,
+            "attiva": 1
+        }
+    ]
 }
