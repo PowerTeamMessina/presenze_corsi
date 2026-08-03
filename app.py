@@ -2389,8 +2389,10 @@ with tab_presenze:
         ) if is_manager() else get_corsi_visibili_per_utente()
         
         opzioni_corsi = {
-            f"{row['nome']} | {row.get('giorni_orari', row.get('giorno_lezione', ''))}": int(row["id"])
-            for _, row in corsi_visibili.iterrows()
+            f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
+            for _, row in get_corsi_con_giorni(
+                attivi_solo=True
+            ).iterrows()
         }
 
         corso_label = st.selectbox(
