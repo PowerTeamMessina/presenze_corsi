@@ -2649,6 +2649,7 @@ with tab_bambini:
     if is_manager():
 
         st.header("👶 Gestione bambini")
+        st.header("👶 Gestione bambini")
 
         corsi = get_corsi(
             attivi_solo=True,
