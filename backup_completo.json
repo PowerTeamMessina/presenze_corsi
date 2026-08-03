@@ -72,7 +72,13 @@
     "bambini": [],
     "assegnazioni_istruttori": [],
     "presenze": [],
-    "stagioni": [],
+    "stagioni": [
+        {
+            "id": 1,
+            "nome": "2026/2027",
+            "attiva": 1
+        }
+    ],
     "sistema": [
         {
             "chiave": "ultimo_backup_github",
