@@ -3363,137 +3363,137 @@ with tab_bambini:
 
         st.markdown("---")
 
-        st.subheader("📋 Elenco bambini")
+    st.subheader("📋 Elenco bambini")
 
-        bambini = get_bambini(
-            attivi_solo=False if is_manager() else True
+    bambini = get_bambini(
+        attivi_solo=False if is_manager() else True
+    )
+
+    if bambini.empty:
+
+        st.info(
+            "Nessun bambino presente."
         )
 
-        if bambini.empty:
+    else:
 
-            st.info(
-                "Nessun bambino presente."
+        bambini_visual = bambini.copy()
+
+        bambini_visual["data_nascita"] = pd.to_datetime(
+            bambini_visual["data_nascita"],
+            errors="coerce"
+        ).dt.strftime("%d/%m/%Y")
+
+        st.dataframe(
+            bambini_visual[
+                [
+                    "id",
+                    "cognome",
+                    "nome",
+                    "email_genitore",
+                    "data_nascita",
+                    "note",
+                    "attivo"
+                ]
+            ],
+            use_container_width=True,
+            hide_index=True
+        )
+
+        if is_manager():
+
+            st.markdown("---")
+
+            st.subheader("✏️ Modifica o elimina bambino")
+
+            opzioni_bambini = {
+                f"{row['cognome']} {row['nome']}": int(row["id"])
+                for _, row in bambini.iterrows()
+            }
+
+            bambino_label = st.selectbox(
+                "Bambino",
+                list(opzioni_bambini.keys()),
+                key="modifica_bambino"
             )
 
-        else:
+            bambino_id = opzioni_bambini[bambino_label]
 
-            bambini_visual = bambini.copy()
+            dati = bambini[
+                bambini["id"] == bambino_id
+            ].iloc[0]
 
-            bambini_visual["data_nascita"] = pd.to_datetime(
-                bambini_visual["data_nascita"],
-                errors="coerce"
-            ).dt.strftime("%d/%m/%Y")
-
-            st.dataframe(
-                bambini_visual[
-                    [
-                        "id",
-                        "cognome",
-                        "nome",
-                        "email_genitore",
-                        "data_nascita",
-                        "note",
-                        "attivo"
-                    ]
-                ],
-                use_container_width=True,
-                hide_index=True
+            nuovo_nome = st.text_input(
+                "Nome",
+                value=dati["nome"],
+                key="nuovo_nome_bambino"
             )
 
-            if is_manager():
+            nuovo_cognome = st.text_input(
+                "Cognome",
+                value=dati["cognome"],
+                key="nuovo_cognome_bambino"
+            )
 
-                st.markdown("---")
-
-                st.subheader("✏️ Modifica o elimina bambino")
-
-                opzioni_bambini = {
-                    f"{row['cognome']} {row['nome']}": int(row["id"])
-                    for _, row in bambini.iterrows()
-                }
-
-                bambino_label = st.selectbox(
-                    "Bambino",
-                    list(opzioni_bambini.keys()),
-                    key="modifica_bambino"
-                )
-
-                bambino_id = opzioni_bambini[bambino_label]
-
-                dati = bambini[
-                    bambini["id"] == bambino_id
-                ].iloc[0]
-
-                nuovo_nome = st.text_input(
-                    "Nome",
-                    value=dati["nome"],
-                    key="nuovo_nome_bambino"
-                )
-
-                nuovo_cognome = st.text_input(
-                    "Cognome",
-                    value=dati["cognome"],
-                    key="nuovo_cognome_bambino"
-                )
-
-                nuova_data = st.text_input(
-                    "Data nascita",
-                    value=dati["data_nascita"] if pd.notna(dati["data_nascita"]) else "",
-                    key="nuova_data_bambino"
-                )
+            nuova_data = st.text_input(
+                "Data nascita",
+                value=dati["data_nascita"] if pd.notna(dati["data_nascita"]) else "",
+                key="nuova_data_bambino"
+            )
                 
-                nuova_email_genitore = st.text_input(
-                    "Email genitore",
-                    value=dati["email_genitore"]
-                    if pd.notna(dati["email_genitore"])
-                    else ""
-                )
+            nuova_email_genitore = st.text_input(
+                "Email genitore",
+                value=dati["email_genitore"]
+                if pd.notna(dati["email_genitore"])
+                else ""
+            )
 
-                nuove_note = st.text_area(
-                    "Note",
-                    value=dati["note"] if pd.notna(dati["note"]) else "",
-                    key="nuove_note_bambino"
-                )
+            nuove_note = st.text_area(
+                "Note",
+                value=dati["note"] if pd.notna(dati["note"]) else "",
+                key="nuove_note_bambino"
+            )
 
-                nuovo_attivo = st.checkbox(
-                    "Attivo",
-                    value=bool(dati["attivo"]),
-                    key="attivo_bambino"
-                )
+            nuovo_attivo = st.checkbox(
+                "Attivo",
+                value=bool(dati["attivo"]),
+                key="attivo_bambino"
+            )
 
-                corsi = get_corsi(
-                    attivi_solo=False
-                )
+            corsi = get_corsi(
+                attivi_solo=False
+            )
                 
-                opzioni_corsi = {
-                    row["nome"]: int(row["id"])
-                    for _, row in corsi.iterrows()
-                }
+            opzioni_corsi = {
+                row["nome"]: int(row["id"])
+                for _, row in corsi.iterrows()
+            }
 
-                nuovo_corso = st.selectbox(
-                    "Corso principale",
-                    list(opzioni_corsi.keys())
+            nuovo_corso = st.selectbox(
+                "Corso principale",
+                list(opzioni_corsi.keys())
+            )
+
+            if st.button(
+                "💾 Aggiorna bambino"
+            ):
+
+                aggiorna_bambino(
+                    bambino_id,
+                    nuovo_nome.strip(),
+                    nuovo_cognome.strip(),
+                    nuova_data,
+                    opzioni_corsi[nuovo_corso],
+                    nuova_email_genitore.strip(),
+                    nuove_note.strip(),
+                    nuovo_attivo
                 )
 
-                if st.button(
-                    "💾 Aggiorna bambino"
-                ):
+                st.success(
+                    "Bambino aggiornato."
+                )
 
-                    aggiorna_bambino(
-                        bambino_id,
-                        nuovo_nome.strip(),
-                        nuovo_cognome.strip(),
-                        nuova_data,
-                        opzioni_corsi[nuovo_corso],
-                        nuova_email_genitore.strip(),
-                        nuove_note.strip(),
-                        nuovo_attivo
-                    )
-
-                    st.success(
-                        "Bambino aggiornato."
-                    )
-
-                    st.rerun()
+                st.rerun()
 
                 dati = bambini[
                     bambini["id"] == bambino_id
