@@ -623,23 +623,13 @@ def ripristina_backup_locale():
                 f"DELETE FROM {tabella}"
             )
 
-        except Exception:
+        except Exception as e:
 
-            pass
+            print(
+                f"Errore cancellazione tabella {tabella}: {e}"
+            )
 
     conn.commit()
-
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
-        )
 
     ordine_insert = [
         "utenti",
@@ -660,34 +650,48 @@ def ripristina_backup_locale():
         )
 
         if len(records) == 0:
+
             continue
 
         df = pd.DataFrame(records)
 
-        df.to_sql(
-            tabella,
-            conn,
-            if_exists="append",
-            index=False
-        )
+        try:
+
+            colonne_db = pd.read_sql(
+                f"PRAGMA table_info({tabella})",
+                conn
+            )["name"].tolist()
+
+            colonne_valide = [
+                col
+                for col in df.columns
+                if col in colonne_db
+            ]
+
+            df = df[
+                colonne_valide
+            ]
+
+            if df.empty:
+
+                continue
+
+            df.to_sql(
+                tabella,
+                conn,
+                if_exists="append",
+                index=False
+            )
+
+        except Exception as e:
+
+            print(
+                f"ERRORE RIPRISTINO TABELLA {tabella}: {e}"
+            )
+
+            raise
 
     conn.commit()
-
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
-        )
-
-    upload_backup_github(
-            mostra_messaggio=False
-        )
 
     return True
 
@@ -732,10 +736,18 @@ def database_vuoto():
 def ripristino_iniziale_da_github():
 
     if database_vuoto():
-
-        if scarica_backup_github():
-
-            ripristina_backup_locale()
+    
+        try:
+    
+            if scarica_backup_github():
+    
+                ripristina_backup_locale()
+    
+        except Exception as e:
+    
+            print(
+                f"Errore ripristino backup: {e}"
+            )
 
 def backup_giornaliero_github():
 
