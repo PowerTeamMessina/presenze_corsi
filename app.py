@@ -297,6 +297,7 @@ CREATE TABLE IF NOT EXISTS bambini (
     nome TEXT NOT NULL,
     cognome TEXT NOT NULL,
     data_nascita TEXT,
+    corso_id INTEGER,
     note TEXT,
     attivo INTEGER DEFAULT 1
 )
@@ -1243,9 +1244,6 @@ Power Team Messina
     server.quit()
     
 def get_utenti():
-
-    st.code(query)
-    st.write(params_extra)
 
     return pd.read_sql(
         """
