@@ -335,46 +335,6 @@ CREATE TABLE IF NOT EXISTS sistema (
 
 conn.commit()
 
-try:
-
-    upload_backup_github(
-        mostra_messaggio=False
-    )
-    
-except Exception as e:
-    
-    print(
-        f"Errore backup GitHub: {e}"
-    )    
-
-try:
-
-    c.execute(
-        """
-        ALTER TABLE utenti
-        ADD COLUMN password_visibile TEXT
-        """
-    )
-
-    conn.commit()
-
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
-        )
-
-except:
-
-    pass
-
-conn.commit()
 
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
