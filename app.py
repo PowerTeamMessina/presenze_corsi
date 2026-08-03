@@ -317,6 +317,18 @@ CREATE TABLE IF NOT EXISTS assegnazioni_istruttori (
 """)
 
 c.execute("""
+CREATE TABLE IF NOT EXISTS assegnazioni_bambini (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bambino_id INTEGER NOT NULL,
+    corso_id INTEGER NOT NULL,
+    data_specifica TEXT,
+    attiva INTEGER DEFAULT 1,
+    FOREIGN KEY(bambino_id) REFERENCES bambini(id),
+    FOREIGN KEY(corso_id) REFERENCES corsi(id)
+)
+""")
+
+c.execute("""
 CREATE TABLE IF NOT EXISTS presenze (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bambino_id INTEGER NOT NULL,
@@ -2230,6 +2242,33 @@ def get_stagioni():
 
     return df["stagione"].tolist()
 
+def assegna_bambino(
+    bambino_id,
+    corso_id,
+    data_specifica=None
+):
+
+    c.execute(
+        """
+        INSERT INTO assegnazioni_bambini(
+            bambino_id,
+            corso_id,
+            data_specifica,
+            attiva
+        )
+        VALUES(?,?,?,1)
+        """,
+        (
+            bambino_id,
+            corso_id,
+            data_specifica
+        )
+    )
+
+    conn.commit()
+
+    salva_backup_sicuro()
+
 def backup_giornaliero():
 
     oggi = datetime.today().strftime(
@@ -2331,6 +2370,7 @@ if is_manager():
         [
             "📋 Presenze",
             "👶 Bambini",
+            "👶 Assegnazioni Bambini",
             "🏊 Corsi",
             "📅 Stagioni",
             "👨‍🏫 Istruttori",
@@ -2343,13 +2383,14 @@ if is_manager():
 
     tab_presenze = tabs[0]
     tab_bambini = tabs[1]
-    tab_corsi = tabs[2]
-    tab_stagioni = tabs[3]
-    tab_istruttori = tabs[4]
-    tab_manager = tabs[5]
-    tab_assegnazioni = tabs[6]
-    tab_storico = tabs[7]
-    tab_backup = tabs[8]
+    tab_assegnazioni_bambini = tabs[2]
+    tab_corsi = tabs[3]
+    tab_stagioni = tabs[4]
+    tab_istruttori = tabs[5]
+    tab_manager = tabs[6]
+    tab_assegnazioni = tabs[7]
+    tab_storico = tabs[8]
+    tab_backup = tabs[9]
 
 else:
 
@@ -4007,3 +4048,82 @@ if is_manager():
                     )
         
                     st.rerun()
+
+with tab_assegnazioni_bambini:
+
+    st.header(
+        "👶 Assegnazioni bambini"
+    )
+    
+    bambini = pd.read_sql(
+        """
+        SELECT
+            id,
+            cognome || ' ' || nome AS nome_completo
+        FROM bambini
+        WHERE attivo = 1
+        ORDER BY cognome, nome
+        """,
+        conn
+    )
+    
+    corsi = get_corsi_con_giorni(
+        attivi_solo=True
+    ).drop_duplicates(
+        subset=["id"]
+    )
+
+    opzioni_bambini = {
+        row["nome_completo"]: int(row["id"])
+        for _, row in bambini.iterrows()
+    }
+
+    opzioni_corsi = {
+        f"{row['nome']} | {row['giorni_orari']}":
+            int(row["id"])
+        for _, row in corsi.iterrows()
+    }
+
+    tipo = st.radio(
+        "Tipo assegnazione",
+        [
+            "Intero corso",
+            "Solo una data"
+        ]
+    )
+
+    data_specifica = None
+
+    if tipo == "Solo una data":
+    
+        data_specifica = st.date_input(
+            "Data"
+        )
+
+    if st.button(
+        "➕ Assegna bambino"
+    ):
+    
+        assegna_bambino(
+            opzioni_bambini[
+                st.selectbox(
+                    "Bambino",
+                    list(opzioni_bambini.keys())
+                )
+            ],
+            opzioni_corsi[
+                st.selectbox(
+                    "Corso",
+                    list(opzioni_corsi.keys())
+                )
+            ],
+            str(data_specifica)
+            if data_specifica
+            else None
+        )
+    
+        st.success(
+            "Assegnazione creata."
+        )
+    
+        st.rerun()
