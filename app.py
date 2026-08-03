@@ -327,6 +327,21 @@ CREATE TABLE IF NOT EXISTS stagioni (
 )
 """)
 
+try:
+
+    c.execute(
+        """
+        ALTER TABLE stagioni
+        ADD COLUMN attiva INTEGER DEFAULT 1
+        """
+    )
+
+    conn.commit()
+
+except:
+
+    pass
+
 c.execute("""
 CREATE TABLE IF NOT EXISTS sistema (
     chiave TEXT PRIMARY KEY,
@@ -891,7 +906,6 @@ def get_stagioni():
         conn
     )
 
-
 def aggiungi_stagione(nome):
 
     c.execute(
@@ -918,7 +932,50 @@ def aggiungi_stagione(nome):
         print(
             f"Errore backup GitHub: {e}"
         )
-        
+
+def get_riepilogo_stagioni():
+
+    query = """
+        SELECT
+            s.nome AS stagione,
+
+            COUNT(
+                DISTINCT c.id
+            ) AS numero_corsi,
+
+            COUNT(
+                DISTINCT ai.istruttore_id
+            ) AS numero_istruttori,
+
+            COUNT(
+                DISTINCT b.id
+            ) AS numero_bambini
+
+        FROM stagioni s
+
+        LEFT JOIN corsi c
+            ON c.stagione = s.nome
+
+        LEFT JOIN assegnazioni_istruttori ai
+            ON ai.corso_id = c.id
+            AND ai.attiva = 1
+
+        LEFT JOIN bambini b
+            ON b.corso_id = c.id
+            AND b.attivo = 1
+
+        WHERE s.attiva = 1
+
+        GROUP BY s.nome
+
+        ORDER BY s.nome DESC
+    """
+
+    return pd.read_sql(
+        query,
+        conn
+    )
+    
 # ============================================================
 # FUNZIONI UTENTI
 # ============================================================
@@ -2573,6 +2630,33 @@ with tab_stagioni:
         use_container_width=True,
         hide_index=True
     )
+
+    st.markdown("---")
+
+    st.subheader("📊 Riepilogo stagioni")
+    
+    riepilogo_stagioni = get_riepilogo_stagioni()
+    
+    if riepilogo_stagioni.empty:
+    
+        st.info(
+            "Nessuna stagione presente."
+        )
+    
+    else:
+    
+        st.dataframe(
+            riepilogo_stagioni.rename(
+                columns={
+                    "stagione": "Stagione",
+                    "numero_corsi": "Numero corsi",
+                    "numero_istruttori": "Numero istruttori",
+                    "numero_bambini": "Numero bambini"
+                }
+            ),
+            use_container_width=True,
+            hide_index=True
+        )
 
 # ============================================================
 # TAB CORSI
