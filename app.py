@@ -1787,14 +1787,13 @@ def assegna_istruttore(istruttore_id, corso_id, data_specifica=None):
 
 def get_assegnazioni():
 
-    return pd.read_sql(
+    assegnazioni = pd.read_sql(
         """
         SELECT
             ai.id,
             u.nome AS istruttore,
+            c.id AS corso_id,
             c.nome AS corso,
-            c.giorno,
-            c.orario,
             ai.data_specifica,
             ai.attiva
         FROM assegnazioni_istruttori ai
@@ -1802,10 +1801,41 @@ def get_assegnazioni():
             ON u.id = ai.istruttore_id
         JOIN corsi c
             ON c.id = ai.corso_id
-        ORDER BY u.nome, c.nome, ai.data_specifica
+        ORDER BY u.nome, c.nome
         """,
         conn
     )
+
+    giorni_descrizione = []
+
+    for _, row in assegnazioni.iterrows():
+
+        giorni = get_giorni_corso(
+            int(row["corso_id"])
+        )
+
+        if giorni.empty:
+
+            giorni_descrizione.append(
+                ""
+            )
+
+        else:
+
+            giorni_descrizione.append(
+                " | ".join(
+                    [
+                        f"{g['giorno']} {g['orario']}"
+                        for _, g in giorni.iterrows()
+                    ]
+                )
+            )
+
+    assegnazioni["giorni"] = (
+        giorni_descrizione
+    )
+
+    return assegnazioni
 
 
 def elimina_assegnazione(assegnazione_id):
