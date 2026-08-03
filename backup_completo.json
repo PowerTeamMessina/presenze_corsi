@@ -120,6 +120,13 @@
             "descrizione": "Prova",
             "corso_id": null,
             "attiva": 1
+        },
+        {
+            "id": 3,
+            "data": "2027-08-04",
+            "descrizione": "Prova",
+            "corso_id": null,
+            "attiva": 1
         }
     ]
 }
