@@ -335,17 +335,17 @@ CREATE TABLE IF NOT EXISTS sistema (
 
 conn.commit()
 
-    try:
+try:
 
-        upload_backup_github(
-            mostra_messaggio=False
-        )
+    upload_backup_github(
+        mostra_messaggio=False
+    )
     
-    except Exception as e:
+except Exception as e:
     
-        print(
-            f"Errore backup GitHub: {e}"
-        )    
+    print(
+        f"Errore backup GitHub: {e}"
+    )    
 
 try:
 
