@@ -1,26 +1,10 @@
 {
-    "utenti": [
-        {
-            "id": 2,
-            "username": "gabriele",
-            "nome": "Manager",
-            "ruolo": "manager",
-            "password_hash": "ffb69afc3731e9675d9819031c877ccd5ab932cc0880101cd39016c00ea726fd",
-            "salt": "e5a9c244576b7ce56321dda0102b4bc7",
-            "attivo": 1,
-            "password_visibile": null
-        }
-    ],
+    "utenti": [],
     "corsi": [],
     "corso_giorni": [],
     "bambini": [],
     "assegnazioni_istruttori": [],
     "presenze": [],
     "stagioni": [],
-    "sistema": [
-        {
-            "chiave": "ultimo_backup_github",
-            "valore": "2026-08-02"
-        }
-    ]
+    "sistema": []
 }
