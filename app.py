@@ -2051,47 +2051,33 @@ def aggiungi_bambino(
     note
 ):
 
-    data_formattata = ""
-
-    if data_nascita:
-
-        data_formattata = (
-            pd.to_datetime(data_nascita)
-            .strftime("%d/%m/%Y")
-        )
-
-    c.execute(
-        """
-        INSERT INTO bambini(
-            nome,
-            cognome,
-            data_nascita,
-            note,
-            attivo
-        )
-        VALUES(?,?,?,?,1)
-        """,
-        (
-            nome,
-            cognome,
-            data_formattata,
-            note
-        )
-    )
-
-    conn.commit()
-
     try:
 
-        upload_backup_github(
-            mostra_messaggio=False
+        c.execute(
+            """
+            INSERT INTO bambini(
+                nome,
+                cognome,
+                data_nascita,
+                note,
+                attivo
+            )
+            VALUES(?,?,?,?,1)
+            """,
+            (
+                nome,
+                cognome,
+                data_nascita,
+                note
+            )
         )
+
+        conn.commit()
 
     except Exception as e:
 
-        print(
-            f"Errore backup GitHub: {e}"
-        )
+        st.error(str(e))
+        raise
 
 
 def aggiorna_bambino(bambino_id, nome, cognome, data_nascita, note, attivo):
