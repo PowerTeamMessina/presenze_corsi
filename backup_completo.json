@@ -79,17 +79,7 @@
             "ordine": 5
         }
     ],
-    "bambini": [
-        {
-            "id": 1,
-            "nome": "Giuseppe",
-            "cognome": "Ciao",
-            "data_nascita": "2025-07-22",
-            "corso_id": 1,
-            "note": "",
-            "attivo": 1
-        }
-    ],
+    "bambini": [],
     "assegnazioni_istruttori": [
         {
             "id": 4,
