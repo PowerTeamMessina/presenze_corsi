@@ -2677,28 +2677,25 @@ with tab_bambini:
             )
 
             corsi = get_corsi(
-                attivi_solo=True,
-                stagione=stagione_selezionata
+                attivi_solo=True
             )
             
-            opzioni_corsi = {
-                f"{row['nome']} | {row['livello']}":
-                    int(row["id"])
-                for _, row in corsi.iterrows()
-            }
+            if len(opzioni_corsi) == 0:
             
-            corso_label = st.selectbox(
-                "Corso principale",
-                list(opzioni_corsi.keys())
-            )
+                st.error(
+                    "Non esistono corsi attivi. Crea prima almeno un corso."
+                )
             
-            corso_id = opzioni_corsi[
-                corso_label
-            ]
+            else:
             
-            corso_id = opzioni_corsi[
-                corso_label
-            ]
+                corso_label = st.selectbox(
+                    "Corso principale",
+                    list(opzioni_corsi.keys())
+                )
+            
+                corso_id = opzioni_corsi[
+                    corso_label
+                ]
     
             c1, c2, c3 = st.columns(3)
 
