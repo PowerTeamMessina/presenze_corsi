@@ -2653,10 +2653,24 @@ with tab_bambini:
                 "Cognome"
             )
     
-            data_nascita = st.date_input(
-                "Data di nascita",
-                value=None
+            c1, c2, c3 = st.columns(3)
+
+            giorno = c1.selectbox(
+                "Giorno",
+                list(range(1, 32))
             )
+            
+            mese = c2.selectbox(
+                "Mese",
+                list(range(1, 13))
+            )
+            
+            anno = c3.selectbox(
+                "Anno",
+                list(range(2000, 1900, -1))
+            )
+            
+            data_nascita = f"{giorno:02d}/{mese:02d}/{anno}"
     
             note = st.text_area(
                 "Note"
@@ -2705,8 +2719,15 @@ with tab_bambini:
 
         else:
 
+            bambini_visual = bambini.copy()
+
+            bambini_visual["data_nascita"] = pd.to_datetime(
+                bambini_visual["data_nascita"],
+                errors="coerce"
+            ).dt.strftime("%d/%m/%Y")
+
             st.dataframe(
-                bambini[
+                bambini_visual[
                     [
                         "id",
                         "cognome",
