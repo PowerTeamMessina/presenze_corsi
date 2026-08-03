@@ -3454,13 +3454,24 @@ with tab_bambini:
                     params=(bambino_id,)
                 )
 
+                genitore = pd.read_sql(
+                    """
+                    SELECT u.*
+                    FROM utenti u
+                    JOIN genitori_bambini gb
+                        ON gb.utente_id = u.id
+                    WHERE gb.bambino_id = ?
+                    AND u.ruolo = 'genitore'
+                    """,
+                    conn,
+                    params=(bambino_id,)
+                )
+                
                 st.markdown("---")
                 st.subheader("👨‍👩‍👧 Account Genitore")
-
-                genitore_row = genitore.iloc[0]
-
+                
                 if not genitore.empty:
-
+                
                     genitore_row = genitore.iloc[0]
                 
                     st.text_input(
@@ -3479,49 +3490,12 @@ with tab_bambini:
                         disabled=True
                     )
                 
-                    if st.button(
-                        "📧 Reinvia credenziali genitore"
-                    ):
-                
-                        invia_credenziali_genitore_email(
-                            genitore_row["username"],
-                            f"{dati['nome']} {dati['cognome']}",
-                            genitore_row["password_visibile"]
-                        )
-                
-                        st.success(
-                            "Credenziali inviate."
-                        )
-                
-                    if st.button(
-                        "🔄 Genera nuova password genitore"
-                    ):
-                
-                        nuova_password = genera_password_casuale()
-                
-                        aggiorna_password_utente(
-                            int(genitore_row["id"]),
-                            nuova_password
-                        )
-                
-                        invia_credenziali_genitore_email(
-                            genitore_row["username"],
-                            f"{dati['nome']} {dati['cognome']}",
-                            nuova_password
-                        )
-                
-                        st.success(
-                            "Nuova password generata e inviata."
-                        )
-                
-                        st.rerun()
-                
                 else:
                 
                     st.warning(
                         "Nessun account genitore associato."
                     )
-
+                
                 conferma_elimina = st.checkbox(
                     "Confermo eliminazione definitiva bambino"
                 )
