@@ -115,13 +115,6 @@
     ],
     "chiusure": [
         {
-            "id": 1,
-            "data": "2026-08-15",
-            "descrizione": "Ferragosto",
-            "corso_id": null,
-            "attiva": 1
-        },
-        {
             "id": 2,
             "data": "2026-08-04",
             "descrizione": "Prova",
