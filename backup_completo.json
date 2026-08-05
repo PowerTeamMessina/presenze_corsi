@@ -81,7 +81,15 @@
             "attivo": 1
         }
     ],
-    "assegnazioni_istruttori": [],
+    "assegnazioni_istruttori": [
+        {
+            "id": 1,
+            "istruttore_id": 2,
+            "corso_id": 1,
+            "data_specifica": null,
+            "attiva": 1
+        }
+    ],
     "presenze": [],
     "stagioni": [
         {
