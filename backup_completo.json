@@ -81,6 +81,7 @@
             "attivo": 1
         }
     ],
+    "genitori_bambini": [],
     "assegnazioni_istruttori": [
         {
             "id": 1,
