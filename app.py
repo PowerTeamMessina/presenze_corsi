@@ -3564,8 +3564,8 @@ with tab_bambini:
                     params=(bambino_id,)
                 )
                 
-                st.markdown("---")
-                st.subheader("👨‍👩‍👧 Account Genitore")
+            st.markdown("---")
+            st.subheader("👨‍👩‍👧 Account Genitore")
                 
                 if not genitore.empty:
                 
