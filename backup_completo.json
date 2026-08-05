@@ -21,7 +21,17 @@
             "password_visibile": "1UsUcGgjKfWs"
         }
     ],
-    "corsi": [],
+    "corsi": [
+        {
+            "id": 1,
+            "nome": "Corso bambini",
+            "livello": "Principianti",
+            "giorno": "",
+            "orario": "",
+            "stagione": "2026/2027",
+            "attivo": 1
+        }
+    ],
     "corso_giorni": [],
     "bambini": [],
     "assegnazioni_istruttori": [],
