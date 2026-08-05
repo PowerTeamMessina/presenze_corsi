@@ -3652,7 +3652,7 @@ with tab_bambini:
                         f"Account creato. Password: {password_generata}"
                     )
                 
-                        t.rerun()
+                    st.rerun()
                 
             conferma_elimina = st.checkbox(
                 "Confermo eliminazione definitiva bambino"
