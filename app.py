@@ -36,6 +36,8 @@ st.set_page_config(
 
 DB_NAME = "corsi_nuoto.db"
 
+BACKUP_ABILITATO = False
+
 # ============================================================
 # DATABASE
 # ============================================================
@@ -59,9 +61,11 @@ def crea_backup():
         "corsi",
         "corso_giorni",
         "bambini",
+        "genitori_bambini",
         "assegnazioni_istruttori",
         "presenze",
         "stagioni",
+        "sistema",
         "chiusure"
     ]
 
@@ -185,22 +189,6 @@ def ripristina_backup():
 
     conn.commit()
 
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
-        )
-
-    upload_backup_github(
-            mostra_messaggio=False
-        )
-
     for tabella, records in backup.items():
 
         if len(records) == 0:
@@ -213,20 +201,6 @@ def ripristina_backup():
             conn,
             if_exists="append",
             index=False
-        )
-
-    conn.commit()
-
-    try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
         )
 
 def hash_password(password, salt=None):
@@ -488,8 +462,14 @@ def crea_backup_completo():
     return "backup_completo.json"
 
 def upload_backup_github(
-    mostra_messaggio=True
+    mostra_messaggio=True,
+    forza=False
 ):
+
+    global BACKUP_ABILITATO
+
+    if not BACKUP_ABILITATO and not forza:
+        return False
 
     token = st.secrets["GITHUB_TOKEN"]
     owner = st.secrets["GITHUB_OWNER"]
@@ -829,9 +809,11 @@ def ripristina_backup_locale():
         "corsi",
         "corso_giorni",
         "bambini",
+        "genitori_bambini",
         "assegnazioni_istruttori",
         "presenze",
-        "sistema"
+        "sistema",
+        "chiusure"
     ]
 
     for tabella in ordine_insert:
@@ -1052,7 +1034,7 @@ def migra_giorni_corsi_vecchi():
             f"Errore backup GitHub: {e}"
         )
 
-migra_giorni_corsi_vecchi()
+#migra_giorni_corsi_vecchi()
 
 # ============================================================
 # CREAZIONE MANAGER DEFAULT
@@ -1118,7 +1100,7 @@ def crea_manager_default():
             f"Errore backup GitHub: {e}"
         )
 
-crea_manager_default()
+#crea_manager_default()
 
 def get_bambini_corso(corso_id, attivi_solo=True):
 
@@ -2967,7 +2949,11 @@ def backup_giornaliero():
 
 ripristino_iniziale_da_github()
 
-backup_giornaliero_github()
+BACKUP_ABILITATO = True
+
+migra_giorni_corsi_vecchi()
+
+crea_manager_default()
 
 st.title("🏊 Statino Presenze Corsi di Nuoto")
 
