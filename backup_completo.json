@@ -69,18 +69,7 @@
             "ordine": 5
         }
     ],
-    "bambini": [
-        {
-            "id": 1,
-            "nome": "Gabriele",
-            "cognome": "Grifo'",
-            "data_nascita": "01/01/2026",
-            "corso_id": 1,
-            "email_genitore": "gabrielegrifo@gmail.com",
-            "note": "",
-            "attivo": 1
-        }
-    ],
+    "bambini": [],
     "genitori_bambini": [],
     "assegnazioni_istruttori": [
         {
