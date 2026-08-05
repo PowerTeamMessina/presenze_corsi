@@ -422,6 +422,7 @@ def crea_backup_completo():
         "corsi",
         "corso_giorni",
         "bambini",
+        "genitori_bambini",
         "assegnazioni_istruttori",
         "presenze",
         "stagioni",
@@ -779,6 +780,7 @@ def ripristina_backup_locale():
         "presenze",
         "assegnazioni_istruttori",
         "bambini",
+        "genitori_bambini",
         "corso_giorni",
         "corsi",
         "utenti",
@@ -3332,6 +3334,57 @@ with tab_bambini:
                             email_genitore,
                             note
                         )
+                        
+                        if email_genitore.strip() != "":
+                        
+                            genitore_esistente = pd.read_sql(
+                                """
+                                SELECT *
+                                FROM utenti
+                                WHERE lower(username)=?
+                                """,
+                                conn,
+                                params=(email_genitore.strip().lower(),)
+                            )
+                        
+                            if genitore_esistente.empty:
+                        
+                                genitore_id, password_generata = (
+                                    crea_account_genitore(
+                                        email_genitore,
+                                        f"{nome} {cognome}"
+                                    )
+                                )
+                        
+                                c.execute(
+                                    """
+                                    INSERT INTO genitori_bambini(
+                                        utente_id,
+                                        bambino_id
+                                    )
+                                    VALUES(?,?)
+                                    """,
+                                    (
+                                        genitore_id,
+                                        bambino_id
+                                    )
+                                )
+                        
+                                conn.commit()
+                        
+                                try:
+                        
+                                    invia_credenziali_genitore_email(
+                                        email_genitore,
+                                        f"{nome} {cognome}",
+                                        password_generata
+                                    )
+                        
+                                except Exception as e:
+                        
+                                    st.warning(
+                                        f"Account creato ma email non inviata: {e}"
+                                    )
                     
                         st.success(
                             f"Bambino salvato. ID={bambino_id}"
