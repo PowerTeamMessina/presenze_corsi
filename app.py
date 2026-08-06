@@ -6446,36 +6446,36 @@ if is_genitore():
             )
         ):
 
-        c.execute(
-            """
-            UPDATE schede_genitori
-            SET
-        
-                compilato = 1,
-        
-                bloccato = 1,
-        
-                data_invio = ?
-        
-            WHERE bambino_id = ?
-            """,
-            (
-                str(datetime.now()),
-                bambino_id
+            c.execute(
+                """
+                UPDATE schede_genitori
+                SET
+            
+                    compilato = 1,
+            
+                    bloccato = 1,
+            
+                    data_invio = ?
+            
+                WHERE bambino_id = ?
+                """,
+                (
+                    str(datetime.now()),
+                    bambino_id
+                )
             )
-        )
-        
-        conn.commit()
-
-        st.success(
-            """
-            Pratica inviata.
-        
-            La scheda è ora bloccata.
-            """
-        )
-
-        st.rerun()
+            
+            conn.commit()
+    
+            st.success(
+                """
+                Pratica inviata.
+            
+                La scheda è ora bloccata.
+                """
+            )
+    
+            st.rerun()
 
 
 
