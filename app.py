@@ -5959,7 +5959,7 @@ if is_genitore():
             bambino.iloc[0]["id"]
         )
 
-        st.subheader("👶 Dati atleta")
+        st.subheader("👶 Dati Bambino/a")
 
         col1, col2 = st.columns(2)
         
@@ -5975,12 +5975,6 @@ if is_genitore():
                 "Cognome",
                 value=bambino.iloc[0]["cognome"],
                 disabled=True
-            )
-        
-            st.markdown("---")
-
-            st.subheader(
-                "👶 Dati del bambino"
             )
 
             scheda = pd.read_sql(
@@ -6026,23 +6020,7 @@ if is_genitore():
                         bambino.iloc[0]["corso_id"]
                     )
                 )
-                if not giorni.empty:
-
-                    testo_giorni = "\n".join(
-                        [
-                            f"{r['giorno']} - {r['orario']}"
-                            for _, r in giorni.iterrows()
-                        ]
-                    )
                 
-                    st.text_area(
-                        "Giorni del corso",
-                        value=testo_giorni,
-                        height=100,
-                        disabled=True,
-                        key=f"giorni_corso_{bambino_id}"
-                    )
-
         with col2:
         
             st.text_input(
