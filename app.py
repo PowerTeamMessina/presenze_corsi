@@ -1055,30 +1055,19 @@ def converti_docx_in_pdf_drive(
 
     metadata = {
         "name": nome_file,
-        "mimeType": "application/vnd.google-apps.document"
+        "mimeType": "application/vnd.google-apps.document",
+        "parents": [
+            st.secrets["DRIVE_FOLDER_ID"]
+        ]
     }
 
-    try:
+    file_creato = service.files().create(
+        body=metadata,
+        media_body=media,
+        fields="id"
+    ).execute()
 
-        file_creato = service.files().create(
-            body=metadata,
-            media_body=media,
-            fields="id"
-        ).execute()
-    
-        st.success("File Google Docs creato")
-    
-    except Exception as e:
-    
-        st.error("Errore nella creazione del Google Doc")
-    
-        st.code(str(e))
-    
-        raise
-
-    google_doc_id = file_creato[
-        "id"
-    ]
+    google_doc_id = file_creato["id"]
 
     request = service.files().export_media(
         fileId=google_doc_id,
@@ -6923,42 +6912,74 @@ if is_genitore():
             )
         
             if st.button(
-                "📄 Genera modulo",
-                key=f"genera_modulo_{bambino_id}"
+                "📄 Genera modulo PDF",
+                key=f"genera_modulo_pdf_{bambino_id}"
             ):
-                
-                template_id = st.secrets[
-                    "DRIVE_TEMPLATE_MODULO_ID"
-                ]
-                
-                template_bytes = scarica_file_drive_bytes(
-                    template_id
-                )
-
-                st.write(bambino.iloc[0].to_dict())
-                
-                mappa = crea_mappa_modulo(
-                    bambino,
-                    scheda
-                )
             
-                docx_compilato = compila_docx_template(
-                    template_bytes,
-                    mappa
-                )
+                try:
             
-                st.session_state[
-                    f"docx_modulo_{bambino_id}"
-                ] = docx_compilato.getvalue()
+                    template_id = st.secrets[
+                        "DRIVE_TEMPLATE_MODULO_ID"
+                    ]
+            
+                    template_bytes = scarica_file_drive_bytes(
+                        template_id
+                    )
+            
+                    mappa = crea_mappa_modulo(
+                        bambino,
+                        scheda
+                    )
+            
+                    docx_compilato = compila_docx_template(
+                        template_bytes,
+                        mappa
+                    )
+            
+                    nome_file_docx = (
+                        f"Modulo_Iscrizione_"
+                        f"{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.docx"
+                    )
+            
+                    pdf_compilato = converti_docx_in_pdf_drive(
+                        docx_compilato,
+                        nome_file_docx
+                    )
+            
+                    st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ] = pdf_compilato.getvalue()
+            
+                    st.success(
+                        "Modulo PDF generato correttamente."
+                    )
+            
+                except Exception as e:
+            
+                    st.error(
+                        "Errore durante la generazione del modulo."
+                    )
+            
+                    st.code(
+                        str(e)
+                    )
             
             # FUORI dal bottone
-            if f"docx_modulo_{bambino_id}" in st.session_state:
-            
+            if f"pdf_modulo_{bambino_id}" in st.session_state:
+
                 st.download_button(
                     "📥 Scarica modulo PDF da firmare",
-                    data=pdf_compilato.getvalue(),
-                    file_name=f"Modulo_{bambino.iloc[0]['cognome']}_{bambino.iloc[0]['nome']}.pdf",
-                    mime="application/pdf"
+                    data=st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ],
+                    file_name=(
+                        f"Modulo_Iscrizione_"
+                        f"{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.pdf"
+                    ),
+                    mime="application/pdf",
+                    key=f"download_modulo_pdf_{bambino_id}"
                 )
                 
                 #st.download_button(
