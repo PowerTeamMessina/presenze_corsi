@@ -7250,10 +7250,6 @@ if is_genitore():
                         f"docx_modulo_{bambino_id}"
                     ] = docx_compilato.getvalue()
 
-                    st.success(
-                        "Modulo DOCX generato correttamente."
-                    )
-
                     pdf_compilato = genera_pdf_compilato(
                         bambino,
                         scheda
@@ -7263,7 +7259,9 @@ if is_genitore():
                         f"pdf_modulo_{bambino_id}"
                     ] = pdf_compilato.getvalue()
 
-                    st.write("PDF creato")
+                    st.success(
+                        "Moduli generati correttamente."
+                    )
             
                 except Exception as e:
             
