@@ -132,6 +132,22 @@ def elimina_istruttore(istruttore_id):
             f"Errore backup GitHub: {e}"
         )
 
+def calcola_eta(data_nascita):
+
+    oggi = date.today()
+
+    eta = (
+        oggi.year
+        - data_nascita.year
+        - (
+            (oggi.month, oggi.day)
+            <
+            (data_nascita.month, data_nascita.day)
+        )
+    )
+
+    return eta
+    
 def elimina_manager(manager_id):
 
     c.execute(
@@ -6131,6 +6147,14 @@ if is_genitore():
                         key=f"data_nascita_bambino_{bambino_id}"
                     )
 
+                    eta_bambino = calcola_eta(
+                        data_nascita_bambino
+                    )
+                    
+                    richiede_certificato_medico = (
+                        eta_bambino >= 6
+                    )
+
                     comune_bambino = st.text_input(
                         "Comune di residenza",
                         value=valori.get(
@@ -6477,13 +6501,29 @@ if is_genitore():
             key=f"modulo_firmato_{bambino_id}"
         )
 
-        certificato_medico = st.file_uploader(
-            "Certificato medico",
-            type=["pdf"],
-            disabled=bloccato,
-            key=f"certificato_medico_{bambino_id}"
-        )
+        if richiede_certificato_medico:
 
+            st.info(
+                f"Età bambino: {eta_bambino} anni. "
+                "Il certificato medico è obbligatorio."
+            )
+        
+            certificato_medico = st.file_uploader(
+                "Certificato medico del bambino",
+                type=["pdf"],
+                disabled=bloccato,
+                key=f"certificato_medico_{bambino_id}"
+            )
+        
+        else:
+        
+            st.success(
+                f"Età bambino: {eta_bambino} anni. "
+                "Il certificato medico non è richiesto."
+            )
+        
+            certificato_medico = True
+    
         documento_identita = st.file_uploader(
             "Documento identità",
             type=["pdf","jpg","jpeg","png"],
