@@ -6392,7 +6392,6 @@ if is_genitore():
                         VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
-                            (
                             bambino_id,
                             str(data_nascita_bambino),
                         
@@ -6460,7 +6459,6 @@ if is_genitore():
                         WHERE bambino_id = ?
                         """,
                         (
-                            (
                             str(data_nascita_bambino),
                         
                             luogo_nascita_bambino,
