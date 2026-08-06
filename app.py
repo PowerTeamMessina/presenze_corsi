@@ -7249,10 +7249,21 @@ if is_genitore():
                     st.session_state[
                         f"docx_modulo_{bambino_id}"
                     ] = docx_compilato.getvalue()
-            
+
                     st.success(
                         "Modulo DOCX generato correttamente."
                     )
+
+                    pdf_compilato = genera_pdf_compilato(
+                        bambino,
+                        scheda
+                    )
+                    
+                    st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ] = pdf_compilato.getvalue()
+
+                    st.write("PDF creato")
             
                 except Exception as e:
             
