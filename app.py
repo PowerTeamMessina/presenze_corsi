@@ -3330,6 +3330,310 @@ def get_presenze_bambino(
         params=(bambino_id,)
     )
 
+def valore_pdf(
+    valore
+):
+
+    if valore is None:
+        return ""
+
+    try:
+
+        if pd.isna(
+            valore
+        ):
+            return ""
+
+    except Exception:
+        pass
+
+    return str(
+        valore
+    )
+
+
+def data_pdf(
+    valore
+):
+
+    if valore is None:
+        return ""
+
+    try:
+
+        return pd.to_datetime(
+            valore,
+            errors="coerce"
+        ).strftime(
+            "%d/%m/%Y"
+        )
+
+    except Exception:
+
+        return str(
+            valore
+        )
+
+
+def genera_pdf_compilato(
+    bambino,
+    scheda
+):
+
+    b = bambino.iloc[0]
+    s = scheda.iloc[0]
+
+    packet = io.BytesIO()
+
+    c = canvas.Canvas(
+        packet,
+        pagesize=A4
+    )
+
+    c.setFont(
+        "Helvetica",
+        8
+    )
+
+    # =====================================================
+    # DATI BAMBINO / ATLETA
+    # =====================================================
+
+    c.drawString(
+        115,
+        664,
+        f"{valore_pdf(b['nome'])} {valore_pdf(b['cognome'])}"
+    )
+
+    c.drawString(
+        418,
+        664,
+        valore_pdf(
+            s.get(
+                "luogo_nascita_bambino",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        58,
+        642,
+        data_pdf(
+            s.get(
+                "data_nascita_bambino",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        445,
+        642,
+        valore_pdf(
+            s.get(
+                "cf_bambino",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        110,
+        620,
+        valore_pdf(
+            s.get(
+                "comune_bambino",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        420,
+        620,
+        valore_pdf(
+            s.get(
+                "indirizzo_bambino",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        125,
+        598,
+        valore_pdf(
+            b.get(
+                "email_genitore",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        435,
+        598,
+        valore_pdf(
+            b.get(
+                "telefono_genitore",
+                ""
+            )
+        )
+    )
+
+    # =====================================================
+    # DATA MODULO
+    # =====================================================
+
+    # Nel PDF base si vede ancora {{DATA_MODULO}}.
+    # Questa piccola area bianca lo copre prima di scrivere la data.
+    c.setFillColorRGB(
+        1,
+        1,
+        1
+    )
+
+    c.rect(
+        72,
+        356,
+        95,
+        12,
+        stroke=0,
+        fill=1
+    )
+
+    c.setFillColorRGB(
+        0,
+        0,
+        0
+    )
+
+    c.setFont(
+        "Helvetica",
+        8
+    )
+
+    c.drawString(
+        78,
+        358,
+        datetime.now().strftime(
+            "%d/%m/%Y"
+        )
+    )
+
+    # =====================================================
+    # DATI GENITORE
+    # =====================================================
+
+    c.drawString(
+        100,
+        284,
+        f"{valore_pdf(s.get('nome_genitore', ''))} {valore_pdf(s.get('cognome_genitore', ''))}"
+    )
+
+    c.drawString(
+        418,
+        284,
+        valore_pdf(
+            s.get(
+                "luogo_nascita_genitore",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        57,
+        262,
+        data_pdf(
+            s.get(
+                "data_nascita_genitore",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        445,
+        262,
+        valore_pdf(
+            s.get(
+                "cf_genitore",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        95,
+        240,
+        (
+            f"{valore_pdf(s.get('indirizzo_genitore', ''))} - "
+            f"{valore_pdf(s.get('comune_genitore', ''))}"
+        )
+    )
+
+    c.drawString(
+        410,
+        240,
+        valore_pdf(
+            b.get(
+                "telefono_genitore",
+                ""
+            )
+        )
+    )
+
+    c.drawString(
+        70,
+        218,
+        valore_pdf(
+            b.get(
+                "email_genitore",
+                ""
+            )
+        )
+    )
+
+    c.save()
+
+    packet.seek(
+        0
+    )
+
+    overlay_pdf = PdfReader(
+        packet
+    )
+
+    base_pdf = PdfReader(
+        "templates/modulo_base.pdf"
+    )
+
+    writer = PdfWriter()
+
+    page = base_pdf.pages[0]
+
+    page.merge_page(
+        overlay_pdf.pages[0]
+    )
+
+    writer.add_page(
+        page
+    )
+
+    output = io.BytesIO()
+
+    writer.write(
+        output
+    )
+
+    output.seek(
+        0
+    )
+
+    return output
+
 def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
 
     c.execute(
@@ -6918,7 +7222,7 @@ if is_genitore():
             )
             
             if st.button(
-                "📄 Genera modulo DOCX",
+                "📄 Genera modulo",
                 key=f"genera_modulo_docx_{bambino_id}"
             ):
             
@@ -6960,6 +7264,8 @@ if is_genitore():
                         str(e)
                     )
             
+            # DOWNLOAD DOCX
+
             if f"docx_modulo_{bambino_id}" in st.session_state:
             
                 st.download_button(
@@ -6972,6 +7278,23 @@ if is_genitore():
                         f"{bambino.iloc[0]['nome']}.docx"
                     ),
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+            
+            
+            # DOWNLOAD PDF
+            
+            if f"pdf_modulo_{bambino_id}" in st.session_state:
+            
+                st.download_button(
+                    "📥 Scarica modulo PDF",
+                    data=st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ],
+                    file_name=(
+                        f"Modulo_{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.pdf"
+                    ),
+                    mime="application/pdf"
                 )
                 
         # ============================================================
