@@ -6251,12 +6251,23 @@ if is_genitore():
         with col2:
 
             valore_data = date(1990, 1, 1)
-    
-            valore_data = datetime.strptime(
-            valori["data_nascita_genitore"],
-                "%Y-%m-%d"
-            ).date()
-                        
+
+            if (
+                not scheda.empty
+                and valori.get("data_nascita_genitore")
+            ):
+            
+                try:
+            
+                    valore_data = datetime.strptime(
+                        valori["data_nascita_genitore"],
+                        "%Y-%m-%d"
+                    ).date()
+            
+                except:
+            
+                    pass
+            
             data_nascita_genitore = st.date_input(
                 "Data di nascita del genitore",
                 value=valore_data,
