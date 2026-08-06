@@ -6085,9 +6085,10 @@ if is_genitore():
         if (
             not scheda.empty
             and
-            scheda.iloc[0]["bloccato"] == 1
+            "bloccato" in scheda.columns
+            and
+            int(scheda.iloc[0]["bloccato"]) == 1
         ):
-        
             bloccato = True
 
         st.markdown("---")
