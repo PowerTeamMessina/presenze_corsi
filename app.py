@@ -284,7 +284,6 @@ CREATE TABLE IF NOT EXISTS bambini (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     cognome TEXT NOT NULL,
-    data_nascita TEXT,
     corso_id INTEGER,
     email_genitore TEXT,
     telefono_genitore TEXT,
@@ -2652,7 +2651,6 @@ def aggiungi_bambino(
         INSERT INTO bambini(
             nome,
             cognome,
-            data_nascita,
             corso_id,
             email_genitore,
             telefono_genitore,
@@ -2708,7 +2706,6 @@ def aggiorna_bambino(
         SET
             nome = ?,
             cognome = ?,
-            data_nascita = ?,
             corso_id = ?,
             email_genitore = ?,
             telefono_genitore = ?,
@@ -2719,7 +2716,6 @@ def aggiorna_bambino(
         (
             nome,
             cognome,
-            data_nascita,
             corso_id,
             email_genitore,
             telefono_genitore,
@@ -3530,27 +3526,6 @@ if not is_genitore():
                         corso_label
                     ]
         
-                c1, c2, c3 = st.columns(3)
-    
-                giorno = c1.selectbox(
-                    "Giorno",
-                    list(range(1, 32))
-                )
-                
-                mese = c2.selectbox(
-                    "Mese",
-                    list(range(1, 13))
-                )
-                
-                anno_corrente = datetime.now().year
-    
-                anno = c3.selectbox(
-                    "Anno",
-                    list(range(anno_corrente, 1900, -1))
-                )
-                
-                data_nascita = f"{giorno:02d}/{mese:02d}/{anno}"
-        
                 note = st.text_area(
                     "Note"
                 )
@@ -3574,7 +3549,6 @@ if not is_genitore():
                             bambino_id = aggiungi_bambino(
                                 nome,
                                 cognome,
-                                data_nascita,
                                 corso_id,
                                 email_genitore,
                                 telefono_genitore,
@@ -3678,7 +3652,6 @@ if not is_genitore():
                         "nome",
                         "email_genitore",
                         "telefono_genitore",
-                        "data_nascita",
                         "note",
                         "attivo"
                     ]
@@ -3720,12 +3693,6 @@ if not is_genitore():
                     "Cognome",
                     value=dati["cognome"],
                     key="nuovo_cognome_bambino"
-                )
-    
-                nuova_data = st.text_input(
-                    "Data nascita",
-                    value=dati["data_nascita"] if pd.notna(dati["data_nascita"]) else "",
-                    key="nuova_data_bambino"
                 )
                     
                 nuova_email_genitore = st.text_input(
@@ -3776,7 +3743,6 @@ if not is_genitore():
                         bambino_id,
                         nuovo_nome.strip(),
                         nuovo_cognome.strip(),
-                        nuova_data,
                         opzioni_corsi[nuovo_corso],
                         nuova_email_genitore.strip(),
                         nuovo_telefono_genitore.strip(),
