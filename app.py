@@ -5983,14 +5983,14 @@ if is_genitore():
                 "👶 Dati del bambino"
             )
 
-             scheda = pd.read_sql(
-                """
-                SELECT *
-                FROM schede_genitori
-                WHERE bambino_id = ?
-                """,
-                conn,
-                params=(bambino_id,)
+            scheda = pd.read_sql(
+               """
+               SELECT *
+               FROM schede_genitori
+               WHERE bambino_id = ?
+               """,
+               conn,
+               params=(bambino_id,)
             )
     
             bloccato = False
