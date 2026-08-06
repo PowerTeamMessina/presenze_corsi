@@ -29,6 +29,9 @@ from docx import Document
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from PyPDF2 import PdfReader, PdfWriter
 
 # ============================================================
 # CONFIGURAZIONE
@@ -2862,184 +2865,66 @@ def genera_pdf_riepilogo_mensile_corso(
 
     return pdf
 
-def genera_pdf_modulo(
+def genera_pdf_compilato(
     bambino,
     scheda
 ):
 
-    b = bambino.iloc[0]
-    s = scheda.iloc[0]
+    packet = io.BytesIO()
 
-    buffer = io.BytesIO()
-
-    doc = SimpleDocTemplate(
-        buffer
+    c = canvas.Canvas(
+        packet,
+        pagesize=A4
     )
 
-    styles = getSampleStyleSheet()
+    #
+    # TEST
+    #
 
-    elementi = []
-
-    elementi.append(
-        Paragraph(
-            "POWER TEAM MESSINA SSD A R.L.",
-            styles["Title"]
-        )
+    c.setFont(
+        "Helvetica",
+        12
     )
 
-    elementi.append(
-        Spacer(1, 20)
+    c.drawString(
+        100,
+        700,
+        "PROVA"
     )
 
-    elementi.append(
-        Paragraph(
-            "<b>DOMANDA DI ISCRIZIONE</b>",
-            styles["Heading2"]
-        )
+    c.save()
+
+    packet.seek(0)
+
+    overlay_pdf = PdfReader(
+        packet
     )
 
-    elementi.append(
-        Spacer(1, 15)
+    base_pdf = PdfReader(
+        "templates/modulo_base.pdf"
     )
 
-    elementi.append(
-        Paragraph(
-            f"Nome e Cognome: {b['nome']} {b['cognome']}",
-            styles["Normal"]
-        )
+    writer = PdfWriter()
+
+    page = base_pdf.pages[0]
+
+    page.merge_page(
+        overlay_pdf.pages[0]
     )
 
-    elementi.append(
-        Paragraph(
-            f"Nato a: {s['luogo_nascita_bambino']}",
-            styles["Normal"]
-        )
+    writer.add_page(
+        page
     )
 
-    elementi.append(
-        Paragraph(
-            f"Data nascita: {s['data_nascita_bambino']}",
-            styles["Normal"]
-        )
+    output = io.BytesIO()
+
+    writer.write(
+        output
     )
 
-    elementi.append(
-        Paragraph(
-            f"Codice Fiscale: {s['cf_bambino']}",
-            styles["Normal"]
-        )
-    )
+    output.seek(0)
 
-    elementi.append(
-        Paragraph(
-            f"Residente a: {s['comune_bambino']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Indirizzo: {s['indirizzo_bambino']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Email riferimento: {b['email_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Telefono riferimento: {b['telefono_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Spacer(1, 20)
-    )
-
-    elementi.append(
-        Paragraph(
-            "<b>DATI DEL GENITORE</b>",
-            styles["Heading2"]
-        )
-    )
-
-    elementi.append(
-        Spacer(1, 10)
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Nome: {s['nome_genitore']} {s['cognome_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Nato a: {s['luogo_nascita_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Data nascita: {s['data_nascita_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Codice Fiscale: {s['cf_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Residenza: {s['indirizzo_genitore']} - {s['comune_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Telefono: {b['telefono_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Paragraph(
-            f"Email: {b['email_genitore']}",
-            styles["Normal"]
-        )
-    )
-
-    elementi.append(
-        Spacer(1, 40)
-    )
-
-    elementi.append(
-        Paragraph(
-            "Firma ______________________________",
-            styles["Normal"]
-        )
-    )
-
-    doc.build(
-        elementi
-    )
-
-    buffer.seek(0)
-
-    return buffer
+    return output
     
 # ============================================================
 # FUNZIONI ASSEGNAZIONI
@@ -7099,43 +6984,17 @@ if is_genitore():
             
                 try:
 
-                    pdf_compilato = genera_pdf_modulo(
+                    pdf_compilato = genera_pdf_compilato(
                         bambino,
                         scheda
                     )
                     
-                    st.session_state[
-                        f"pdf_modulo_{bambino_id}"
-                    ] = pdf_compilato.getvalue()
-                    
-                    st.success(
-                        "Modulo PDF generato correttamente."
+                    st.download_button(
+                        "📥 Scarica modulo PDF",
+                        data=pdf_compilato.getvalue(),
+                        file_name="Modulo.pdf",
+                        mime="application/pdf"
                     )
-                    
-                except Exception as e:
-            
-                    st.error(
-                        "Errore durante la generazione del modulo."
-                    )
-            
-                    st.code(
-                        str(e)
-                    )
-            
-            # FUORI dal bottone
-            if f"pdf_modulo_{bambino_id}" in st.session_state:
-
-                st.download_button(
-                    "📥 Scarica modulo PDF",
-                    data=st.session_state[
-                        f"pdf_modulo_{bambino_id}"
-                    ],
-                    file_name=(
-                        f"Modulo_{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.pdf"
-                    ),
-                    mime="application/pdf"
-                )
                 
                 #st.download_button(
                 #    "📥 Scarica modulo DOCX",
