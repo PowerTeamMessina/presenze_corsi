@@ -1997,22 +1997,29 @@ def get_corso_bambino(
     bambino_id
 ):
 
-    return pd.read_sql(
-        """
-        SELECT
-            c.nome AS corso,
-            s.nome AS stagione
-        FROM bambini b
-        LEFT JOIN corsi c
-            ON c.id = b.corso_id
-        LEFT JOIN stagioni s
-            ON s.id = c.stagione_id
-        WHERE b.id = ?
-        """,
-        conn,
-        params=(bambino_id,)
-    )
+    try:
 
+        return pd.read_sql(
+            """
+            SELECT
+                c.nome AS corso,
+                s.nome AS stagione
+            FROM bambini b
+            LEFT JOIN corsi c
+                ON c.id = b.corso_id
+            LEFT JOIN stagioni s
+                ON s.id = c.stagione_id
+            WHERE b.id = ?
+            """,
+            conn,
+            params=(bambino_id,)
+        )
+
+    except Exception as e:
+
+        st.error(str(e))
+        raise
+        
 def aggiungi_corso(nome, livello, stagione):
 
     c.execute(
