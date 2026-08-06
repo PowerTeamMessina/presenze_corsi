@@ -6032,7 +6032,7 @@ if is_genitore():
                params=(bambino_id,)
             )
 
-             valori = {}
+            valori = {}
         
             if not scheda.empty:
             
