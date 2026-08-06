@@ -113,7 +113,17 @@
             "attiva": 1
         }
     ],
-    "presenze": [],
+    "presenze": [
+        {
+            "id": 3,
+            "bambino_id": 2,
+            "corso_id": 1,
+            "data": "2026-08-06",
+            "presenza": 1,
+            "note": "",
+            "inserito_da": 1
+        }
+    ],
     "stagioni": [
         {
             "id": 1,
