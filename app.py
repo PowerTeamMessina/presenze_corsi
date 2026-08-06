@@ -1173,13 +1173,30 @@ def crea_mappa_modulo(
             )
         ),
 
-        "{{COMUNE_BAMBINO}}": valore_pulito(
-            s.get(
-                "comune_bambino",
-                ""
-            )
+        "{{COMUNE_RESIDENZA_BAMBINO}}": valore_pulito(
+            s.get("comune_bambino", "")
         ),
-
+        
+        "{{COMUNE_RESIDENZA_GENITORE}}": valore_pulito(
+            s.get("comune_genitore", "")
+        ),
+        
+        "{{TELEFONO_RIFERIMENTO}}": valore_pulito(
+            s.get("telefono1", "")
+        ),
+        
+        "{{EMAIL_RIFERIMENTO}}": valore_pulito(
+            s.get("email_genitore", "")
+        ),
+        
+        "{{TELEFONO_GENITORE}}": valore_pulito(
+            s.get("telefono1", "")
+        ),
+        
+        "{{EMAIL_GENITORE}}": valore_pulito(
+            s.get("email_genitore", "")
+        ),
+        
         "{{CAP_BAMBINO}}": valore_pulito(
             s.get(
                 "cap_bambino",
@@ -1229,30 +1246,9 @@ def crea_mappa_modulo(
             )
         ),
 
-        "{{COMUNE_GENITORE}}": valore_pulito(
-            s.get(
-                "comune_genitore",
-                ""
-            )
-        ),
-
         "{{CAP_GENITORE}}": valore_pulito(
             s.get(
                 "cap_genitore",
-                ""
-            )
-        ),
-
-        "{{TELEFONO_GENITORE}}": valore_pulito(
-            s.get(
-                "telefono1",
-                ""
-            )
-        ),
-
-        "{{EMAIL_GENITORE}}": valore_pulito(
-            s.get(
-                "email_genitore",
                 ""
             )
         ),
@@ -6980,10 +6976,6 @@ if is_genitore():
                         file_name=f"Modulo_{bambino.iloc[0]['cognome']}_{bambino.iloc[0]['nome']}.docx",
                         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
-        
-                    st.session_state[
-                        f"pdf_modulo_{bambino_id}"
-                    ] = pdf_compilato.getvalue()
         
                     st.success(
                         "Modulo PDF generato correttamente."
