@@ -6166,7 +6166,11 @@ if is_genitore():
         email_genitore = st.text_input(
             "Email",
             value=valori.get(
-                "email_genitore
+                "email_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
 
         if st.button(
             "💾 Salva anagrafica",
