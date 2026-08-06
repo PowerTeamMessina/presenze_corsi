@@ -3298,6 +3298,15 @@ with tab_presenze:
                 f"Confermo eliminazione presenze del {data_evento}",
                 key=f"conferma_elimina_presenze_{corso_id}_{data_evento}"
             )
+
+            presenze_presenti = get_presenze_corso_data(
+                corso_id,
+                data_evento
+            )
+            
+            st.info(
+                f"Attualmente sono registrate {len(presenze_presenti)} presenze per questo corso in questa data."
+            )
             
             if st.button(
                 "🗑️ Elimina presenze del giorno",
