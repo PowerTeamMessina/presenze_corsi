@@ -1049,7 +1049,7 @@ def scrivi_centrato(
     centro_x,
     y,
     font="Helvetica",
-    size=8
+    size=14
 ):
 
     c.setFont(
@@ -3418,7 +3418,7 @@ def genera_pdf_compilato(
 
     c.setFont(
         "Helvetica",
-        8
+        15
     )
     
     # =====================================================
@@ -3429,7 +3429,7 @@ def genera_pdf_compilato(
         c,
         f"{valore_pdf(b['nome'])} {valore_pdf(b['cognome'])}",
         180,
-        664
+        650
     )
     
     scrivi_centrato(
@@ -3438,7 +3438,7 @@ def genera_pdf_compilato(
             s.get("luogo_nascita_bambino", "")
         ),
         470,
-        664
+        650
     )
     
     scrivi_centrato(
@@ -3447,7 +3447,7 @@ def genera_pdf_compilato(
             s.get("data_nascita_bambino", "")
         ),
         90,
-        642
+        628
     )
     
     scrivi_centrato(
@@ -3456,7 +3456,7 @@ def genera_pdf_compilato(
             s.get("cf_bambino", "")
         ),
         500,
-        642
+        628
     )
     
     scrivi_centrato(
@@ -3465,7 +3465,7 @@ def genera_pdf_compilato(
             s.get("comune_bambino", "")
         ),
         120,
-        620
+        604
     )
     
     scrivi_centrato(
@@ -3474,7 +3474,7 @@ def genera_pdf_compilato(
             s.get("indirizzo_bambino", "")
         ),
         470,
-        620
+        604
     )
     
     scrivi_centrato(
@@ -3483,7 +3483,7 @@ def genera_pdf_compilato(
             b.get("email_genitore", "")
         ),
         180,
-        598
+        584
     )
     
     scrivi_centrato(
@@ -3492,7 +3492,7 @@ def genera_pdf_compilato(
             b.get("telefono_genitore", "")
         ),
         500,
-        598
+        584
     )
     
     # =====================================================
