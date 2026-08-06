@@ -600,10 +600,18 @@ def crea_backup_completo():
 
 def get_drive_service():
 
-    service_account_info = json.loads(
-        st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"]
-    )
+    testo = st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"]
 
+    for i, riga in enumerate(
+        testo.splitlines(),
+        start=1
+    ):
+        st.write(i, riga)
+    
+    service_account_info = json.loads(
+        testo
+    )
+    
     credentials = service_account.Credentials.from_service_account_info(
         service_account_info,
         scopes=[
