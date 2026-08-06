@@ -6918,23 +6918,36 @@ if is_genitore():
             )
             
             if st.button(
-                "📄 Genera modulo PDF",
-                key=f"genera_modulo_pdf_{bambino_id}"
+                "📄 Genera modulo DOCX",
+                key=f"genera_modulo_docx_{bambino_id}"
             ):
             
                 try:
             
-                    pdf_compilato = genera_pdf_compilato(
+                    template_id = st.secrets[
+                        "DRIVE_TEMPLATE_MODULO_ID"
+                    ]
+            
+                    template_bytes = scarica_file_drive_bytes(
+                        template_id
+                    )
+            
+                    mappa = crea_mappa_modulo(
                         bambino,
                         scheda
                     )
             
+                    docx_compilato = compila_docx_template(
+                        template_bytes,
+                        mappa
+                    )
+            
                     st.session_state[
-                        f"pdf_modulo_{bambino_id}"
-                    ] = pdf_compilato.getvalue()
+                        f"docx_modulo_{bambino_id}"
+                    ] = docx_compilato.getvalue()
             
                     st.success(
-                        "Modulo PDF generato correttamente."
+                        "Modulo DOCX generato correttamente."
                     )
             
                 except Exception as e:
@@ -6947,18 +6960,18 @@ if is_genitore():
                         str(e)
                     )
             
-            if f"pdf_modulo_{bambino_id}" in st.session_state:
+            if f"docx_modulo_{bambino_id}" in st.session_state:
             
                 st.download_button(
-                    "📥 Scarica modulo PDF",
+                    "📥 Scarica modulo DOCX",
                     data=st.session_state[
-                        f"pdf_modulo_{bambino_id}"
+                        f"docx_modulo_{bambino_id}"
                     ],
                     file_name=(
                         f"Modulo_{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.pdf"
+                        f"{bambino.iloc[0]['nome']}.docx"
                     ),
-                    mime="application/pdf"
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
                 
         # ============================================================
