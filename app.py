@@ -5723,7 +5723,8 @@ if is_manager():
                         value=telefono.iloc[0]["telefono_genitore"]
                         if pd.notna(telefono.iloc[0]["telefono_genitore"])
                         else "",
-                        disabled=True
+                        disabled=True,
+                        key="telefono_genitore_visualizzazione"
                     )
 
 
