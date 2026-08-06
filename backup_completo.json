@@ -81,7 +81,13 @@
             "attivo": 1
         }
     ],
-    "genitori_bambini": [],
+    "genitori_bambini": [
+        {
+            "id": 1,
+            "utente_id": 2,
+            "bambino_id": 2
+        }
+    ],
     "assegnazioni_istruttori": [
         {
             "id": 1,
