@@ -5696,6 +5696,27 @@ if is_manager():
                 )
             )
 
+            email = pd.read_sql(
+                """
+                SELECT u.username
+                FROM utenti u
+                WHERE u.id = ?
+                """,
+                conn,
+                params=(genitore_id,)
+            )
+            
+            if not email.empty:
+            
+                st.text_input(
+                    "Email genitore",
+                    value=email.iloc[0]["username"]
+                    if pd.notna(email.iloc[0]["username"])
+                    else "",
+                    disabled=True,
+                    key=f"email_genitore_visualizzazione_{genitore_id}"
+                )
+
             telefono = pd.read_sql(
                     """
                     SELECT b.telefono_genitore
