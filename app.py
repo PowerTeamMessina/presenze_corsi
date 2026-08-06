@@ -3522,8 +3522,8 @@ def genera_pdf_compilato(
     scrivi_centrato(
         c,
         datetime.now().strftime("%d/%m/%Y"),
-        120,
-        450
+        100,
+        470
     )
     
     # =====================================================
