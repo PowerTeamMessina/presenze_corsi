@@ -6142,8 +6142,20 @@ if is_genitore():
                         disabled=True
                     ) 
 
+                    valore_data = date(2018, 1, 1)
+
+                    if not scheda.empty and valori.get("data_nascita_bambino"):
+                    
+                        valore_data = datetime.strptime(
+                            valori["data_nascita_bambino"],
+                            "%Y-%m-%d"
+                        ).date()
+                    
                     data_nascita_bambino = st.date_input(
                         "Data di nascita del bambino",
+                        value=valore_data,
+                        min_value=date(2000, 1, 1),
+                        max_value=date.today(),
                         disabled=bloccato,
                         format="DD/MM/YYYY",
                         key=f"data_nascita_bambino_{bambino_id}"
