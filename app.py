@@ -6944,10 +6944,6 @@ if is_genitore():
                         f"{bambino.iloc[0]['nome']}.docx"
                     )
             
-                    st.session_state[
-                        f"pdf_modulo_{bambino_id}"
-                    ] = pdf_compilato.getvalue()
-            
                     st.success(
                         "Modulo PDF generato correttamente."
                     )
