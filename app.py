@@ -3263,704 +3263,707 @@ else:
 # TAB PRESENZE
 # ============================================================
 
-with tab_presenze:
+if not is_genitore():
+    with tab_presenze:
 
-    st.header("📋 Registro presenze")
-
-    data_evento = st.date_input(
-        "Data",
-        value=date.today(),
-        key="data_presenze"
-    )
-
-    corsi_visibili = get_corsi_visibili_per_utente(
-        data_evento
-    )
-
-    if corsi_visibili.empty:
-
-        st.warning(
-            "Non hai corsi disponibili per questa data."
+        st.header("📋 Registro presenze")
+    
+        data_evento = st.date_input(
+            "Data",
+            value=date.today(),
+            key="data_presenze"
         )
-
-    else:
-
-        corsi_visibili = get_corsi_con_giorni(
-            attivi_solo=True
-        ) if is_manager() else get_corsi_visibili_per_utente()
-        
-        opzioni_corsi = {
-            f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
-            for _, row in get_corsi_con_giorni(
-                attivi_solo=True
-            ).iterrows()
-        }
-
-        corso_label = st.selectbox(
-            "Corso",
-            list(opzioni_corsi.keys()),
-            key="corso_presenze"
+    
+        corsi_visibili = get_corsi_visibili_per_utente(
+            data_evento
         )
-
-        corso_id = opzioni_corsi[corso_label]
-
-        if is_istruttore():
-
-            abilitato = istruttore_abilitato_corso_data(
-                st.session_state.utente_id,
-                corso_id,
-                data_evento
+    
+        if corsi_visibili.empty:
+    
+            st.warning(
+                "Non hai corsi disponibili per questa data."
             )
-
-            if not abilitato:
-
-                st.error(
-                    "Non sei abilitato a compilare questo corso in questa data."
-                )
-
-                st.stop()
-
-        bambini = get_bambini_corso(
-            corso_id,
-            attivi_solo=True
-        )
-
-        if bambini.empty:
-
-            st.info(
-                "Nessun bambino inserito in questo corso."
-            )
-
+    
         else:
-
-            presenze_salvate = get_presenze_corso_data(
-                corso_id,
-                data_evento
-            )
-
-            dati_salvati = {}
-
-            for _, r in presenze_salvate.iterrows():
-
-                dati_salvati[int(r["bambino_id"])] = {
-                    "presenza": bool(r["presenza"]),
-                    "note": r["note"] if pd.notna(r["note"]) else ""
-                }
-
-            st.markdown("---")
-
-            presenti = 0
-            registro = {}
-
-            for _, b in bambini.iterrows():
-
-                bambino_id = int(b["id"])
-
-                default_presenza = dati_salvati.get(
-                    bambino_id,
-                    {}
-                ).get(
-                    "presenza",
-                    False
-                )
-
-                default_note = dati_salvati.get(
-                    bambino_id,
-                    {}
-                ).get(
-                    "note",
-                    ""
-                )
-
-                st.subheader(
-                    f"{b['cognome']} {b['nome']}"
-                )
-
-                col1, col2 = st.columns(
-                    [1, 3]
-                )
-
-                presenza = col1.toggle(
-                    "Presente",
-                    value=default_presenza,
-                    key=f"pres_{corso_id}_{data_evento}_{bambino_id}"
-                )
-
-                note = col2.text_input(
-                    "Note",
-                    value=default_note,
-                    key=f"note_{corso_id}_{data_evento}_{bambino_id}"
-                )
-
-                if presenza:
-                    presenti += 1
-
-                registro[bambino_id] = {
-                    "presenza": presenza,
-                    "note": note
-                }
-
-                st.markdown("---")
-
-            assenti = len(bambini) - presenti
-
-            c1, c2, c3 = st.columns(3)
-
-            c1.metric(
-                "Iscritti",
-                len(bambini)
-            )
-
-            c2.metric(
-                "Presenti",
-                presenti
-            )
-
-            c3.metric(
-                "Assenti",
-                assenti
-            )
-
-            if st.button(
-                "💾 Salva presenze",
-                key="salva_presenze"
-            ):
-
-                for bambino_id, dati in registro.items():
-
-                    salva_presenza(
-                        bambino_id,
-                        corso_id,
-                        data_evento,
-                        dati["presenza"],
-                        dati["note"]
-                    )
-
-                st.success(
-                    "Presenze salvate correttamente."
-                )
-
-                st.rerun()
-
-            st.markdown("---")
-
-            conferma_elimina_presenze = st.checkbox(
-                f"Confermo eliminazione presenze del {data_evento}",
-                key=f"conferma_elimina_presenze_{corso_id}_{data_evento}"
-            )
-
-            presenze_presenti = get_presenze_corso_data(
-                corso_id,
-                data_evento
-            )
+    
+            corsi_visibili = get_corsi_con_giorni(
+                attivi_solo=True
+            ) if is_manager() else get_corsi_visibili_per_utente()
             
-            st.info(
-                f"Attualmente sono registrate {len(presenze_presenti)} presenze per questo corso in questa data."
+            opzioni_corsi = {
+                f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
+                for _, row in get_corsi_con_giorni(
+                    attivi_solo=True
+                ).iterrows()
+            }
+    
+            corso_label = st.selectbox(
+                "Corso",
+                list(opzioni_corsi.keys()),
+                key="corso_presenze"
             )
-            
-            if st.button(
-                "🗑️ Elimina presenze del giorno",
-                key=f"elimina_presenze_{corso_id}_{data_evento}"
-            ):
-            
-                if not conferma_elimina_presenze:
-            
+    
+            corso_id = opzioni_corsi[corso_label]
+    
+            if is_istruttore():
+    
+                abilitato = istruttore_abilitato_corso_data(
+                    st.session_state.utente_id,
+                    corso_id,
+                    data_evento
+                )
+    
+                if not abilitato:
+    
                     st.error(
-                        "Devi confermare l'eliminazione."
+                        "Non sei abilitato a compilare questo corso in questa data."
                     )
-            
-                else:
-            
-                    numero = elimina_presenze_giornata(
-                        corso_id,
-                        data_evento
+    
+                    st.stop()
+    
+            bambini = get_bambini_corso(
+                corso_id,
+                attivi_solo=True
+            )
+    
+            if bambini.empty:
+    
+                st.info(
+                    "Nessun bambino inserito in questo corso."
+                )
+    
+            else:
+    
+                presenze_salvate = get_presenze_corso_data(
+                    corso_id,
+                    data_evento
+                )
+    
+                dati_salvati = {}
+    
+                for _, r in presenze_salvate.iterrows():
+    
+                    dati_salvati[int(r["bambino_id"])] = {
+                        "presenza": bool(r["presenza"]),
+                        "note": r["note"] if pd.notna(r["note"]) else ""
+                    }
+    
+                st.markdown("---")
+    
+                presenti = 0
+                registro = {}
+    
+                for _, b in bambini.iterrows():
+    
+                    bambino_id = int(b["id"])
+    
+                    default_presenza = dati_salvati.get(
+                        bambino_id,
+                        {}
+                    ).get(
+                        "presenza",
+                        False
                     )
-                    
+    
+                    default_note = dati_salvati.get(
+                        bambino_id,
+                        {}
+                    ).get(
+                        "note",
+                        ""
+                    )
+    
+                    st.subheader(
+                        f"{b['cognome']} {b['nome']}"
+                    )
+    
+                    col1, col2 = st.columns(
+                        [1, 3]
+                    )
+    
+                    presenza = col1.toggle(
+                        "Presente",
+                        value=default_presenza,
+                        key=f"pres_{corso_id}_{data_evento}_{bambino_id}"
+                    )
+    
+                    note = col2.text_input(
+                        "Note",
+                        value=default_note,
+                        key=f"note_{corso_id}_{data_evento}_{bambino_id}"
+                    )
+    
+                    if presenza:
+                        presenti += 1
+    
+                    registro[bambino_id] = {
+                        "presenza": presenza,
+                        "note": note
+                    }
+    
+                    st.markdown("---")
+    
+                assenti = len(bambini) - presenti
+    
+                c1, c2, c3 = st.columns(3)
+    
+                c1.metric(
+                    "Iscritti",
+                    len(bambini)
+                )
+    
+                c2.metric(
+                    "Presenti",
+                    presenti
+                )
+    
+                c3.metric(
+                    "Assenti",
+                    assenti
+                )
+    
+                if st.button(
+                    "💾 Salva presenze",
+                    key="salva_presenze"
+                ):
+    
+                    for bambino_id, dati in registro.items():
+    
+                        salva_presenza(
+                            bambino_id,
+                            corso_id,
+                            data_evento,
+                            dati["presenza"],
+                            dati["note"]
+                        )
+    
                     st.success(
-                        f"{numero} presenze eliminate."
+                        "Presenze salvate correttamente."
                     )
-            
+    
                     st.rerun()
+    
+                st.markdown("---")
+    
+                conferma_elimina_presenze = st.checkbox(
+                    f"Confermo eliminazione presenze del {data_evento}",
+                    key=f"conferma_elimina_presenze_{corso_id}_{data_evento}"
+                )
+    
+                presenze_presenti = get_presenze_corso_data(
+                    corso_id,
+                    data_evento
+                )
+                
+                st.info(
+                    f"Attualmente sono registrate {len(presenze_presenti)} presenze per questo corso in questa data."
+                )
+                
+                if st.button(
+                    "🗑️ Elimina presenze del giorno",
+                    key=f"elimina_presenze_{corso_id}_{data_evento}"
+                ):
+                
+                    if not conferma_elimina_presenze:
+                
+                        st.error(
+                            "Devi confermare l'eliminazione."
+                        )
+                
+                    else:
+                
+                        numero = elimina_presenze_giornata(
+                            corso_id,
+                            data_evento
+                        )
+                        
+                        st.success(
+                            f"{numero} presenze eliminate."
+                        )
+                
+                        st.rerun()
 
 
 # ============================================================
 # TAB BAMBINI
 # ============================================================
 
-with tab_bambini:
+if not is_genitore():
+    with tab_bambini:
 
-    if is_manager():
-
-        st.header("👶 Gestione bambini")
-
-        corsi = get_corsi(
-            attivi_solo=True,
-            stagione=stagione_selezionata
-        )
-        
-        opzioni_corsi = {
-            f"{row['nome']}":
-                int(row["id"])
-            for _, row in corsi.iterrows()
-        }
+        if is_manager():
     
-        st.subheader("➕ Aggiungi bambino")
+            st.header("👶 Gestione bambini")
     
-        with st.form(
-            "form_aggiungi_bambino",
-            clear_on_submit=True
-        ):
-    
-            nome = st.text_input(
-                "Nome"
-            )
-    
-            cognome = st.text_input(
-                "Cognome"
-            )
-            
-            email_genitore = st.text_input(
-                "Email genitore (facoltativa)"
-            )
-
-            telefono_genitore = st.text_input(
-                "Telefono genitore (facoltativo)"
-            )
-
             corsi = get_corsi(
-                attivi_solo=True
+                attivi_solo=True,
+                stagione=stagione_selezionata
             )
             
-            if len(opzioni_corsi) == 0:
-            
-                st.error(
-                    "Non esistono corsi attivi. Crea prima almeno un corso."
+            opzioni_corsi = {
+                f"{row['nome']}":
+                    int(row["id"])
+                for _, row in corsi.iterrows()
+            }
+        
+            st.subheader("➕ Aggiungi bambino")
+        
+            with st.form(
+                "form_aggiungi_bambino",
+                clear_on_submit=True
+            ):
+        
+                nome = st.text_input(
+                    "Nome"
                 )
-            
-            else:
-            
-                corso_label = st.selectbox(
+        
+                cognome = st.text_input(
+                    "Cognome"
+                )
+                
+                email_genitore = st.text_input(
+                    "Email genitore (facoltativa)"
+                )
+    
+                telefono_genitore = st.text_input(
+                    "Telefono genitore (facoltativo)"
+                )
+    
+                corsi = get_corsi(
+                    attivi_solo=True
+                )
+                
+                if len(opzioni_corsi) == 0:
+                
+                    st.error(
+                        "Non esistono corsi attivi. Crea prima almeno un corso."
+                    )
+                
+                else:
+                
+                    corso_label = st.selectbox(
+                        "Corso principale",
+                        list(opzioni_corsi.keys())
+                    )
+                
+                    corso_id = opzioni_corsi[
+                        corso_label
+                    ]
+        
+                c1, c2, c3 = st.columns(3)
+    
+                giorno = c1.selectbox(
+                    "Giorno",
+                    list(range(1, 32))
+                )
+                
+                mese = c2.selectbox(
+                    "Mese",
+                    list(range(1, 13))
+                )
+                
+                anno_corrente = datetime.now().year
+    
+                anno = c3.selectbox(
+                    "Anno",
+                    list(range(anno_corrente, 1900, -1))
+                )
+                
+                data_nascita = f"{giorno:02d}/{mese:02d}/{anno}"
+        
+                note = st.text_area(
+                    "Note"
+                )
+        
+                invia = st.form_submit_button(
+                    "➕ Aggiungi"
+                )
+        
+                if invia:
+        
+                    if nome.strip() == "" or cognome.strip() == "":
+        
+                        st.error(
+                            "Nome e cognome sono obbligatori."
+                        )
+        
+                    else:
+        
+                        try:
+    
+                            bambino_id = aggiungi_bambino(
+                                nome,
+                                cognome,
+                                data_nascita,
+                                corso_id,
+                                email_genitore,
+                                telefono_genitore,
+                                note
+                            )
+                            
+                            if email_genitore.strip() != "":
+                            
+                                genitore_esistente = pd.read_sql(
+                                    """
+                                    SELECT *
+                                    FROM utenti
+                                    WHERE lower(username)=?
+                                    """,
+                                    conn,
+                                    params=(email_genitore.strip().lower(),)
+                                )
+                            
+                                if genitore_esistente.empty:
+                            
+                                    
+                                    genitore_id, password_generata, gia_esistente = (
+                                        crea_account_genitore(
+                                            dati["email_genitore"],
+                                            f"{dati['nome']} {dati['cognome']}"
+                                        )
+                                    )
+                            
+                                    c.execute(
+                                        """
+                                        INSERT OR IGNORE INTO genitori_bambini(
+                                            utente_id,
+                                            bambino_id
+                                        )
+                                        VALUES(?,?)
+                                        """,
+                                        (
+                                            genitore_id,
+                                            bambino_id
+                                        )
+                                    )
+                            
+                                    conn.commit()
+                            
+                                    try:
+                            
+                                        invia_credenziali_genitore_email(
+                                            email_genitore,
+                                            f"{nome} {cognome}",
+                                            password_generata
+                                        )
+                            
+                                    except Exception as e:
+                            
+                                        st.warning(
+                                            f"Account creato ma email non inviata: {e}"
+                                        )
+                        
+                            st.success(
+                                f"Bambino salvato. ID={bambino_id}"
+                            )
+                        
+                        except Exception as e:
+                        
+                            st.error(str(e))
+                            
+                        st.success(
+                            "Bambino aggiunto correttamente."
+                        )
+        
+                        st.rerun()
+    
+            st.markdown("---")
+    
+        st.subheader("📋 Elenco bambini")
+    
+        bambini = get_bambini(
+            attivi_solo=False if is_manager() else True
+        )
+    
+        if bambini.empty:
+    
+            st.info(
+                "Nessun bambino presente."
+            )
+    
+        else:
+    
+            bambini_visual = bambini.copy()
+    
+            bambini_visual["data_nascita"] = pd.to_datetime(
+                bambini_visual["data_nascita"],
+                errors="coerce"
+            ).dt.strftime("%d/%m/%Y")
+    
+            st.dataframe(
+                bambini_visual[
+                    [
+                        "id",
+                        "cognome",
+                        "nome",
+                        "email_genitore",
+                        "telefono_genitore",
+                        "data_nascita",
+                        "note",
+                        "attivo"
+                    ]
+                ],
+                use_container_width=True,
+                hide_index=True
+            )
+    
+            if is_manager():
+    
+                st.markdown("---")
+    
+                st.subheader("✏️ Modifica o elimina bambino")
+    
+                opzioni_bambini = {
+                    f"{row['cognome']} {row['nome']}": int(row["id"])
+                    for _, row in bambini.iterrows()
+                }
+    
+                bambino_label = st.selectbox(
+                    "Bambino",
+                    list(opzioni_bambini.keys()),
+                    key="modifica_bambino"
+                )
+    
+                bambino_id = opzioni_bambini[bambino_label]
+    
+                dati = bambini[
+                    bambini["id"] == bambino_id
+                ].iloc[0]
+    
+                nuovo_nome = st.text_input(
+                    "Nome",
+                    value=dati["nome"],
+                    key="nuovo_nome_bambino"
+                )
+    
+                nuovo_cognome = st.text_input(
+                    "Cognome",
+                    value=dati["cognome"],
+                    key="nuovo_cognome_bambino"
+                )
+    
+                nuova_data = st.text_input(
+                    "Data nascita",
+                    value=dati["data_nascita"] if pd.notna(dati["data_nascita"]) else "",
+                    key="nuova_data_bambino"
+                )
+                    
+                nuova_email_genitore = st.text_input(
+                    "Email genitore",
+                    value=dati["email_genitore"]
+                    if pd.notna(dati["email_genitore"])
+                    else ""
+                )
+    
+                nuovo_telefono_genitore = st.text_input(
+                    "Telefono genitore",
+                    value=dati["telefono_genitore"]
+                    if pd.notna(dati["telefono_genitore"])
+                    else ""
+                )
+    
+                nuove_note = st.text_area(
+                    "Note",
+                    value=dati["note"] if pd.notna(dati["note"]) else "",
+                    key="nuove_note_bambino"
+                )
+    
+                nuovo_attivo = st.checkbox(
+                    "Attivo",
+                    value=bool(dati["attivo"]),
+                    key="attivo_bambino"
+                )
+    
+                corsi = get_corsi(
+                    attivi_solo=False
+                )
+                    
+                opzioni_corsi = {
+                    row["nome"]: int(row["id"])
+                    for _, row in corsi.iterrows()
+                }
+    
+                nuovo_corso = st.selectbox(
                     "Corso principale",
                     list(opzioni_corsi.keys())
                 )
-            
-                corso_id = opzioni_corsi[
-                    corso_label
-                ]
     
-            c1, c2, c3 = st.columns(3)
-
-            giorno = c1.selectbox(
-                "Giorno",
-                list(range(1, 32))
-            )
-            
-            mese = c2.selectbox(
-                "Mese",
-                list(range(1, 13))
-            )
-            
-            anno_corrente = datetime.now().year
-
-            anno = c3.selectbox(
-                "Anno",
-                list(range(anno_corrente, 1900, -1))
-            )
-            
-            data_nascita = f"{giorno:02d}/{mese:02d}/{anno}"
+                if st.button(
+                    "💾 Aggiorna bambino"
+                ):
     
-            note = st.text_area(
-                "Note"
-            )
-    
-            invia = st.form_submit_button(
-                "➕ Aggiungi"
-            )
-    
-            if invia:
-    
-                if nome.strip() == "" or cognome.strip() == "":
-    
-                    st.error(
-                        "Nome e cognome sono obbligatori."
+                    aggiorna_bambino(
+                        bambino_id,
+                        nuovo_nome.strip(),
+                        nuovo_cognome.strip(),
+                        nuova_data,
+                        opzioni_corsi[nuovo_corso],
+                        nuova_email_genitore.strip(),
+                        nuovo_telefono_genitore.strip(),
+                        nuove_note.strip(),
+                        nuovo_attivo
                     )
     
-                else:
-    
-                    try:
-
-                        bambino_id = aggiungi_bambino(
-                            nome,
-                            cognome,
-                            data_nascita,
-                            corso_id,
-                            email_genitore,
-                            telefono_genitore,
-                            note
-                        )
-                        
-                        if email_genitore.strip() != "":
-                        
-                            genitore_esistente = pd.read_sql(
-                                """
-                                SELECT *
-                                FROM utenti
-                                WHERE lower(username)=?
-                                """,
-                                conn,
-                                params=(email_genitore.strip().lower(),)
-                            )
-                        
-                            if genitore_esistente.empty:
-                        
-                                
-                                genitore_id, password_generata, gia_esistente = (
-                                    crea_account_genitore(
-                                        dati["email_genitore"],
-                                        f"{dati['nome']} {dati['cognome']}"
-                                    )
-                                )
-                        
-                                c.execute(
-                                    """
-                                    INSERT OR IGNORE INTO genitori_bambini(
-                                        utente_id,
-                                        bambino_id
-                                    )
-                                    VALUES(?,?)
-                                    """,
-                                    (
-                                        genitore_id,
-                                        bambino_id
-                                    )
-                                )
-                        
-                                conn.commit()
-                        
-                                try:
-                        
-                                    invia_credenziali_genitore_email(
-                                        email_genitore,
-                                        f"{nome} {cognome}",
-                                        password_generata
-                                    )
-                        
-                                except Exception as e:
-                        
-                                    st.warning(
-                                        f"Account creato ma email non inviata: {e}"
-                                    )
-                    
-                        st.success(
-                            f"Bambino salvato. ID={bambino_id}"
-                        )
-                    
-                    except Exception as e:
-                    
-                        st.error(str(e))
-                        
                     st.success(
-                        "Bambino aggiunto correttamente."
+                        "Bambino aggiornato."
                     )
     
                     st.rerun()
-
-        st.markdown("---")
-
-    st.subheader("📋 Elenco bambini")
-
-    bambini = get_bambini(
-        attivi_solo=False if is_manager() else True
-    )
-
-    if bambini.empty:
-
-        st.info(
-            "Nessun bambino presente."
-        )
-
-    else:
-
-        bambini_visual = bambini.copy()
-
-        bambini_visual["data_nascita"] = pd.to_datetime(
-            bambini_visual["data_nascita"],
-            errors="coerce"
-        ).dt.strftime("%d/%m/%Y")
-
-        st.dataframe(
-            bambini_visual[
-                [
-                    "id",
-                    "cognome",
-                    "nome",
-                    "email_genitore",
-                    "telefono_genitore",
-                    "data_nascita",
-                    "note",
-                    "attivo"
-                ]
-            ],
-            use_container_width=True,
-            hide_index=True
-        )
-
-        if is_manager():
-
+                    
             st.markdown("---")
-
-            st.subheader("✏️ Modifica o elimina bambino")
-
-            opzioni_bambini = {
-                f"{row['cognome']} {row['nome']}": int(row["id"])
-                for _, row in bambini.iterrows()
-            }
-
-            bambino_label = st.selectbox(
-                "Bambino",
-                list(opzioni_bambini.keys()),
-                key="modifica_bambino"
+            st.subheader("👨‍👩‍👧 Account Genitore")
+    
+            genitore = pd.read_sql(
+                """
+                SELECT u.*
+                FROM utenti u
+                JOIN genitori_bambini gb
+                ON gb.utente_id = u.id
+                WHERE gb.bambino_id = ?
+                AND u.ruolo = 'genitore'
+                """,
+                conn,
+                params=(bambino_id,)
             )
-
-            bambino_id = opzioni_bambini[bambino_label]
-
-            dati = bambini[
-                bambini["id"] == bambino_id
-            ].iloc[0]
-
-            nuovo_nome = st.text_input(
-                "Nome",
-                value=dati["nome"],
-                key="nuovo_nome_bambino"
-            )
-
-            nuovo_cognome = st.text_input(
-                "Cognome",
-                value=dati["cognome"],
-                key="nuovo_cognome_bambino"
-            )
-
-            nuova_data = st.text_input(
-                "Data nascita",
-                value=dati["data_nascita"] if pd.notna(dati["data_nascita"]) else "",
-                key="nuova_data_bambino"
-            )
-                
-            nuova_email_genitore = st.text_input(
-                "Email genitore",
-                value=dati["email_genitore"]
-                if pd.notna(dati["email_genitore"])
-                else ""
-            )
-
-            nuovo_telefono_genitore = st.text_input(
-                "Telefono genitore",
-                value=dati["telefono_genitore"]
-                if pd.notna(dati["telefono_genitore"])
-                else ""
-            )
-
-            nuove_note = st.text_area(
-                "Note",
-                value=dati["note"] if pd.notna(dati["note"]) else "",
-                key="nuove_note_bambino"
-            )
-
-            nuovo_attivo = st.checkbox(
-                "Attivo",
-                value=bool(dati["attivo"]),
-                key="attivo_bambino"
-            )
-
-            corsi = get_corsi(
-                attivi_solo=False
-            )
-                
-            opzioni_corsi = {
-                row["nome"]: int(row["id"])
-                for _, row in corsi.iterrows()
-            }
-
-            nuovo_corso = st.selectbox(
-                "Corso principale",
-                list(opzioni_corsi.keys())
-            )
-
-            if st.button(
-                "💾 Aggiorna bambino"
-            ):
-
-                aggiorna_bambino(
-                    bambino_id,
-                    nuovo_nome.strip(),
-                    nuovo_cognome.strip(),
-                    nuova_data,
-                    opzioni_corsi[nuovo_corso],
-                    nuova_email_genitore.strip(),
-                    nuovo_telefono_genitore.strip(),
-                    nuove_note.strip(),
-                    nuovo_attivo
+                    
+            if not genitore.empty:
+                    
+                genitore_row = genitore.iloc[0]
+                    
+                st.text_input(
+                    "Email account genitore",
+                    value=genitore_row["username"],
+                    disabled=True,
+                    key=f"email_account_genitore_{bambino_id}"
                 )
-
-                st.success(
-                    "Bambino aggiornato."
-                )
-
-                st.rerun()
-                
-        st.markdown("---")
-        st.subheader("👨‍👩‍👧 Account Genitore")
-
-        genitore = pd.read_sql(
-            """
-            SELECT u.*
-            FROM utenti u
-            JOIN genitori_bambini gb
-            ON gb.utente_id = u.id
-            WHERE gb.bambino_id = ?
-            AND u.ruolo = 'genitore'
-            """,
-            conn,
-            params=(bambino_id,)
-        )
-                
-        if not genitore.empty:
-                
-            genitore_row = genitore.iloc[0]
-                
-            st.text_input(
-                "Email account genitore",
-                value=genitore_row["username"],
-                disabled=True,
-                key=f"email_account_genitore_{bambino_id}"
-            )
-
-            st.text_input(
-                "Password corrente account",
-                value=genitore_row["password_visibile"]
-                if pd.notna(
-                    genitore_row["password_visibile"]
-                )
-                else "",
-                disabled=True,
-                key=f"password_account_genitore_{bambino_id}"
-            )
-
-            if st.button(
-                "📧 Reinvia credenziali genitore"
-            ):
-                    
-                invia_credenziali_genitore_email(
-                    genitore_row["username"],
-                    f"{dati['nome']} {dati['cognome']}",
-                    genitore_row["password_visibile"]
-                )
-                    
-                st.success(
-                    "Credenziali inviate."
-                )
-
-            if st.button(
-                "🔄 Genera nuova password"
-            ):
-                    
-                nuova_password = genera_password_casuale()
-                    
-                aggiorna_password_utente(
-                    int(genitore_row["id"]),
-                    nuova_password
-                )
-                    
-                invia_credenziali_genitore_email(
-                    genitore_row["username"],
-                    f"{dati['nome']} {dati['cognome']}",
-                    nuova_password
-                )
-                    
-                st.success(
-                    "Nuova password generata e inviata."
-                )
-                    
-                st.rerun()
-                
-        else:
-                
-            st.warning(
-                "Nessun account genitore associato."
-            )
-
-            if (
-                pd.notna(dati["email_genitore"])
-                and
-                dati["email_genitore"].strip() != ""
-            ):
-                    
-                if st.button(
-                     "➕ Crea account genitore"
-                ):
-                    
-                    genitore_id, password_generata, gia_esistente = (
-                        crea_account_genitore(
-                            dati["email_genitore"],
-                            f"{dati['nome']} {dati['cognome']}"
-                        )
+    
+                st.text_input(
+                    "Password corrente account",
+                    value=genitore_row["password_visibile"]
+                    if pd.notna(
+                        genitore_row["password_visibile"]
                     )
-
-                    if gia_esistente:
-                        st.info("Account genitore già presente.")
-                    else:
+                    else "",
+                    disabled=True,
+                    key=f"password_account_genitore_{bambino_id}"
+                )
+    
+                if st.button(
+                    "📧 Reinvia credenziali genitore"
+                ):
+                        
+                    invia_credenziali_genitore_email(
+                        genitore_row["username"],
+                        f"{dati['nome']} {dati['cognome']}",
+                        genitore_row["password_visibile"]
+                    )
+                        
+                    st.success(
+                        "Credenziali inviate."
+                    )
+    
+                if st.button(
+                    "🔄 Genera nuova password"
+                ):
+                        
+                    nuova_password = genera_password_casuale()
+                        
+                    aggiorna_password_utente(
+                        int(genitore_row["id"]),
+                        nuova_password
+                    )
+                        
+                    invia_credenziali_genitore_email(
+                        genitore_row["username"],
+                        f"{dati['nome']} {dati['cognome']}",
+                        nuova_password
+                    )
+                        
+                    st.success(
+                        "Nuova password generata e inviata."
+                    )
+                        
+                    st.rerun()
+                    
+            else:
+                    
+                st.warning(
+                    "Nessun account genitore associato."
+                )
+    
+                if (
+                    pd.notna(dati["email_genitore"])
+                    and
+                    dati["email_genitore"].strip() != ""
+                ):
+                        
+                    if st.button(
+                         "➕ Crea account genitore"
+                    ):
+                        
+                        genitore_id, password_generata, gia_esistente = (
+                            crea_account_genitore(
+                                dati["email_genitore"],
+                                f"{dati['nome']} {dati['cognome']}"
+                            )
+                        )
+    
+                        if gia_esistente:
+                            st.info("Account genitore già presente.")
+                        else:
+                            st.success(
+                                f"Account creato. Password: {password_generata}"
+                            )
+                        
+                        c.execute(
+                            """
+                            INSERT INTO genitori_bambini(
+                                utente_id,
+                                bambino_id
+                            )
+                            VALUES(?,?)
+                            """,
+                            (
+                                genitore_id,
+                                bambino_id
+                            )
+                        )
+                        
+                        conn.commit()
+                    
                         st.success(
                             f"Account creato. Password: {password_generata}"
                         )
                     
-                    c.execute(
-                        """
-                        INSERT INTO genitori_bambini(
-                            utente_id,
+                        st.rerun()
+                    
+                conferma_elimina = st.checkbox(
+                    "Confermo eliminazione definitiva bambino"
+                )
+    
+                if st.button(
+                    "🗑️ Elimina bambino"
+                ):
+    
+                    if not conferma_elimina:
+    
+                        st.error(
+                            "Devi confermare l'eliminazione."
+                        )
+    
+                    else:
+    
+                        elimina_bambino(
                             bambino_id
                         )
-                        VALUES(?,?)
-                        """,
-                        (
-                            genitore_id,
-                            bambino_id
+    
+                        st.success(
+                            "Bambino eliminato."
                         )
-                    )
-                    
-                    conn.commit()
-                
-                    st.success(
-                        f"Account creato. Password: {password_generata}"
-                    )
-                
-                    st.rerun()
-                
-            conferma_elimina = st.checkbox(
-                "Confermo eliminazione definitiva bambino"
-            )
+    
+                        st.rerun()
 
-            if st.button(
-                "🗑️ Elimina bambino"
-            ):
-
-                if not conferma_elimina:
-
-                    st.error(
-                        "Devi confermare l'eliminazione."
-                    )
-
-                else:
-
-                    elimina_bambino(
-                        bambino_id
-                    )
-
-                    st.success(
-                        "Bambino eliminato."
-                    )
-
-                    st.rerun()
-                    
+######### STAGIONI #########
 if is_manager():
     with tab_stagioni:
 
