@@ -6067,7 +6067,11 @@ if is_genitore():
                         key=f"nome_corso_{bambino_id}"
                     )
 
-                    st.dataframe(giorni)
+                    st.dataframe(
+                        giorni,
+                        hide_index=True,
+                        width="stretch"
+                    )
                 
                     st.text_input(
                         "Stagione sportiva",
