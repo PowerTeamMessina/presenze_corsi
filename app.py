@@ -6039,6 +6039,10 @@ if is_genitore():
                         int(bambino.iloc[0]["corso_id"]),
                     )
                 )
+
+                st.write("Corso ID:", bambino.iloc[0]["corso_id"])
+
+                st.dataframe(giorni)
                         
                 with col2:
                 
