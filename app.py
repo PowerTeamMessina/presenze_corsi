@@ -6927,23 +6927,14 @@ if is_genitore():
                 key=f"genera_modulo_{bambino_id}"
             ):
             
+                docx_compilato = compila_docx_template(
+                    template_bytes,
+                    mappa
+                )
+                
                 st.session_state[
                     f"docx_modulo_{bambino_id}"
                 ] = docx_compilato.getvalue()
-        
-                if f"docx_modulo_{bambino_id}" in st.session_state:
-
-                    st.download_button(
-                        "📥 Scarica modulo DOCX",
-                        data=st.session_state[
-                            f"docx_modulo_{bambino_id}"
-                        ],
-                        file_name=(
-                            f"Modulo_{bambino.iloc[0]['cognome']}_"
-                            f"{bambino.iloc[0]['nome']}.docx"
-                        ),
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
         
 
         # ============================================================
