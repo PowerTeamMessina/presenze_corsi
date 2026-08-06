@@ -23,6 +23,12 @@ from reportlab.platypus import (
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet
+import io
+import tempfile
+from docx import Document
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 
 # ============================================================
 # CONFIGURAZIONE
@@ -592,6 +598,27 @@ def crea_backup_completo():
 
     return "backup_completo.json"
 
+def get_drive_service():
+
+    service_account_info = json.loads(
+        st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"]
+    )
+
+    credentials = service_account.Credentials.from_service_account_info(
+        service_account_info,
+        scopes=[
+            "https://www.googleapis.com/auth/drive"
+        ]
+    )
+
+    service = build(
+        "drive",
+        "v3",
+        credentials=credentials
+    )
+
+    return service
+    
 def upload_backup_github(
     mostra_messaggio=True,
     forza=False
@@ -867,6 +894,356 @@ def pratica_completa(
         return False
 
     return True
+
+def scarica_file_drive_bytes(
+    file_id
+):
+
+    service = get_drive_service()
+
+    request = service.files().get_media(
+        fileId=file_id
+    )
+
+    buffer = io.BytesIO()
+
+    downloader = MediaIoBaseDownload(
+        buffer,
+        request
+    )
+
+    done = False
+
+    while not done:
+
+        _, done = downloader.next_chunk()
+
+    buffer.seek(0)
+
+    return buffer
+
+def valore_pulito(
+    valore
+):
+
+    if pd.isna(
+        valore
+    ):
+
+        return ""
+
+    return str(
+        valore
+    )
+
+def formatta_data_modulo(
+    valore
+):
+
+    if pd.isna(
+        valore
+    ):
+
+        return ""
+
+    try:
+
+        return pd.to_datetime(
+            valore,
+            errors="coerce"
+        ).strftime(
+            "%d/%m/%Y"
+        )
+
+    except Exception:
+
+        return str(
+            valore
+        )
+
+def sostituisci_testo_paragrafo(
+    paragrafo,
+    mappa
+):
+
+    testo_originale = paragrafo.text
+
+    testo_nuovo = testo_originale
+
+    for chiave, valore in mappa.items():
+
+        testo_nuovo = testo_nuovo.replace(
+            chiave,
+            str(
+                valore
+            )
+        )
+
+    if testo_nuovo != testo_originale:
+
+        for run in paragrafo.runs:
+
+            run.text = ""
+
+        if paragrafo.runs:
+
+            paragrafo.runs[0].text = testo_nuovo
+
+        else:
+
+            paragrafo.add_run(
+                testo_nuovo
+            )
+
+def compila_docx_template(
+    template_bytes,
+    mappa
+):
+
+    with tempfile.NamedTemporaryFile(
+        suffix=".docx",
+        delete=False
+    ) as tmp:
+
+        tmp.write(
+            template_bytes.getvalue()
+        )
+
+        tmp_path = tmp.name
+
+    doc = Document(
+        tmp_path
+    )
+
+    for paragrafo in doc.paragraphs:
+
+        sostituisci_testo_paragrafo(
+            paragrafo,
+            mappa
+        )
+
+    for tabella in doc.tables:
+
+        for riga in tabella.rows:
+
+            for cella in riga.cells:
+
+                for paragrafo in cella.paragraphs:
+
+                    sostituisci_testo_paragrafo(
+                        paragrafo,
+                        mappa
+                    )
+
+    output = io.BytesIO()
+
+    doc.save(
+        output
+    )
+
+    output.seek(0)
+
+    return output
+
+def converti_docx_in_pdf_drive(
+    docx_bytes,
+    nome_file="modulo_compilato.docx"
+):
+
+    service = get_drive_service()
+
+    docx_bytes.seek(0)
+
+    media = MediaIoBaseUpload(
+        docx_bytes,
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        resumable=False
+    )
+
+    metadata = {
+        "name": nome_file,
+        "mimeType": "application/vnd.google-apps.document"
+    }
+
+    file_creato = service.files().create(
+        body=metadata,
+        media_body=media,
+        fields="id"
+    ).execute()
+
+    google_doc_id = file_creato[
+        "id"
+    ]
+
+    request = service.files().export_media(
+        fileId=google_doc_id,
+        mimeType="application/pdf"
+    )
+
+    pdf_buffer = io.BytesIO()
+
+    downloader = MediaIoBaseDownload(
+        pdf_buffer,
+        request
+    )
+
+    done = False
+
+    while not done:
+
+        _, done = downloader.next_chunk()
+
+    pdf_buffer.seek(0)
+
+    try:
+
+        service.files().delete(
+            fileId=google_doc_id
+        ).execute()
+
+    except Exception:
+
+        pass
+
+    return pdf_buffer
+
+def crea_mappa_modulo(
+    bambino,
+    scheda
+):
+
+    b = bambino.iloc[0]
+    s = scheda.iloc[0]
+
+    mappa = {
+
+        "{{NOME_BAMBINO}}": valore_pulito(
+            b["nome"]
+        ),
+
+        "{{COGNOME_BAMBINO}}": valore_pulito(
+            b["cognome"]
+        ),
+
+        "{{DATA_NASCITA_BAMBINO}}": formatta_data_modulo(
+            s.get(
+                "data_nascita_bambino",
+                ""
+            )
+        ),
+
+        "{{LUOGO_NASCITA_BAMBINO}}": valore_pulito(
+            s.get(
+                "luogo_nascita_bambino",
+                ""
+            )
+        ),
+
+        "{{CF_BAMBINO}}": valore_pulito(
+            s.get(
+                "cf_bambino",
+                ""
+            )
+        ),
+
+        "{{INDIRIZZO_BAMBINO}}": valore_pulito(
+            s.get(
+                "indirizzo_bambino",
+                ""
+            )
+        ),
+
+        "{{COMUNE_BAMBINO}}": valore_pulito(
+            s.get(
+                "comune_bambino",
+                ""
+            )
+        ),
+
+        "{{CAP_BAMBINO}}": valore_pulito(
+            s.get(
+                "cap_bambino",
+                ""
+            )
+        ),
+
+        "{{NOME_GENITORE}}": valore_pulito(
+            s.get(
+                "nome_genitore",
+                ""
+            )
+        ),
+
+        "{{COGNOME_GENITORE}}": valore_pulito(
+            s.get(
+                "cognome_genitore",
+                ""
+            )
+        ),
+
+        "{{LUOGO_NASCITA_GENITORE}}": valore_pulito(
+            s.get(
+                "luogo_nascita_genitore",
+                ""
+            )
+        ),
+
+        "{{DATA_NASCITA_GENITORE}}": formatta_data_modulo(
+            s.get(
+                "data_nascita_genitore",
+                ""
+            )
+        ),
+
+        "{{CF_GENITORE}}": valore_pulito(
+            s.get(
+                "cf_genitore",
+                ""
+            )
+        ),
+
+        "{{INDIRIZZO_GENITORE}}": valore_pulito(
+            s.get(
+                "indirizzo_genitore",
+                ""
+            )
+        ),
+
+        "{{COMUNE_GENITORE}}": valore_pulito(
+            s.get(
+                "comune_genitore",
+                ""
+            )
+        ),
+
+        "{{CAP_GENITORE}}": valore_pulito(
+            s.get(
+                "cap_genitore",
+                ""
+            )
+        ),
+
+        "{{TELEFONO_GENITORE}}": valore_pulito(
+            s.get(
+                "telefono1",
+                ""
+            )
+        ),
+
+        "{{EMAIL_GENITORE}}": valore_pulito(
+            s.get(
+                "email_genitore",
+                ""
+            )
+        ),
+
+        "{{DATA_MODULO}}": datetime.now().strftime(
+            "%d/%m/%Y"
+        )
+    }
+
+    return mappa
+
 
 def get_info_corso(
     corso_id
@@ -6537,7 +6914,7 @@ if is_genitore():
             )
         
         else:
-        
+
             st.success(
                 """
                 Anagrafica completa.
@@ -6545,6 +6922,82 @@ if is_genitore():
                 essere generata.
                 """
             )
+        
+            if st.button(
+                "📄 Genera modulo PDF",
+                key=f"genera_modulo_pdf_{bambino_id}"
+            ):
+        
+                try:
+        
+                    template_id = st.secrets[
+                        "DRIVE_TEMPLATE_MODULO_ID"
+                    ]
+        
+                    template_bytes = scarica_file_drive_bytes(
+                        template_id
+                    )
+        
+                    mappa = crea_mappa_modulo(
+                        bambino,
+                        scheda
+                    )
+        
+                    docx_compilato = compila_docx_template(
+                        template_bytes,
+                        mappa
+                    )
+        
+                    nome_file_docx = (
+                        f"Modulo_Iscrizione_"
+                        f"{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.docx"
+                    )
+        
+                    pdf_compilato = converti_docx_in_pdf_drive(
+                        docx_compilato,
+                        nome_file_docx
+                    )
+        
+                    st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ] = pdf_compilato.getvalue()
+        
+                    st.success(
+                        "Modulo PDF generato correttamente."
+                    )
+        
+                except Exception as e:
+        
+                    st.error(
+                        "Errore durante la generazione del modulo."
+                    )
+        
+                    st.code(
+                        str(e)
+                    )
+        
+            if f"pdf_modulo_{bambino_id}" in st.session_state:
+        
+                st.download_button(
+                    "📥 Scarica modulo PDF da firmare",
+                    data=st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ],
+                    file_name=(
+                        f"Modulo_Iscrizione_"
+                        f"{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.pdf"
+                    ),
+                    mime="application/pdf",
+                    key=f"download_modulo_pdf_{bambino_id}"
+                )
+
+        # ============================================================
+        # INTERFACCIA
+        # ============================================================
+
+        
 
         st.markdown("---")
 
