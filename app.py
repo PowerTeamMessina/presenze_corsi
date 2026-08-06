@@ -6006,6 +6006,12 @@ if is_genitore():
 
         st.subheader("👶 Dati Bambino/a")
 
+        valori = {}
+        
+            if not scheda.empty:
+            
+                valori = scheda.iloc[0].to_dict()
+
         col1, col2 = st.columns(2)
         
         with col1:
@@ -6063,12 +6069,6 @@ if is_genitore():
                conn,
                params=(bambino_id,)
             )
-
-            valori = {}
-        
-            if not scheda.empty:
-            
-                valori = scheda.iloc[0].to_dict()
     
             bloccato = False
     
