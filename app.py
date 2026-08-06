@@ -6006,40 +6006,73 @@ if is_genitore():
             )
 
             corso = pd.DataFrame()
+
+            giorni = pd.DataFrame()
+    
+            if pd.notna(bambino.iloc[0]["corso_id"]):
+            
+                corso = pd.read_sql(
+                    """
+                    SELECT
+                        nome,
+                        stagione
+                    FROM corsi
+                    WHERE id = ?
+                    """,
+                    conn,
+                    params=(
+                        int(bambino.iloc[0]["corso_id"]),
+                    )
+                )
+            
+                giorni = pd.read_sql(
+                    """
+                    SELECT
+                        giorno,
+                        orario
+                    FROM corso_giorni
+                    WHERE corso_id = ?
+                    ORDER BY ordine
+                    """,
+                    conn,
+                    params=(
+                        int(bambino.iloc[0]["corso_id"]),
+                    )
+                )
+                        
+                with col2:
                 
-        with col2:
+                    st.text_input(
+                        "Email genitore",
+                        value=bambino.iloc[0]["email_genitore"]
+                        if pd.notna(bambino.iloc[0]["email_genitore"])
+                        else "",
+                        disabled=True
+                    )
+                
+                    st.text_input(
+                        "Telefono genitore",
+                        value=bambino.iloc[0]["telefono_genitore"]
+                        if pd.notna(bambino.iloc[0]["telefono_genitore"])
+                        else "",
+                        disabled=True
+                    )
         
-            st.text_input(
-                "Email genitore",
-                value=bambino.iloc[0]["email_genitore"]
-                if pd.notna(bambino.iloc[0]["email_genitore"])
-                else "",
-                disabled=True
-            )
+                if not corso.empty:
         
-            st.text_input(
-                "Telefono genitore",
-                value=bambino.iloc[0]["telefono_genitore"]
-                if pd.notna(bambino.iloc[0]["telefono_genitore"])
-                else "",
-                disabled=True
-            )
-
-        if not corso.empty:
-
-            st.text_input(
-                "Corso",
-                value=corso.iloc[0]["nome"],
-                disabled=True,
-                key=f"nome_corso_{bambino_id}"
-            )
-        
-            st.text_input(
-                "Stagione sportiva",
-                value=corso.iloc[0]["stagione"],
-                disabled=True,
-                key=f"stagione_corso_{bambino_id}"
-            )
+                    st.text_input(
+                        "Corso",
+                        value=corso.iloc[0]["nome"],
+                        disabled=True,
+                        key=f"nome_corso_{bambino_id}"
+                    )
+                
+                    st.text_input(
+                        "Stagione sportiva",
+                        value=corso.iloc[0]["stagione"],
+                        disabled=True,
+                        key=f"stagione_corso_{bambino_id}"
+                    )
 
         st.markdown("---")
 
