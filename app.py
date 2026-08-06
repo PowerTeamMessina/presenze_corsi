@@ -287,8 +287,10 @@ CREATE TABLE IF NOT EXISTS bambini (
     data_nascita TEXT,
     corso_id INTEGER,
     email_genitore TEXT,
+    telefono_genitore TEXT,
     note TEXT,
     attivo INTEGER DEFAULT 1
+)
 )
 """)
 try:
@@ -308,6 +310,18 @@ try:
     c.execute("""
         ALTER TABLE bambini
         ADD COLUMN email_genitore TEXT
+    """)
+
+    conn.commit()
+
+except:
+    pass
+
+try:
+
+    c.execute("""
+        ALTER TABLE bambini
+        ADD COLUMN telefono_genitore TEXT
     """)
 
     conn.commit()
@@ -2506,6 +2520,7 @@ def aggiungi_bambino(
     data_nascita,
     corso_id,
     email_genitore,
+    telefono_genitore,
     note
 ):
 
@@ -2517,10 +2532,11 @@ def aggiungi_bambino(
             data_nascita,
             corso_id,
             email_genitore,
+            telefono_genitore,
             note,
             attivo
         )
-        VALUES(?,?,?,?,?,?,1)
+        VALUES(?,?,?,?,?,?,?,1)
         """,
         (
             nome,
@@ -2528,6 +2544,7 @@ def aggiungi_bambino(
             data_nascita,
             corso_id,
             email_genitore,
+            telefono_genitore,
             note
         )
     )
@@ -2557,6 +2574,7 @@ def aggiorna_bambino(
     data_nascita,
     corso_id,
     email_genitore,
+    telefono_genitore,
     note,
     attivo
 ):
@@ -2570,6 +2588,7 @@ def aggiorna_bambino(
             data_nascita = ?,
             corso_id = ?,
             email_genitore = ?,
+            telefono_genitore = ?,
             note = ?,
             attivo = ?
         WHERE id = ?
@@ -2580,6 +2599,7 @@ def aggiorna_bambino(
             data_nascita,
             corso_id,
             email_genitore,
+            telefono_genitore,
             note,
             int(attivo),
             bambino_id
@@ -3285,6 +3305,10 @@ with tab_bambini:
                 "Email genitore (facoltativa)"
             )
 
+            telefono_genitore = st.text_input(
+                "Telefono genitore (facoltativo)"
+            )
+
             corsi = get_corsi(
                 attivi_solo=True
             )
@@ -3353,6 +3377,7 @@ with tab_bambini:
                             data_nascita,
                             corso_id,
                             email_genitore,
+                            telefono_genitore,
                             note
                         )
                         
@@ -3452,6 +3477,7 @@ with tab_bambini:
                     "cognome",
                     "nome",
                     "email_genitore",
+                    "telefono_genitore",
                     "data_nascita",
                     "note",
                     "attivo"
@@ -3509,6 +3535,13 @@ with tab_bambini:
                 else ""
             )
 
+            nuovo_telefono_genitore = st.text_input(
+                "Telefono genitore",
+                value=dati["telefono_genitore"]
+                if pd.notna(dati["telefono_genitore"])
+                else ""
+            )
+
             nuove_note = st.text_area(
                 "Note",
                 value=dati["note"] if pd.notna(dati["note"]) else "",
@@ -3546,6 +3579,7 @@ with tab_bambini:
                     nuova_data,
                     opzioni_corsi[nuovo_corso],
                     nuova_email_genitore.strip(),
+                    nuovo_telefono_genitore.strip(),
                     nuove_note.strip(),
                     nuovo_attivo
                 )
