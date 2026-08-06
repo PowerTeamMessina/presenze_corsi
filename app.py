@@ -2910,10 +2910,17 @@ def get_genitori():
             u.id,
             u.nome,
             u.username,
+            b.telefono_genitore,
             u.password_visibile,
-            u.attivo
+            u.attivo,
+            b.nome AS nome_bambino,
+            b.cognome AS cognome_bambino
         FROM utenti u
-        WHERE u.ruolo='genitore'
+        LEFT JOIN genitori_bambini gb
+            ON gb.utente_id = u.id
+        LEFT JOIN bambini b
+            ON b.id = gb.bambino_id
+        WHERE u.ruolo = 'genitore'
         ORDER BY u.nome
         """,
         conn
@@ -5635,7 +5642,25 @@ if is_manager():
         else:
     
             st.dataframe(
-                genitori,
+                genitori[
+                    [
+                        "nome",
+                        "username",
+                        "telefono_genitore",
+                        "nome_bambino",
+                        "cognome_bambino",
+                        "attivo"
+                    ]
+                ].rename(
+                    columns={
+                        "nome": "Genitore",
+                        "username": "Email",
+                        "telefono_genitore": "Telefono",
+                        "nome_bambino": "Nome bambino",
+                        "cognome_bambino": "Cognome bambino",
+                        "attivo": "Attivo"
+                    }
+                ),
                 use_container_width=True,
                 hide_index=True
             )
@@ -5678,6 +5703,28 @@ if is_manager():
                     f"{bambino_assoc.iloc[0]['cognome']} "
                     f"{bambino_assoc.iloc[0]['nome']}"
                 )
+
+                telefono = pd.read_sql(
+                    """
+                    SELECT b.telefono_genitore
+                    FROM bambini b
+                    JOIN genitori_bambini gb
+                        ON gb.bambino_id = b.id
+                    WHERE gb.utente_id = ?
+                    """,
+                    conn,
+                    params=(genitore_id,)
+                )
+                
+                if not telefono.empty:
+                
+                    st.text_input(
+                        "Telefono genitore",
+                        value=telefono.iloc[0]["telefono_genitore"]
+                        if pd.notna(telefono.iloc[0]["telefono_genitore"])
+                        else "",
+                        disabled=True
+                    )
 
 
 
