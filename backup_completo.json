@@ -19,6 +19,16 @@
             "salt": "844a55651a1cd35d3f24224d5a893366",
             "attivo": 1,
             "password_visibile": "1UsUcGgjKfWs"
+        },
+        {
+            "id": 3,
+            "username": "grifo@altamatematica.it",
+            "nome": "Genitore Gabriele Grifo'",
+            "ruolo": "genitore",
+            "password_hash": "f000f01d5d17a624bc2c6c1efc04df131542a7efcecfa351f6f24895bed1dd42",
+            "salt": "8e459e6fac0dc80fbbff14dff3c0e6f6",
+            "attivo": 1,
+            "password_visibile": "uAQF71vGfq2u"
         }
     ],
     "corsi": [
@@ -85,6 +95,11 @@
         {
             "id": 1,
             "utente_id": 2,
+            "bambino_id": 2
+        },
+        {
+            "id": 2,
+            "utente_id": 3,
             "bambino_id": 2
         }
     ],
