@@ -6181,104 +6181,90 @@ if is_genitore():
                         width="stretch"
                     )
                 
-
         st.markdown("---")
-
+        
         st.subheader("👨‍👩‍👧 Dati genitore")
         
-        # valori esistenti
-
-        nome_genitore = st.text_input(
-            "Nome genitore",
-            value=valori.get(
-                "nome_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        col1, col2 = st.columns(2)
         
-        cognome_genitore = st.text_input(
-            "Cognome genitore",
-            value=valori.get(
-                "cognome_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        with col1:
+            nome_genitore = st.text_input(
+                "Nome genitore",
+                value=valori.get("nome_genitore", ""),
+                disabled=bloccato
+            )
         
-        luogo_nascita_genitore = st.text_input(
-            "Luogo di nascita",
-            value=valori.get(
-                "luogo_nascita_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        with col2:
+            cognome_genitore = st.text_input(
+                "Cognome genitore",
+                value=valori.get("cognome_genitore", ""),
+                disabled=bloccato
+            )
         
-        data_nascita_genitore = st.text_input(
-            "Data di nascita",
-            value=valori.get(
-                "data_nascita_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        col1, col2 = st.columns(2)
         
-        cf_genitore = st.text_input(
-            "Codice fiscale",
-            value=valori.get(
-                "cf_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        with col1:
+            luogo_nascita_genitore = st.text_input(
+                "Luogo di nascita",
+                value=valori.get("luogo_nascita_genitore", ""),
+                disabled=bloccato
+            )
         
-        indirizzo_genitore = st.text_input(
-            "Indirizzo",
-            value=valori.get(
-                "indirizzo_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        with col2:
+            data_nascita_genitore = st.text_input(
+                "Data di nascita",
+                value=valori.get("data_nascita_genitore", ""),
+                disabled=bloccato
+            )
         
-        comune_genitore = st.text_input(
-            "Comune",
-            value=valori.get(
-                "comune_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        col1, col2 = st.columns(2)
         
-        cap_genitore = st.text_input(
-            "CAP",
-            value=valori.get(
-                "cap_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
+        with col1:
+            cf_genitore = st.text_input(
+                "Codice fiscale",
+                value=valori.get("cf_genitore", ""),
+                disabled=bloccato
+            )
         
-        telefono1 = st.text_input(
-            "Telefono principale",
-            value=valori.get(
-                "telefono1",
-                ""
-            ),
-            disabled=bloccato
-        )
+        with col2:
+            telefono1 = st.text_input(
+                "Telefono principale",
+                value=valori.get("telefono1", ""),
+                disabled=bloccato
+            )
         
+        col1, col2 = st.columns(2)
         
-        email_genitore = st.text_input(
-            "Email",
-            value=valori.get(
-                "email_genitore",
-                ""
-            ),
-            disabled=bloccato
-        )
-
+        with col1:
+            indirizzo_genitore = st.text_input(
+                "Indirizzo",
+                value=valori.get("indirizzo_genitore", ""),
+                disabled=bloccato
+            )
+        
+        with col2:
+            comune_genitore = st.text_input(
+                "Comune",
+                value=valori.get("comune_genitore", ""),
+                disabled=bloccato
+            )
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            cap_genitore = st.text_input(
+                "CAP",
+                value=valori.get("cap_genitore", ""),
+                disabled=bloccato
+            )
+        
+        with col2:
+            email_genitore = st.text_input(
+                "Email",
+                value=valori.get("email_genitore", ""),
+                disabled=bloccato
+            )
+        
         if st.button(
             "💾 Salva anagrafica",
             disabled=bloccato
@@ -6293,8 +6279,6 @@ if is_genitore():
                 or indirizzo_genitore.strip() == ""
                 or comune_genitore.strip() == ""
                 or cap_genitore.strip() == ""
-                or telefono1.strip() == ""
-                or email_genitore.strip() == ""
             ):
         
                 st.error(
@@ -6330,11 +6314,6 @@ if is_genitore():
                             comune_genitore,
                             cap_genitore,
         
-                            telefono1,
-                            telefono2,
-        
-                            email_genitore,
-        
                             ultima_modifica
         
                         )
@@ -6362,11 +6341,6 @@ if is_genitore():
                             indirizzo_genitore,
                             comune_genitore,
                             cap_genitore,
-        
-                            telefono1,
-                            telefono2,
-        
-                            email_genitore,
         
                             str(datetime.now())
                         )
@@ -6399,11 +6373,6 @@ if is_genitore():
                             comune_genitore = ?,
                             cap_genitore = ?,
         
-                            telefono1 = ?,
-                            telefono2 = ?,
-        
-                            email_genitore = ?,
-        
                             ultima_modifica = ?
         
                         WHERE bambino_id = ?
@@ -6428,11 +6397,6 @@ if is_genitore():
                             indirizzo_genitore,
                             comune_genitore,
                             cap_genitore,
-        
-                            telefono1,
-                            telefono2,
-        
-                            email_genitore,
         
                             str(datetime.now()),
         
