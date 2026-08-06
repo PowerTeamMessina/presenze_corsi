@@ -1241,63 +1241,6 @@ def crea_mappa_modulo(
 
     return mappa
 
-def genera_pdf_compilato(
-    bambino,
-    scheda
-):
-
-    packet = io.BytesIO()
-
-    c = canvas.Canvas(
-        packet,
-        pagesize=A4
-    )
-
-    c.setFont(
-        "Helvetica",
-        12
-    )
-
-    c.drawString(
-        100,
-        700,
-        "PROVA"
-    )
-
-    c.save()
-
-    packet.seek(0)
-
-    overlay = PdfReader(
-        packet
-    )
-
-    base_pdf = PdfReader(
-        "templates/modulo_base.pdf"
-    )
-
-    writer = PdfWriter()
-
-    page = base_pdf.pages[0]
-
-    page.merge_page(
-        overlay.pages[0]
-    )
-
-    writer.add_page(
-        page
-    )
-
-    output = io.BytesIO()
-
-    writer.write(
-        output
-    )
-
-    output.seek(0)
-
-    return output
-
 def get_info_corso(
     corso_id
 ):
