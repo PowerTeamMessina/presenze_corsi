@@ -618,6 +618,18 @@ def get_drive_service():
     )
 
     return service
+
+try:
+
+    service_account_info = json.loads(
+        st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"]
+    )
+
+    st.success("JSON valido")
+
+except Exception as e:
+
+    st.error(str(e))
     
 def upload_backup_github(
     mostra_messaggio=True,
