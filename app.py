@@ -1061,6 +1061,8 @@ def converti_docx_in_pdf_drive(
         ]
     }
 
+    st.info("Sto creando il Google Document temporaneo...")
+
     file_creato = service.files().create(
         body=metadata,
         media_body=media,
