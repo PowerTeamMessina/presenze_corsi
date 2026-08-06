@@ -3400,7 +3400,6 @@ def data_pdf(
             valore
         )
 
-
 def genera_pdf_compilato(
     bambino,
     scheda
@@ -3429,7 +3428,7 @@ def genera_pdf_compilato(
         c,
         f"{valore_pdf(b['nome'])} {valore_pdf(b['cognome'])}",
         180,
-        650
+        600
     )
     
     scrivi_centrato(
@@ -3438,7 +3437,7 @@ def genera_pdf_compilato(
             s.get("luogo_nascita_bambino", "")
         ),
         470,
-        650
+        600
     )
     
     scrivi_centrato(
@@ -3447,7 +3446,7 @@ def genera_pdf_compilato(
             s.get("data_nascita_bambino", "")
         ),
         90,
-        628
+        578
     )
     
     scrivi_centrato(
@@ -3456,7 +3455,7 @@ def genera_pdf_compilato(
             s.get("cf_bambino", "")
         ),
         500,
-        628
+        578
     )
     
     scrivi_centrato(
@@ -3465,7 +3464,7 @@ def genera_pdf_compilato(
             s.get("comune_bambino", "")
         ),
         120,
-        604
+        554
     )
     
     scrivi_centrato(
@@ -3474,7 +3473,7 @@ def genera_pdf_compilato(
             s.get("indirizzo_bambino", "")
         ),
         470,
-        604
+        554
     )
     
     scrivi_centrato(
@@ -3483,7 +3482,7 @@ def genera_pdf_compilato(
             b.get("email_genitore", "")
         ),
         180,
-        584
+        534
     )
     
     scrivi_centrato(
@@ -3492,7 +3491,7 @@ def genera_pdf_compilato(
             b.get("telefono_genitore", "")
         ),
         500,
-        584
+        534
     )
     
     # =====================================================
