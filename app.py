@@ -608,16 +608,9 @@ def get_drive_service():
     ):
         st.write(i, riga)
     
-    service_account_info = {
-        "type": "service_account",
-        "project_id": st.secrets["GOOGLE_PROJECT_ID"],
-        "private_key_id": st.secrets["GOOGLE_PRIVATE_KEY_ID"],
-        "private_key": st.secrets["GOOGLE_PRIVATE_KEY"],
-        "client_email": st.secrets["GOOGLE_CLIENT_EMAIL"],
-        "client_id": st.secrets["GOOGLE_CLIENT_ID"],
-        "token_uri": "https://oauth2.googleapis.com/token"
-    }
-    
+    service_account_info = json.loads(
+        st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"]
+    )    
     
     credentials = service_account.Credentials.from_service_account_info(
         service_account_info,
