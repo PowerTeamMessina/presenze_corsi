@@ -6034,20 +6034,6 @@ if is_genitore():
             )
         
             st.text_input(
-                "Giorno",
-                value=corso.iloc[0]["giorno"],
-                disabled=True,
-                key=f"giorno_corso_{bambino_id}"
-            )
-        
-            st.text_input(
-                "Orario",
-                value=corso.iloc[0]["orario"],
-                disabled=True,
-                key=f"orario_corso_{bambino_id}"
-            )
-        
-            st.text_input(
                 "Stagione sportiva",
                 value=corso.iloc[0]["stagione"],
                 disabled=True,
