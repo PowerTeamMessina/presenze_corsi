@@ -5997,10 +5997,11 @@ if is_genitore():
                 int(scheda.iloc[0]["bloccato"]) == 1
             ):
                 bloccato = True
-            
+
             data_nascita_bambino = st.date_input(
                 "Data di nascita del bambino",
                 disabled=bloccato,
+                format="DD/MM/YYYY",
                 key=f"data_nascita_bambino_{bambino_id}"
             )
 
