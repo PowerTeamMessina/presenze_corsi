@@ -3417,7 +3417,7 @@ def genera_pdf_compilato(
 
     c.setFont(
         "Helvetica",
-        20
+        30
     )
     
     # =====================================================
@@ -7243,7 +7243,7 @@ if is_genitore():
                     ] = pdf_compilato.getvalue()
 
                     st.success(
-                        "Moduli generati correttamente."
+                        "Modulo generati correttamente."
                     )
             
                 except Exception as e:
@@ -7258,19 +7258,19 @@ if is_genitore():
             
             # DOWNLOAD DOCX
 
-            if f"docx_modulo_{bambino_id}" in st.session_state:
+            #if f"docx_modulo_{bambino_id}" in st.session_state:
             
-                st.download_button(
-                    "📥 Scarica modulo DOCX",
-                    data=st.session_state[
-                        f"docx_modulo_{bambino_id}"
-                    ],
-                    file_name=(
-                        f"Modulo_{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.docx"
-                    ),
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
+             #   st.download_button(
+              #      "📥 Scarica modulo DOCX",
+               #     data=st.session_state[
+                #        f"docx_modulo_{bambino_id}"
+                 #   ],
+                  #  file_name=(
+                   #     f"Modulo_{bambino.iloc[0]['cognome']}_"
+                    #    f"{bambino.iloc[0]['nome']}.docx"
+                    #),
+                    #mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                #)
             
             
             # DOWNLOAD PDF
