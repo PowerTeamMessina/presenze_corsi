@@ -6021,14 +6021,14 @@ if is_genitore():
         )
 
         st.text_input(
-            "Corso",
-            value=corso_info.iloc[0]["corso"],
-            disabled=True
-        )
-        
-        st.text_input(
-            "Stagione sportiva",
-            value=corso_info.iloc[0]["stagione"],
+            "Corso ID",
+            value=str(
+                bambino.iloc[0]["corso_id"]
+            )
+            if pd.notna(
+                bambino.iloc[0]["corso_id"]
+            )
+            else "",
             disabled=True
         )
 
