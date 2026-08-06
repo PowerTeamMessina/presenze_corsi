@@ -6897,8 +6897,6 @@ if is_genitore():
                     str(r.get("indirizzo_genitore", "")).strip(),
                     str(r.get("comune_genitore", "")).strip(),
                     str(r.get("cap_genitore", "")).strip(),
-                    str(r.get("telefono_genitore", "")).strip(),
-                    str(r.get("email_genitore", "")).strip()
             
                 ]
             )
