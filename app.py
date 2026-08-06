@@ -6249,11 +6249,25 @@ if is_genitore():
             )
         
         with col2:
-            data_nascita_genitore = st.text_input(
-                "Data di nascita",
-                value=valori.get("data_nascita_genitore", ""),
-                disabled=bloccato
-            )
+
+            valore_data = date(1990, 1, 1)
+    
+            if not scheda.empty and valori.get("data_nascita_bambino"):
+                        
+                valore_data = datetime.strptime(
+                valori["data_nascita_genitore"],
+                    "%Y-%m-%d"
+                ).date()
+                        
+                data_nascita_genitore = st.date_input(
+                    "Data di nascita del genitore",
+                    value=valore_data,
+                    min_value=date(1940, 1, 1),
+                    max_value=date.today(),
+                    disabled=bloccato,
+                    format="DD/MM/YYYY",
+                    key=f"data_nascita_bambino_{bambino_id}"
+                )
         
         col1, col2 = st.columns(2)
         
