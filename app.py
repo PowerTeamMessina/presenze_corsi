@@ -464,6 +464,51 @@ try:
 except:
     pass
 
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN luogo_nascita_bambino TEXT
+    """)
+    conn.commit()
+except:
+    pass
+
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN cf_bambino TEXT
+    """)
+    conn.commit()
+except:
+    pass
+
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN indirizzo_bambino TEXT
+    """)
+    conn.commit()
+except:
+    pass
+
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN comune_bambino TEXT
+    """)
+    conn.commit()
+except:
+    pass
+
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN cap_bambino TEXT
+    """)
+    conn.commit()
+except:
+    pass
+
 c.execute("""
 CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 
@@ -6005,6 +6050,56 @@ if is_genitore():
                 key=f"data_nascita_bambino_{bambino_id}"
             )
 
+            luogo_nascita_bambino = st.text_input(
+                "Luogo di nascita del bambino",
+                value=valori.get(
+                    "luogo_nascita_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"luogo_nascita_bambino_{bambino_id}"
+            )
+            
+            cf_bambino = st.text_input(
+                "Codice fiscale del bambino",
+                value=valori.get(
+                    "cf_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"cf_bambino_{bambino_id}"
+            )
+            
+            indirizzo_bambino = st.text_input(
+                "Indirizzo di residenza del bambino",
+                value=valori.get(
+                    "indirizzo_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"indirizzo_bambino_{bambino_id}"
+            )
+            
+            comune_bambino = st.text_input(
+                "Comune di residenza",
+                value=valori.get(
+                    "comune_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"comune_bambino_{bambino_id}"
+            )
+            
+            cap_bambino = st.text_input(
+                "CAP",
+                value=valori.get(
+                    "cap_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"cap_bambino_{bambino_id}"
+            )
+
             corso = pd.DataFrame()
 
             giorni = pd.DataFrame()
@@ -6092,7 +6187,57 @@ if is_genitore():
         if not scheda.empty:
         
             valori = scheda.iloc[0].to_dict()
-        
+
+        luogo_nascita_bambino = st.text_input(
+            "Luogo di nascita del bambino",
+            value=valori.get(
+                "luogo_nascita_bambino",
+                ""
+            ),
+            disabled=bloccato,
+            key=f"luogo_nascita_bambino_{bambino_id}"
+        )
+
+        cf_bambino = st.text_input(
+            "Codice fiscale del bambino",
+            value=valori.get(
+                "cf_bambino",
+                ""
+            ),
+            disabled=bloccato,
+            key=f"cf_bambino_{bambino_id}"
+        )
+
+        indirizzo_bambino = st.text_input(
+            "Indirizzo di residenza del bambino",
+            value=valori.get(
+                "indirizzo_bambino",
+                ""
+            ),
+            disabled=bloccato,
+            key=f"indirizzo_bambino_{bambino_id}"
+        )
+
+        comune_bambino = st.text_input(
+            "Comune di residenza",
+            value=valori.get(
+                "comune_bambino",
+                ""
+            ),
+            disabled=bloccato,
+            key=f"comune_bambino_{bambino_id}"
+        )
+
+        cap_bambino = st.text_input(
+            "CAP",
+            value=valori.get(
+                "cap_bambino",
+                ""
+            ),
+            disabled=bloccato,
+            key=f"cap_bambino_{bambino_id}"
+        )
+
         nome_genitore = st.text_input(
             "Nome genitore",
             value=valori.get(
@@ -6213,10 +6358,16 @@ if is_genitore():
                     c.execute(
                         """
                         INSERT INTO schede_genitori (
-        
+
                             bambino_id,
                             data_nascita_bambino,
-        
+                        
+                            luogo_nascita_bambino,
+                            cf_bambino,
+                            indirizzo_bambino,
+                            comune_bambino,
+                            cap_bambino,
+                        
                             nome_genitore,
                             cognome_genitore,
         
@@ -6238,12 +6389,19 @@ if is_genitore():
         
                         )
         
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """,
                         (
+                            (
                             bambino_id,
                             str(data_nascita_bambino),
-        
+                        
+                            luogo_nascita_bambino,
+                            cf_bambino,
+                            indirizzo_bambino,
+                            comune_bambino,
+                            cap_bambino,
+                        
                             nome_genitore,
                             cognome_genitore,
         
@@ -6271,8 +6429,14 @@ if is_genitore():
                         """
                         UPDATE schede_genitori
                         SET
-        
+
                             data_nascita_bambino = ?,
+                            
+                            luogo_nascita_bambino = ?,
+                            cf_bambino = ?,
+                            indirizzo_bambino = ?,
+                            comune_bambino = ?,
+                            cap_bambino = ?,
                             
                             nome_genitore = ?,
                             cognome_genitore = ?,
@@ -6296,8 +6460,15 @@ if is_genitore():
                         WHERE bambino_id = ?
                         """,
                         (
+                            (
                             str(data_nascita_bambino),
-                            
+                        
+                            luogo_nascita_bambino,
+                            cf_bambino,
+                            indirizzo_bambino,
+                            comune_bambino,
+                            cap_bambino,
+                        
                             nome_genitore,
                             cognome_genitore,
         
