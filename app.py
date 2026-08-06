@@ -6227,9 +6227,9 @@ if is_genitore():
             )
         
         with col2:
-            telefono1 = st.text_input(
-                "Telefono principale",
-                value=valori.get("telefono1", ""),
+            cap_genitore = st.text_input(
+                "CAP",
+                value=valori.get("cap_genitore", ""),
                 disabled=bloccato
             )
         
@@ -6249,21 +6249,6 @@ if is_genitore():
                 disabled=bloccato
             )
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            cap_genitore = st.text_input(
-                "CAP",
-                value=valori.get("cap_genitore", ""),
-                disabled=bloccato
-            )
-        
-        with col2:
-            email_genitore = st.text_input(
-                "Email",
-                value=valori.get("email_genitore", ""),
-                disabled=bloccato
-            )
         
         if st.button(
             "💾 Salva anagrafica",
