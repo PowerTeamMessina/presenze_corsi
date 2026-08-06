@@ -1166,20 +1166,20 @@ def crea_mappa_modulo(
             s.get("comune_genitore", "")
         ),
         
-        "{{TELEFONO_RIFERIMENTO}}": valore_pulito(
-            s.get("telefono_genitore", "")
-        ),
-        
         "{{EMAIL_RIFERIMENTO}}": valore_pulito(
-            s.get("email_genitore", "")
+            b.get("email_genitore", "")
         ),
         
-        "{{TELEFONO_GENITORE}}": valore_pulito(
-            s.get("telefono_genitore", "")
+        "{{TELEFONO_RIFERIMENTO}}": valore_pulito(
+            b.get("telefono_genitore", "")
         ),
         
         "{{EMAIL_GENITORE}}": valore_pulito(
-            s.get("email_genitore", "")
+            b.get("email_genitore", "")
+        ),
+        
+        "{{TELEFONO_GENITORE}}": valore_pulito(
+            b.get("telefono_genitore", "")
         ),
         
         "{{CAP_BAMBINO}}": valore_pulito(
