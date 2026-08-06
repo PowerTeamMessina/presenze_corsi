@@ -1043,6 +1043,32 @@ def compila_docx_template(
 
     return output
 
+def scrivi_centrato(
+    c,
+    testo,
+    centro_x,
+    y,
+    font="Helvetica",
+    size=8
+):
+
+    c.setFont(
+        font,
+        size
+    )
+
+    larghezza = c.stringWidth(
+        str(testo),
+        font,
+        size
+    )
+
+    c.drawString(
+        centro_x - larghezza / 2,
+        y,
+        str(testo)
+    )
+    
 def converti_docx_in_pdf_drive(
     docx_bytes,
     nome_file="modulo_compilato.docx"
@@ -3394,106 +3420,83 @@ def genera_pdf_compilato(
         "Helvetica",
         8
     )
-
+    
     # =====================================================
-    # DATI BAMBINO / ATLETA
+    # DATI BAMBINO
     # =====================================================
-
-    c.drawString(
-        115,
-        664,
-        f"{valore_pdf(b['nome'])} {valore_pdf(b['cognome'])}"
+    
+    scrivi_centrato(
+        f"{valore_pdf(b['nome'])} {valore_pdf(b['cognome'])}",
+        180,
+        664
     )
-
-    c.drawString(
-        418,
-        664,
+    
+    scrivi_centrato(
         valore_pdf(
-            s.get(
-                "luogo_nascita_bambino",
-                ""
-            )
-        )
+            s.get("luogo_nascita_bambino", "")
+        ),
+        470,
+        664
     )
-
-    c.drawString(
-        58,
-        642,
+    
+    scrivi_centrato(
         data_pdf(
-            s.get(
-                "data_nascita_bambino",
-                ""
-            )
-        )
+            s.get("data_nascita_bambino", "")
+        ),
+        90,
+        642
     )
-
-    c.drawString(
-        445,
-        642,
+    
+    scrivi_centrato(
         valore_pdf(
-            s.get(
-                "cf_bambino",
-                ""
-            )
-        )
+            s.get("cf_bambino", "")
+        ),
+        500,
+        642
     )
-
-    c.drawString(
-        110,
-        620,
+    
+    scrivi_centrato(
         valore_pdf(
-            s.get(
-                "comune_bambino",
-                ""
-            )
-        )
+            s.get("comune_bambino", "")
+        ),
+        120,
+        620
     )
-
-    c.drawString(
-        420,
-        620,
+    
+    scrivi_centrato(
         valore_pdf(
-            s.get(
-                "indirizzo_bambino",
-                ""
-            )
-        )
+            s.get("indirizzo_bambino", "")
+        ),
+        470,
+        620
     )
-
-    c.drawString(
-        125,
-        598,
+    
+    scrivi_centrato(
         valore_pdf(
-            b.get(
-                "email_genitore",
-                ""
-            )
-        )
+            b.get("email_genitore", "")
+        ),
+        180,
+        598
     )
-
-    c.drawString(
-        435,
-        598,
+    
+    scrivi_centrato(
         valore_pdf(
-            b.get(
-                "telefono_genitore",
-                ""
-            )
-        )
+            b.get("telefono_genitore", "")
+        ),
+        500,
+        598
     )
-
+    
     # =====================================================
     # DATA MODULO
     # =====================================================
-
-    # Nel PDF base si vede ancora {{DATA_MODULO}}.
-    # Questa piccola area bianca lo copre prima di scrivere la data.
+    
     c.setFillColorRGB(
         1,
         1,
         1
     )
-
+    
     c.rect(
         72,
         356,
@@ -3502,137 +3505,78 @@ def genera_pdf_compilato(
         stroke=0,
         fill=1
     )
-
+    
     c.setFillColorRGB(
         0,
         0,
         0
     )
-
-    c.setFont(
-        "Helvetica",
-        8
-    )
-
-    c.drawString(
-        78,
-        358,
+    
+    scrivi_centrato(
         datetime.now().strftime(
             "%d/%m/%Y"
-        )
+        ),
+        120,
+        358
     )
-
+    
     # =====================================================
     # DATI GENITORE
     # =====================================================
-
-    c.drawString(
-        100,
-        284,
-        f"{valore_pdf(s.get('nome_genitore', ''))} {valore_pdf(s.get('cognome_genitore', ''))}"
+    
+    scrivi_centrato(
+        f"{valore_pdf(s.get('nome_genitore',''))} "
+        f"{valore_pdf(s.get('cognome_genitore',''))}",
+        180,
+        284
     )
-
-    c.drawString(
-        418,
-        284,
+    
+    scrivi_centrato(
         valore_pdf(
-            s.get(
-                "luogo_nascita_genitore",
-                ""
-            )
-        )
+            s.get("luogo_nascita_genitore", "")
+        ),
+        470,
+        284
     )
-
-    c.drawString(
-        57,
-        262,
+    
+    scrivi_centrato(
         data_pdf(
-            s.get(
-                "data_nascita_genitore",
-                ""
-            )
-        )
+            s.get("data_nascita_genitore", "")
+        ),
+        90,
+        262
     )
-
-    c.drawString(
-        445,
-        262,
+    
+    scrivi_centrato(
         valore_pdf(
-            s.get(
-                "cf_genitore",
-                ""
-            )
-        )
+            s.get("cf_genitore", "")
+        ),
+        500,
+        262
     )
-
-    c.drawString(
-        95,
-        240,
-        (
-            f"{valore_pdf(s.get('indirizzo_genitore', ''))} - "
-            f"{valore_pdf(s.get('comune_genitore', ''))}"
-        )
+    
+    scrivi_centrato(
+        f"{valore_pdf(s.get('indirizzo_genitore',''))} - "
+        f"{valore_pdf(s.get('comune_genitore',''))}",
+        200,
+        240
     )
-
-    c.drawString(
-        410,
-        240,
+    
+    scrivi_centrato(
         valore_pdf(
-            b.get(
-                "telefono_genitore",
-                ""
-            )
-        )
+            b.get("telefono_genitore", "")
+        ),
+        500,
+        240
     )
-
-    c.drawString(
-        70,
-        218,
+    
+    scrivi_centrato(
         valore_pdf(
-            b.get(
-                "email_genitore",
-                ""
-            )
-        )
+            b.get("email_genitore", "")
+        ),
+        180,
+        218
     )
-
-    c.save()
-
-    packet.seek(
-        0
-    )
-
-    overlay_pdf = PdfReader(
-        packet
-    )
-
-    base_pdf = PdfReader(
-        "templates/modulo_base.pdf"
-    )
-
-    writer = PdfWriter()
-
-    page = base_pdf.pages[0]
-
-    page.merge_page(
-        overlay_pdf.pages[0]
-    )
-
-    writer.add_page(
-        page
-    )
-
-    output = io.BytesIO()
-
-    writer.write(
-        output
-    )
-
-    output.seek(
-        0
-    )
-
-    return output
 
 def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
 
