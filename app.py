@@ -3324,7 +3324,81 @@ def elimina_bambino(bambino_id):
 # ============================================================
 # FUNZIONI PRESENZE
 # ============================================================
+def ottieni_nome_stagione():
 
+    oggi = datetime.now()
+
+    if oggi.month >= 9:
+        return f"{oggi.year}-{oggi.year+1}"
+
+    return f"{oggi.year-1}-{oggi.year}"
+
+def crea_cartella_drive(
+    nome_cartella,
+    parent_id
+):
+
+    service = get_drive_service()
+
+    metadata = {
+        "name": nome_cartella,
+        "mimeType": "application/vnd.google-apps.folder",
+        "parents": [parent_id]
+    }
+
+    folder = service.files().create(
+        body=metadata,
+        fields="id"
+    ).execute()
+
+    return folder["id"]
+
+def carica_file_drive(
+    uploaded_file,
+    folder_id,
+    nome_file
+):
+
+    if uploaded_file is None:
+        return
+
+    service = get_drive_service()
+
+    media = MediaIoBaseUpload(
+        io.BytesIO(
+            uploaded_file.getvalue()
+        ),
+        mimetype=uploaded_file.type,
+        resumable=False
+    )
+
+    metadata = {
+        "name": nome_file,
+        "parents": [folder_id]
+    }
+
+    service.files().create(
+        body=metadata,
+        media_body=media,
+        fields="id"
+    ).execute()
+
+def stagione_corrente():
+
+    oggi = datetime.now()
+
+    if oggi.month >= 9:
+
+        return (
+            f"{oggi.year}-"
+            f"{oggi.year + 1}"
+        )
+
+    return (
+        f"{oggi.year - 1}-"
+        f"{oggi.year}"
+    )
+    
 def get_presenze_corso_data(corso_id, data_evento):
 
     return pd.read_sql(
@@ -7243,7 +7317,7 @@ if is_genitore():
                     ] = pdf_compilato.getvalue()
 
                     st.success(
-                        "Modulo generati correttamente."
+                        "Modulo generato correttamente."
                     )
             
                 except Exception as e:
@@ -7397,6 +7471,67 @@ if is_genitore():
                 "✅ Invia documentazione"
             )
         ):
+
+            # ==========================
+            # CARTELLA STAGIONE
+            # ==========================
+            
+            nome_stagione = stagione_corrente()
+            
+            cartella_stagione = crea_cartella_drive(
+                nome_stagione,
+                st.secrets["DRIVE_FOLDER_ID"]
+            )
+            
+            # ==========================
+            # CARTELLA BAMBINO
+            # ==========================
+            
+            nome_cartella_bambino = (
+                f"{bambino.iloc[0]['cognome']}_"
+                f"{bambino.iloc[0]['nome']}"
+            )
+            
+            cartella_bambino = crea_cartella_drive(
+                nome_cartella_bambino,
+                cartella_stagione
+            )
+            
+            # ==========================
+            # UPLOAD FILE
+            # ==========================
+            
+            carica_file_drive(
+                modulo_firmato,
+                cartella_bambino,
+                "modulo_firmato.pdf"
+            )
+            
+            if richiede_certificato_medico:
+            
+                carica_file_drive(
+                    certificato_medico,
+                    cartella_bambino,
+                    "certificato_medico.pdf"
+                )
+            
+            carica_file_drive(
+                documento_identita,
+                cartella_bambino,
+                "documento_identita.pdf"
+            )
+            
+            carica_file_drive(
+                tessera_sanitaria,
+                cartella_bambino,
+                "tessera_sanitaria.pdf"
+            )
+            
+            carica_file_drive(
+                documento_identita_genitore,
+                cartella_bambino,
+                "documento_identita_genitore.pdf"
+            )
 
             c.execute(
                 """
