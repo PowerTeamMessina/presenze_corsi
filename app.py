@@ -6912,7 +6912,7 @@ if is_genitore():
                 essere generata.
                 """
             )
-        
+            
             if st.button(
                 "📄 Genera modulo PDF",
                 key=f"genera_modulo_pdf_{bambino_id}"
@@ -6920,29 +6920,14 @@ if is_genitore():
             
                 try:
             
-                    template_id = st.secrets[
-                        "DRIVE_TEMPLATE_MODULO_ID"
-                    ]
-            
-                    template_bytes = scarica_file_drive_bytes(
-                        template_id
-                    )
-            
-                    mappa = crea_mappa_modulo(
+                    pdf_compilato = genera_pdf_compilato(
                         bambino,
                         scheda
                     )
             
-                    docx_compilato = compila_docx_template(
-                        template_bytes,
-                        mappa
-                    )
-            
-                    nome_file_docx = (
-                        f"Modulo_Iscrizione_"
-                        f"{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.docx"
-                    )
+                    st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ] = pdf_compilato.getvalue()
             
                     st.success(
                         "Modulo PDF generato correttamente."
@@ -6958,26 +6943,23 @@ if is_genitore():
                         str(e)
                     )
             
-            # FUORI dal bottone
             if f"pdf_modulo_{bambino_id}" in st.session_state:
-                
+            
                 st.download_button(
-                    "📥 Scarica modulo DOCX",
+                    "📥 Scarica modulo PDF",
                     data=st.session_state[
-                        f"docx_modulo_{bambino_id}"
+                        f"pdf_modulo_{bambino_id}"
                     ],
                     file_name=(
                         f"Modulo_{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.docx"
+                        f"{bambino.iloc[0]['nome']}.pdf"
                     ),
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    mime="application/pdf"
                 )
-
+                
         # ============================================================
         # INTERFACCIA
         # ============================================================
-
-        
 
         st.markdown("---")
 
