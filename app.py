@@ -6016,9 +6016,41 @@ if is_genitore():
                 disabled=True
             )
         
+            luogo_nascita_bambino = st.text_input(
+                "Luogo di nascita del bambino",
+                value=valori.get(
+                    "luogo_nascita_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"luogo_nascita_bambino_{bambino_id}"
+            )
+
+            cf_bambino = st.text_input(
+                "Codice fiscale del bambino",
+                value=valori.get(
+                    "cf_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"cf_bambino_{bambino_id}"
+            )
+
+            indirizzo_bambino = st.text_input(
+                "Indirizzo di residenza del bambino",
+                value=valori.get(
+                    "indirizzo_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"indirizzo_bambino_{bambino_id}"
+            )
+
             st.text_input(
-                "Cognome",
-                value=bambino.iloc[0]["cognome"],
+                "Email genitore",
+                value=bambino.iloc[0]["email_genitore"]
+                if pd.notna(bambino.iloc[0]["email_genitore"])
+                else "",
                 disabled=True
             )
 
@@ -6048,63 +6080,6 @@ if is_genitore():
                 int(scheda.iloc[0]["bloccato"]) == 1
             ):
                 bloccato = True
-
-            data_nascita_bambino = st.date_input(
-                "Data di nascita del bambino",
-                disabled=bloccato,
-                format="DD/MM/YYYY",
-                key=f"data_nascita_bambino_{bambino_id}"
-            )
-
-            luogo_nascita_bambino = st.text_input(
-                "Luogo di nascita del bambino",
-                value=valori.get(
-                    "luogo_nascita_bambino",
-                    ""
-                ),
-                disabled=bloccato,
-                key=f"luogo_nascita_bambino_{bambino_id}"
-            )
-            
-            cf_bambino = st.text_input(
-                "Codice fiscale del bambino",
-                value=valori.get(
-                    "cf_bambino",
-                    ""
-                ),
-                disabled=bloccato,
-                key=f"cf_bambino_{bambino_id}"
-            )
-            
-            indirizzo_bambino = st.text_input(
-                "Indirizzo di residenza del bambino",
-                value=valori.get(
-                    "indirizzo_bambino",
-                    ""
-                ),
-                disabled=bloccato,
-                key=f"indirizzo_bambino_{bambino_id}"
-            )
-            
-            comune_bambino = st.text_input(
-                "Comune di residenza",
-                value=valori.get(
-                    "comune_bambino",
-                    ""
-                ),
-                disabled=bloccato,
-                key=f"comune_bambino_{bambino_id}"
-            )
-            
-            cap_bambino = st.text_input(
-                "CAP",
-                value=valori.get(
-                    "cap_bambino",
-                    ""
-                ),
-                disabled=bloccato,
-                key=f"cap_bambino_{bambino_id}"
-            )
 
             corso = pd.DataFrame()
 
@@ -6142,13 +6117,38 @@ if is_genitore():
                 )
                         
                 with col2:
-                
+
                     st.text_input(
-                        "Email genitore",
-                        value=bambino.iloc[0]["email_genitore"]
-                        if pd.notna(bambino.iloc[0]["email_genitore"])
-                        else "",
+                        "Cognome",
+                        value=bambino.iloc[0]["cognome"],
                         disabled=True
+                    ) 
+
+                    data_nascita_bambino = st.date_input(
+                        "Data di nascita del bambino",
+                        disabled=bloccato,
+                        format="DD/MM/YYYY",
+                        key=f"data_nascita_bambino_{bambino_id}"
+                    )
+
+                    comune_bambino = st.text_input(
+                        "Comune di residenza",
+                        value=valori.get(
+                            "comune_bambino",
+                            ""
+                        ),
+                        disabled=bloccato,
+                        key=f"comune_bambino_{bambino_id}"
+                    )
+
+                    cap_bambino = st.text_input(
+                        "CAP",
+                        value=valori.get(
+                            "cap_bambino",
+                            ""
+                        ),
+                        disabled=bloccato,
+                        key=f"cap_bambino_{bambino_id}"
                     )
                 
                     st.text_input(
