@@ -6057,6 +6057,13 @@ if is_genitore():
                         else "",
                         disabled=True
                     )
+
+                    st.text_input(
+                        "Stagione sportiva",
+                        value=corso.iloc[0]["stagione"],
+                        disabled=True,
+                        key=f"stagione_corso_{bambino_id}"
+                    )
         
                 if not corso.empty:
         
@@ -6073,12 +6080,6 @@ if is_genitore():
                         width="stretch"
                     )
                 
-                    st.text_input(
-                        "Stagione sportiva",
-                        value=corso.iloc[0]["stagione"],
-                        disabled=True,
-                        key=f"stagione_corso_{bambino_id}"
-                    )
 
         st.markdown("---")
 
