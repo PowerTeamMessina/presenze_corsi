@@ -5708,16 +5708,16 @@ if is_manager():
                     params=(genitore_id,)
                 )
                 
-                if not telefono.empty:
+            if not telefono.empty:
                 
-                    st.text_input(
-                        "Telefono genitore",
-                        value=telefono.iloc[0]["telefono_genitore"]
-                        if pd.notna(telefono.iloc[0]["telefono_genitore"])
-                        else "",
-                        disabled=True,
-                        key="telefono_genitore_visualizzazione"
-                    )
+                st.text_input(
+                    "Telefono genitore",
+                    value=telefono.iloc[0]["telefono_genitore"]
+                    if pd.notna(telefono.iloc[0]["telefono_genitore"])
+                    else "",
+                    disabled=True,
+                    key="telefono_genitore_visualizzazione"
+                )
     
             if not bambino_assoc.empty:
     
