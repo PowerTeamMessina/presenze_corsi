@@ -2861,6 +2861,185 @@ def genera_pdf_riepilogo_mensile_corso(
     buffer.close()
 
     return pdf
+
+def genera_pdf_modulo(
+    bambino,
+    scheda
+):
+
+    b = bambino.iloc[0]
+    s = scheda.iloc[0]
+
+    buffer = io.BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer
+    )
+
+    styles = getSampleStyleSheet()
+
+    elementi = []
+
+    elementi.append(
+        Paragraph(
+            "POWER TEAM MESSINA SSD A R.L.",
+            styles["Title"]
+        )
+    )
+
+    elementi.append(
+        Spacer(1, 20)
+    )
+
+    elementi.append(
+        Paragraph(
+            "<b>DOMANDA DI ISCRIZIONE</b>",
+            styles["Heading2"]
+        )
+    )
+
+    elementi.append(
+        Spacer(1, 15)
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Nome e Cognome: {b['nome']} {b['cognome']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Nato a: {s['luogo_nascita_bambino']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Data nascita: {s['data_nascita_bambino']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Codice Fiscale: {s['cf_bambino']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Residente a: {s['comune_bambino']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Indirizzo: {s['indirizzo_bambino']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Email riferimento: {b['email_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Telefono riferimento: {b['telefono_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Spacer(1, 20)
+    )
+
+    elementi.append(
+        Paragraph(
+            "<b>DATI DEL GENITORE</b>",
+            styles["Heading2"]
+        )
+    )
+
+    elementi.append(
+        Spacer(1, 10)
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Nome: {s['nome_genitore']} {s['cognome_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Nato a: {s['luogo_nascita_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Data nascita: {s['data_nascita_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Codice Fiscale: {s['cf_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Residenza: {s['indirizzo_genitore']} - {s['comune_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Telefono: {b['telefono_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            f"Email: {b['email_genitore']}",
+            styles["Normal"]
+        )
+    )
+
+    elementi.append(
+        Spacer(1, 40)
+    )
+
+    elementi.append(
+        Paragraph(
+            "Firma ______________________________",
+            styles["Normal"]
+        )
+    )
+
+    doc.build(
+        elementi
+    )
+
+    buffer.seek(0)
+
+    return buffer
     
 # ============================================================
 # FUNZIONI ASSEGNAZIONI
@@ -6919,44 +7098,20 @@ if is_genitore():
             ):
             
                 try:
-            
-                    template_id = st.secrets[
-                        "DRIVE_TEMPLATE_MODULO_ID"
-                    ]
-            
-                    template_bytes = scarica_file_drive_bytes(
-                        template_id
-                    )
-            
-                    mappa = crea_mappa_modulo(
+
+                    pdf_compilato = genera_pdf_modulo(
                         bambino,
                         scheda
                     )
-            
-                    docx_compilato = compila_docx_template(
-                        template_bytes,
-                        mappa
-                    )
-            
-                    nome_file_docx = (
-                        f"Modulo_Iscrizione_"
-                        f"{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.docx"
-                    )
-            
-                    pdf_compilato = converti_docx_in_pdf_drive(
-                        docx_compilato,
-                        nome_file_docx
-                    )
-            
+                    
                     st.session_state[
                         f"pdf_modulo_{bambino_id}"
                     ] = pdf_compilato.getvalue()
-            
+                    
                     st.success(
                         "Modulo PDF generato correttamente."
                     )
-            
+                    
                 except Exception as e:
             
                     st.error(
@@ -6971,17 +7126,15 @@ if is_genitore():
             if f"pdf_modulo_{bambino_id}" in st.session_state:
 
                 st.download_button(
-                    "📥 Scarica modulo PDF da firmare",
+                    "📥 Scarica modulo PDF",
                     data=st.session_state[
                         f"pdf_modulo_{bambino_id}"
                     ],
                     file_name=(
-                        f"Modulo_Iscrizione_"
-                        f"{bambino.iloc[0]['cognome']}_"
+                        f"Modulo_{bambino.iloc[0]['cognome']}_"
                         f"{bambino.iloc[0]['nome']}.pdf"
                     ),
-                    mime="application/pdf",
-                    key=f"download_modulo_pdf_{bambino_id}"
+                    mime="application/pdf"
                 )
                 
                 #st.download_button(
