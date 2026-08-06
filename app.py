@@ -1325,7 +1325,29 @@ def get_riepilogo_stagioni():
     return pd.DataFrame(
         risultati
     )
-    
+
+def elimina_presenze_giornata(
+    corso_id,
+    data_evento
+):
+
+    c.execute(
+        """
+        DELETE FROM presenze
+        WHERE corso_id = ?
+        AND data = ?
+        """,
+        (
+            corso_id,
+            str(data_evento)
+        )
+    )
+
+    numero = c.rowcount
+
+    conn.commit()
+
+    return numero
 # ============================================================
 # FUNZIONI UTENTI
 # ============================================================
@@ -3269,6 +3291,37 @@ with tab_presenze:
                 )
 
                 st.rerun()
+
+            st.markdown("---")
+
+            conferma_elimina_presenze = st.checkbox(
+                f"Confermo eliminazione presenze del {data_evento}",
+                key=f"conferma_elimina_presenze_{corso_id}_{data_evento}"
+            )
+            
+            if st.button(
+                "🗑️ Elimina presenze del giorno",
+                key=f"elimina_presenze_{corso_id}_{data_evento}"
+            ):
+            
+                if not conferma_elimina_presenze:
+            
+                    st.error(
+                        "Devi confermare l'eliminazione."
+                    )
+            
+                else:
+            
+                    numero = elimina_presenze_giornata(
+                        corso_id,
+                        data_evento
+                    )
+                    
+                    st.success(
+                        f"{numero} presenze eliminate."
+                    )
+            
+                    st.rerun()
 
 
 # ============================================================
