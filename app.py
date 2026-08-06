@@ -6563,7 +6563,8 @@ if is_genitore():
             modulo_firmato,
             certificato_medico,
             documento_identita,
-            tessera_sanitaria
+            tessera_sanitaria,
+            documento_identita_genitore
         )
 
         if not completa:
