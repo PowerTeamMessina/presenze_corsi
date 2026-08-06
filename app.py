@@ -3436,7 +3436,7 @@ def genera_pdf_compilato(
         valore_pdf(
             s.get("luogo_nascita_bambino", "")
         ),
-        450,
+        400,
         693
     )
     
@@ -3454,7 +3454,7 @@ def genera_pdf_compilato(
         valore_pdf(
             s.get("cf_bambino", "")
         ),
-        450,
+        420,
         673
     )
     
@@ -3472,7 +3472,7 @@ def genera_pdf_compilato(
         valore_pdf(
             s.get("indirizzo_bambino", "")
         ),
-        460,
+        420,
         654
     )
     
@@ -3490,8 +3490,8 @@ def genera_pdf_compilato(
         valore_pdf(
             b.get("telefono_genitore", "")
         ),
-        500,
-        584
+        450,
+        634
     )
     
     # =====================================================
