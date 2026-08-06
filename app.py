@@ -6926,6 +6926,19 @@ if is_genitore():
                 "📄 Genera modulo",
                 key=f"genera_modulo_{bambino_id}"
             ):
+                
+                template_id = st.secrets[
+                    "DRIVE_TEMPLATE_MODULO_ID"
+                ]
+                
+                template_bytes = scarica_file_drive_bytes(
+                    template_id
+                )
+                
+                mappa = crea_mappa_modulo(
+                    bambino,
+                    scheda
+                )
             
                 docx_compilato = compila_docx_template(
                     template_bytes,
