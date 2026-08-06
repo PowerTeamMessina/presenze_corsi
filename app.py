@@ -5695,16 +5695,8 @@ if is_manager():
                     genitore_id
                 )
             )
-    
-            if not bambino_assoc.empty:
-    
-                st.info(
-                    f"Bambino associato: "
-                    f"{bambino_assoc.iloc[0]['cognome']} "
-                    f"{bambino_assoc.iloc[0]['nome']}"
-                )
 
-                telefono = pd.read_sql(
+            telefono = pd.read_sql(
                     """
                     SELECT b.telefono_genitore
                     FROM bambini b
@@ -5726,6 +5718,14 @@ if is_manager():
                         disabled=True,
                         key="telefono_genitore_visualizzazione"
                     )
+    
+            if not bambino_assoc.empty:
+    
+                st.info(
+                    f"Bambino associato: "
+                    f"{bambino_assoc.iloc[0]['cognome']} "
+                    f"{bambino_assoc.iloc[0]['nome']}"
+                )
 
 
 
