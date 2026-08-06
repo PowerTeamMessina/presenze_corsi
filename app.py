@@ -6341,14 +6341,12 @@ if is_genitore():
                 if str(valore).strip() == "":
                     campi_mancanti.append(nome)
 
-            if campi_mancanti:
-
-                st.error(
-                    "Campi mancanti:\n\n- "
-                    + "\n- ".join(campi_mancanti)
-                )
-            
-            else:
+                if campi_mancanti:
+    
+                    st.error(
+                        "Campi mancanti:\n\n- "
+                        + "\n- ".join(campi_mancanti)
+                    )
             
                 # INSERT / UPDATE
         
