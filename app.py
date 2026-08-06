@@ -6188,56 +6188,6 @@ if is_genitore():
         
         # valori esistenti
 
-        luogo_nascita_bambino = st.text_input(
-            "Luogo di nascita del bambino",
-            value=valori.get(
-                "luogo_nascita_bambino",
-                ""
-            ),
-            disabled=bloccato,
-            key=f"luogo_nascita_bambino_{bambino_id}"
-        )
-
-        cf_bambino = st.text_input(
-            "Codice fiscale del bambino",
-            value=valori.get(
-                "cf_bambino",
-                ""
-            ),
-            disabled=bloccato,
-            key=f"cf_bambino_{bambino_id}"
-        )
-
-        indirizzo_bambino = st.text_input(
-            "Indirizzo di residenza del bambino",
-            value=valori.get(
-                "indirizzo_bambino",
-                ""
-            ),
-            disabled=bloccato,
-            key=f"indirizzo_bambino_{bambino_id}"
-        )
-
-        comune_bambino = st.text_input(
-            "Comune di residenza",
-            value=valori.get(
-                "comune_bambino",
-                ""
-            ),
-            disabled=bloccato,
-            key=f"comune_bambino_{bambino_id}"
-        )
-
-        cap_bambino = st.text_input(
-            "CAP",
-            value=valori.get(
-                "cap_bambino",
-                ""
-            ),
-            disabled=bloccato,
-            key=f"cap_bambino_{bambino_id}"
-        )
-
         nome_genitore = st.text_input(
             "Nome genitore",
             value=valori.get(
