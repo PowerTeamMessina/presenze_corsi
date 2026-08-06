@@ -1083,11 +1083,23 @@ def converti_docx_in_pdf_drive(
         "mimeType": "application/vnd.google-apps.document"
     }
 
-    file_creato = service.files().create(
-        body=metadata,
-        media_body=media,
-        fields="id"
-    ).execute()
+    try:
+
+        file_creato = service.files().create(
+            body=metadata,
+            media_body=media,
+            fields="id"
+        ).execute()
+    
+        st.success("File Google Docs creato")
+    
+    except Exception as e:
+    
+        st.error("Errore nella creazione del Google Doc")
+    
+        st.code(str(e))
+    
+        raise
 
     google_doc_id = file_creato[
         "id"
@@ -6972,9 +6984,11 @@ if is_genitore():
                         f"{bambino.iloc[0]['nome']}.docx"
                     )
         
-                    pdf_compilato = converti_docx_in_pdf_drive(
-                        docx_compilato,
-                        nome_file_docx
+                    st.download_button(
+                        "📥 Scarica modulo DOCX",
+                        data=docx_compilato.getvalue(),
+                        file_name=f"Modulo_{bambino.iloc[0]['cognome']}_{bambino.iloc[0]['nome']}.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
         
                     st.session_state[
