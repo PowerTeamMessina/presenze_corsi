@@ -6934,6 +6934,8 @@ if is_genitore():
                 template_bytes = scarica_file_drive_bytes(
                     template_id
                 )
+
+                st.write(bambino.iloc[0].to_dict())
                 
                 mappa = crea_mappa_modulo(
                     bambino,
