@@ -6006,19 +6006,21 @@ if is_genitore():
 
             corso = pd.DataFrame()
 
-            if pd.notna(
-                bambino.iloc[0]["corso_id"]
-            ):
-            
-                corso = get_info_corso(
-                    int(
-                        bambino.iloc[0]["corso_id"]
-                    )
+            if not giorni.empty:
+
+                testo_giorni = "\n".join(
+                    [
+                        f"{r['giorno']} - {r['orario']}"
+                        for _, r in giorni.iterrows()
+                    ]
                 )
-                giorni = get_giorni_corso(
-                    int(
-                        bambino.iloc[0]["corso_id"]
-                    )
+            
+                st.text_area(
+                    "Giorni del corso",
+                    value=testo_giorni,
+                    disabled=True,
+                    height=120,
+                    key=f"giorni_corso_{bambino_id}"
                 )
                 
         with col2:
