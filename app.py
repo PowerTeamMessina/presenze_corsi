@@ -6008,9 +6008,9 @@ if is_genitore():
 
         valori = {}
         
-            if not scheda.empty:
+        if not scheda.empty:
             
-                valori = scheda.iloc[0].to_dict()
+            valori = scheda.iloc[0].to_dict()
 
         col1, col2 = st.columns(2)
         
