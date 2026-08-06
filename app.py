@@ -6029,7 +6029,8 @@ if is_genitore():
                 bambino.iloc[0]["corso_id"]
             )
             else "",
-            disabled=True
+            disabled=True,
+            key=f"corso_id_{bambino_id}"
         )
 
         scheda = pd.read_sql(
