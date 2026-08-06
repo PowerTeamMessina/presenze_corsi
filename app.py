@@ -6039,10 +6039,6 @@ if is_genitore():
                         int(bambino.iloc[0]["corso_id"]),
                     )
                 )
-
-                st.write("Corso ID:", bambino.iloc[0]["corso_id"])
-
-                st.dataframe(giorni)
                         
                 with col2:
                 
@@ -6070,6 +6066,8 @@ if is_genitore():
                         disabled=True,
                         key=f"nome_corso_{bambino_id}"
                     )
+
+                    st.dataframe(giorni)
                 
                     st.text_input(
                         "Stagione sportiva",
