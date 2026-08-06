@@ -3360,7 +3360,31 @@ def carica_file_drive(
 ):
 
     if uploaded_file is None:
+
+        st.warning(
+            f"{nome_file} è None"
+        )
+
         return
+
+    st.success(
+        f"Caricamento {nome_file}"
+    )
+
+    st.write(
+        "Nome originale:",
+        uploaded_file.name
+    )
+
+    st.write(
+        "Tipo:",
+        uploaded_file.type
+    )
+
+    st.write(
+        "Dimensione:",
+        uploaded_file.size
+    )
 
     service = get_drive_service()
 
@@ -3377,11 +3401,29 @@ def carica_file_drive(
         "parents": [folder_id]
     }
 
-    service.files().create(
-        body=metadata,
-        media_body=media,
-        fields="id"
-    ).execute()
+    try:
+
+        file = service.files().create(
+            body=metadata,
+            media_body=media,
+            fields="id,name"
+        ).execute()
+
+        st.success(
+            f"Caricato: {file['name']}"
+        )
+
+    except Exception as e:
+
+        st.error(
+            f"Errore upload {nome_file}"
+        )
+
+        st.code(
+            str(e)
+        )
+
+        raise
 
 def stagione_corrente():
 
