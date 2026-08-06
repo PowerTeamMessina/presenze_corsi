@@ -6951,6 +6951,8 @@ if is_genitore():
                         bambino,
                         scheda
                     )
+
+                    st.write(bambino.columns.tolist())
         
                     docx_compilato = compila_docx_template(
                         template_bytes,
