@@ -29,9 +29,6 @@ from docx import Document
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from PyPDF2 import PdfReader, PdfWriter
 
 # ============================================================
 # CONFIGURAZIONE
@@ -39,7 +36,7 @@ from PyPDF2 import PdfReader, PdfWriter
 
 st.set_page_config(
     page_title="Statino Corsi Nuoto",
-    page_icon="🏊",
+    page_icon="ð",
     layout="wide"
 )
 
@@ -794,8 +791,8 @@ def genera_pdf_presenze(
 
     df_pdf = df_pdf.replace(
         {
-            "✅": "P",
-            "❌": "A"
+            "â": "P",
+            "â": "A"
         }
     )
     
@@ -825,7 +822,7 @@ def genera_pdf_presenze(
 
     elementi.append(
         Paragraph(
-            "Legenda: P = Presenza | A = Assenza | - = Nessuna lezione / Festività / Chiusura",
+            "Legenda: P = Presenza | A = Assenza | - = Nessuna lezione / FestivitÃ  / Chiusura",
             styles["BodyText"]
         )
     )
@@ -1928,7 +1925,7 @@ def invia_credenziali_istruttore_email(
     testo = f"""
 Ciao {nome},
 
-il tuo account istruttore per lo Statino Corsi Nuoto è stato creato.
+il tuo account istruttore per lo Statino Corsi Nuoto Ãš stato creato.
 
 Credenziali di accesso:
 
@@ -1986,7 +1983,7 @@ def invia_credenziali_manager_email(
     testo = f"""
 Ciao {nome},
 
-è stato creato un nuovo account MANAGER per l'App Corsi Power Team.
+Ãš stato creato un nuovo account MANAGER per l'App Corsi Power Team.
 
 Credenziali di accesso:
 
@@ -2232,7 +2229,7 @@ def cambia_stato_utente(utente_id, attivo):
 
 def login():
 
-    st.sidebar.header("🔐 Login")
+    st.sidebar.header("ð Login")
 
     if "utente_id" not in st.session_state:
         st.session_state.utente_id = None
@@ -2256,7 +2253,7 @@ def login():
             f"Ruolo: {st.session_state.ruolo}"
         )
 
-        if st.sidebar.button("🚪 Logout"):
+        if st.sidebar.button("ðª Logout"):
 
             st.session_state.utente_id = None
             st.session_state.username = None
@@ -2702,11 +2699,11 @@ def elimina_corso(corso_id):
 def giorno_settimana_italiano(data_evento):
 
     giorni = {
-        0: "Lunedì",
-        1: "Martedì",
-        2: "Mercoledì",
-        3: "Giovedì",
-        4: "Venerdì",
+        0: "LunedÃ¬",
+        1: "MartedÃ¬",
+        2: "MercoledÃ¬",
+        3: "GiovedÃ¬",
+        4: "VenerdÃ¬",
         5: "Sabato",
         6: "Domenica"
     }
@@ -2850,7 +2847,7 @@ def genera_pdf_riepilogo_mensile_corso(
 
     elementi.append(
         Paragraph(
-            "Legenda: P = Presenza | A = Assenza | - = Nessuna lezione / Festività / Chiusura",
+            "Legenda: P = Presenza | A = Assenza | - = Nessuna lezione / FestivitÃ  / Chiusura",
             styles["BodyText"]
         )
     )
@@ -2864,67 +2861,6 @@ def genera_pdf_riepilogo_mensile_corso(
     buffer.close()
 
     return pdf
-
-def genera_pdf_compilato(
-    bambino,
-    scheda
-):
-
-    packet = io.BytesIO()
-
-    c = canvas.Canvas(
-        packet,
-        pagesize=A4
-    )
-
-    #
-    # TEST
-    #
-
-    c.setFont(
-        "Helvetica",
-        12
-    )
-
-    c.drawString(
-        100,
-        700,
-        "PROVA"
-    )
-
-    c.save()
-
-    packet.seek(0)
-
-    overlay_pdf = PdfReader(
-        packet
-    )
-
-    base_pdf = PdfReader(
-        "templates/modulo_base.pdf"
-    )
-
-    writer = PdfWriter()
-
-    page = base_pdf.pages[0]
-
-    page.merge_page(
-        overlay_pdf.pages[0]
-    )
-
-    writer.add_page(
-        page
-    )
-
-    output = io.BytesIO()
-
-    writer.write(
-        output
-    )
-
-    output.seek(0)
-
-    return output
     
 # ============================================================
 # FUNZIONI ASSEGNAZIONI
@@ -3281,7 +3217,7 @@ def invia_credenziali_genitore_email(
     testo = f"""
         Ciao,
     
-        è stato creato il tuo accesso all'Area Genitore della Power Team Messina.
+        Ãš stato creato il tuo accesso all'Area Genitore della Power Team Messina.
     
         Credenziali di accesso:
     
@@ -3665,7 +3601,7 @@ migra_giorni_corsi_vecchi()
 
 crea_manager_default()
 
-st.title("🏊 Statino Presenze Corsi di Nuoto")
+st.title("ð Statino Presenze Corsi di Nuoto")
 
 stagioni = get_stagioni()
 
@@ -3708,19 +3644,19 @@ if is_manager():
 
     tabs = st.tabs(
         [
-            "📋 Presenze",
-            "👶 Bambini",
-            "🏊 Corsi",
-            "📅 Stagioni",
-            "👨‍🏫 Istruttori",
-            "👔 Manager",
-            "👨‍👩‍👧 Genitori",
-            "🔗 Assegnazioni",
-            "📄 Documentazione",
-            "📊 Riepilogo presenze",
-            "🚫 Chiusure",
-            "🗂️ Storico",
-            "💾 Backup"
+            "ð Presenze",
+            "ð¶ Bambini",
+            "ð Corsi",
+            "ð Stagioni",
+            "ðšâð« Istruttori",
+            "ð Manager",
+            "ðšâð©âð§ Genitori",
+            "ð Assegnazioni",
+            "ð Documentazione",
+            "ð Riepilogo presenze",
+            "ð« Chiusure",
+            "ðïž Storico",
+            "ðŸ Backup"
         ]
     )
 
@@ -3742,7 +3678,7 @@ elif is_genitore():
 
     tabs = st.tabs(
         [
-            "🏠 Area personale"
+            "ð  Area personale"
         ]
     )
 
@@ -3752,8 +3688,8 @@ else:
 
     tabs = st.tabs(
         [
-            "📋 Presenze",
-            "👶 Bambini"
+            "ð Presenze",
+            "ð¶ Bambini"
         ]
     )
 
@@ -3767,7 +3703,7 @@ else:
 if not is_genitore():
     with tab_presenze:
 
-        st.header("📋 Registro presenze")
+        st.header("ð Registro presenze")
     
         data_evento = st.date_input(
             "Data",
@@ -3924,7 +3860,7 @@ if not is_genitore():
                 )
     
                 if st.button(
-                    "💾 Salva presenze",
+                    "ðŸ Salva presenze",
                     key="salva_presenze"
                 ):
     
@@ -3961,7 +3897,7 @@ if not is_genitore():
                 )
                 
                 if st.button(
-                    "🗑️ Elimina presenze del giorno",
+                    "ðïž Elimina presenze del giorno",
                     key=f"elimina_presenze_{corso_id}_{data_evento}"
                 ):
                 
@@ -3994,7 +3930,7 @@ if not is_genitore():
 
         if is_manager():
     
-            st.header("👶 Gestione bambini")
+            st.header("ð¶ Gestione bambini")
     
             corsi = get_corsi(
                 attivi_solo=True,
@@ -4007,7 +3943,7 @@ if not is_genitore():
                 for _, row in corsi.iterrows()
             }
         
-            st.subheader("➕ Aggiungi bambino")
+            st.subheader("â Aggiungi bambino")
         
             with st.form(
                 "form_aggiungi_bambino",
@@ -4056,7 +3992,7 @@ if not is_genitore():
                 )
         
                 invia = st.form_submit_button(
-                    "➕ Aggiungi"
+                    "â Aggiungi"
                 )
         
                 if invia:
@@ -4148,7 +4084,7 @@ if not is_genitore():
     
             st.markdown("---")
     
-        st.subheader("📋 Elenco bambini")
+        st.subheader("ð Elenco bambini")
     
         bambini = get_bambini(
             attivi_solo=False if is_manager() else True
@@ -4189,7 +4125,7 @@ if not is_genitore():
     
                 st.markdown("---")
     
-                st.subheader("✏️ Modifica o elimina bambino")
+                st.subheader("âïž Modifica o elimina bambino")
     
                 opzioni_bambini = {
                     f"{row['cognome']} {row['nome']}": int(row["id"])
@@ -4261,7 +4197,7 @@ if not is_genitore():
                 )
     
                 if st.button(
-                    "💾 Aggiorna bambino"
+                    "ðŸ Aggiorna bambino"
                 ):
     
                     aggiorna_bambino(
@@ -4282,7 +4218,7 @@ if not is_genitore():
                     st.rerun()
                     
             st.markdown("---")
-            st.subheader("👨‍👩‍👧 Account Genitore")
+            st.subheader("ðšâð©âð§ Account Genitore")
     
             genitore = pd.read_sql(
                 """
@@ -4320,7 +4256,7 @@ if not is_genitore():
                 )
     
                 if st.button(
-                    "📧 Reinvia credenziali genitore"
+                    "ð§ Reinvia credenziali genitore"
                 ):
                         
                     invia_credenziali_genitore_email(
@@ -4334,7 +4270,7 @@ if not is_genitore():
                     )
     
                 if st.button(
-                    "🔄 Genera nuova password"
+                    "ð Genera nuova password"
                 ):
                         
                     nuova_password = genera_password_casuale()
@@ -4369,7 +4305,7 @@ if not is_genitore():
                 ):
                         
                     if st.button(
-                         "➕ Crea account genitore"
+                         "â Crea account genitore"
                     ):
                         
                         genitore_id, password_generata, gia_esistente = (
@@ -4380,7 +4316,7 @@ if not is_genitore():
                         )
     
                         if gia_esistente:
-                            st.info("Account genitore già presente.")
+                            st.info("Account genitore giÃ  presente.")
                         else:
                             st.success(
                                 f"Account creato. Password: {password_generata}"
@@ -4413,7 +4349,7 @@ if not is_genitore():
                 )
     
                 if st.button(
-                    "🗑️ Elimina bambino"
+                    "ðïž Elimina bambino"
                 ):
     
                     if not conferma_elimina:
@@ -4438,14 +4374,14 @@ if not is_genitore():
 if is_manager():
     with tab_stagioni:
 
-        st.header("📅 Gestione stagioni")
+        st.header("ð Gestione stagioni")
     
         nuova_stagione = st.text_input(
             "Nuova stagione",
             placeholder="es. 2027/2028"
         )
     
-        if st.button("➕ Aggiungi stagione"):
+        if st.button("â Aggiungi stagione"):
     
             if nuova_stagione.strip() == "":
     
@@ -4470,7 +4406,7 @@ if is_manager():
                 except:
     
                     st.error(
-                        "Stagione già esistente."
+                        "Stagione giÃ  esistente."
                     )
     
         st.markdown("---")
@@ -4483,7 +4419,7 @@ if is_manager():
     
         st.markdown("---")
     
-        st.subheader("📊 Riepilogo stagioni")
+        st.subheader("ð Riepilogo stagioni")
         
         riepilogo_stagioni = get_riepilogo_stagioni()
         
@@ -4516,14 +4452,14 @@ if is_manager():
 
     with tab_corsi:
 
-        st.header("🏊 Gestione corsi")
+        st.header("ð Gestione corsi")
 
         giorni_settimana = [
-            "Lunedì",
-            "Martedì",
-            "Mercoledì",
-            "Giovedì",
-            "Venerdì",
+            "LunedÃ¬",
+            "MartedÃ¬",
+            "MercoledÃ¬",
+            "GiovedÃ¬",
+            "VenerdÃ¬",
             "Sabato",
             "Domenica"
         ]
@@ -4532,7 +4468,7 @@ if is_manager():
         # NUOVO CORSO
         # =====================================================
 
-        st.subheader("➕ Nuovo corso")
+        st.subheader("â Nuovo corso")
 
         nome = st.text_input(
             "Nome corso",
@@ -4554,11 +4490,11 @@ if is_manager():
         giorni_selezionati = st.multiselect(
             "Giorni del corso",
             [
-                "Lunedì",
-                "Martedì",
-                "Mercoledì",
-                "Giovedì",
-                "Venerdì",
+                "LunedÃ¬",
+                "MartedÃ¬",
+                "MercoledÃ¬",
+                "GiovedÃ¬",
+                "VenerdÃ¬",
                 "Sabato",
                 "Domenica"
             ],
@@ -4583,7 +4519,7 @@ if is_manager():
             )
 
         crea = st.button(
-            "➕ Crea corso"
+            "â Crea corso"
         )
 
         if crea:
@@ -4642,7 +4578,7 @@ if is_manager():
         # LISTA CORSI
         # =====================================================
 
-        st.subheader("📋 Corsi presenti")
+        st.subheader("ð Corsi presenti")
 
         corsi = get_corsi_con_giorni(
             attivi_solo=True
@@ -4677,7 +4613,7 @@ if is_manager():
             # MODIFICA CORSO
             # =====================================================
 
-            st.subheader("✏️ Modifica corso")
+            st.subheader("âïž Modifica corso")
 
             opzioni_corsi = {
                 f"{row['nome']} | {row['giorni_orari']}": int(row["id"])
@@ -4746,11 +4682,11 @@ if is_manager():
             st.markdown("### Giorni e orari del corso")
 
             giorni_settimana = [
-                "Lunedì",
-                "Martedì",
-                "Mercoledì",
-                "Giovedì",
-                "Venerdì",
+                "LunedÃ¬",
+                "MartedÃ¬",
+                "MercoledÃ¬",
+                "GiovedÃ¬",
+                "VenerdÃ¬",
                 "Sabato",
                 "Domenica"
             ]
@@ -4801,13 +4737,13 @@ if is_manager():
                 )
 
             if st.button(
-                "💾 Aggiorna corso"
+                "ðŸ Aggiorna corso"
             ):
 
                 if nuovo_nome.strip() == "":
 
                     st.error(
-                        "Il nome del corso non può essere vuoto."
+                        "Il nome del corso non puÃ² essere vuoto."
                     )
                 
                 elif len(nuovi_giorni_orari) == 0:
@@ -4860,14 +4796,14 @@ if is_manager():
             # ELIMINA CORSO
             # =====================================================
 
-            st.subheader("🗑️ Elimina corso")
+            st.subheader("ðïž Elimina corso")
 
             conferma_elimina_corso = st.checkbox(
                 "Confermo eliminazione definitiva corso"
             )
 
             if st.button(
-                "🗑️ Elimina corso"
+                "ðïž Elimina corso"
             ):
 
                 if not conferma_elimina_corso:
@@ -4897,9 +4833,9 @@ if is_manager():
 
     with tab_istruttori:
 
-        st.header("👨‍🏫 Gestione istruttori")
+        st.header("ðšâð« Gestione istruttori")
 
-        st.subheader("➕ Nuovo istruttore")
+        st.subheader("â Nuovo istruttore")
 
         with st.form(
             "form_nuovo_istruttore",
@@ -4915,7 +4851,7 @@ if is_manager():
             )
         
             crea = st.form_submit_button(
-                "➕ Crea istruttore e invia credenziali"
+                "â Crea istruttore e invia credenziali"
             )
         
             if crea:
@@ -4975,12 +4911,12 @@ if is_manager():
                     except sqlite3.IntegrityError:
         
                         st.error(
-                            "Esiste già un istruttore con questa email."
+                            "Esiste giÃ  un istruttore con questa email."
                         )
 
         st.markdown("---")
 
-        st.subheader("📋 Istruttori")
+        st.subheader("ð Istruttori")
 
         istruttori = get_istruttori(
             attivi_solo=False
@@ -5017,7 +4953,7 @@ if is_manager():
 
             st.markdown("---")
 
-            st.subheader("⚙️ Modifica istruttore")
+            st.subheader("âïž Modifica istruttore")
 
             opzioni = {
                 f"{row['nome']} ({row['username']})": int(row["id"])
@@ -5069,7 +5005,7 @@ if is_manager():
             )
 
             if st.button(
-                "📧 Reinvia credenziali"
+                "ð§ Reinvia credenziali"
             ):
             
                 invia_credenziali_istruttore_email(
@@ -5083,7 +5019,7 @@ if is_manager():
                 )
 
             if st.button(
-                "💾 Aggiorna stato account"
+                "ðŸ Aggiorna stato account"
             ):
 
                 cambia_stato_utente(
@@ -5104,7 +5040,7 @@ if is_manager():
             )
 
             if st.button(
-                "🔐 Cambia password istruttore"
+                "ð Cambia password istruttore"
             ):
 
                 if nuova_password.strip() == "":
@@ -5128,7 +5064,7 @@ if is_manager():
 
             st.write("DEBUG ELIMINAZIONE")
             
-            st.subheader("🗑️ Elimina istruttore")
+            st.subheader("ðïž Elimina istruttore")
             
             conferma_elimina = st.checkbox(
                 f"Confermo eliminazione di {dettagli['nome']}",
@@ -5136,7 +5072,7 @@ if is_manager():
             )
                 
             if st.button(
-                "🗑️ Elimina istruttore",
+                "ðïž Elimina istruttore",
                 key=f"btn_elimina_{istruttore_id}"
             ):
                 
@@ -5167,7 +5103,7 @@ if is_manager():
 
     with tab_assegnazioni:
 
-        st.header("🔗 Assegnazione istruttori ai corsi")
+        st.header("ð Assegnazione istruttori ai corsi")
 
         istruttori = get_istruttori(
             attivi_solo=True
@@ -5232,7 +5168,7 @@ if is_manager():
                 )
 
             if st.button(
-                "➕ Assegna istruttore"
+                "â Assegna istruttore"
             ):
 
                 assegna_istruttore(
@@ -5249,7 +5185,7 @@ if is_manager():
 
         st.markdown("---")
 
-        st.subheader("📋 Assegnazioni presenti")
+        st.subheader("ð Assegnazioni presenti")
 
         assegnazioni = get_assegnazioni()
 
@@ -5283,7 +5219,7 @@ if is_manager():
             )
 
             if st.button(
-                "🗑️ Elimina assegnazione"
+                "ðïž Elimina assegnazione"
             ):
 
                 if not conferma:
@@ -5312,7 +5248,7 @@ if is_manager():
 if is_manager():
     with tab_storico:
 
-        st.header("🗂️ Storico presenze")
+        st.header("ðïž Storico presenze")
     
         storico = storico_presenze()
     
@@ -5356,7 +5292,7 @@ if is_manager():
             )
     
             st.download_button(
-                "📥 Scarica storico CSV",
+                "ð¥ Scarica storico CSV",
                 csv,
                 "storico_presenze_corsi.csv",
                 "text/csv"
@@ -5366,14 +5302,14 @@ if is_manager():
     
             with tab_backup:
         
-                st.header("💾 Backup GitHub")
+                st.header("ðŸ Backup GitHub")
         
                 st.info(
                     "Il backup contiene istruttori, password, corsi, bambini, assegnazioni, presenze e stagioni."
                 )
         
                 if st.button(
-                    "💾 Salva backup su GitHub"
+                    "ðŸ Salva backup su GitHub"
                 ):
         
                     upload_backup_github(
@@ -5392,7 +5328,7 @@ if is_manager():
                     ) as f:
         
                         st.download_button(
-                            "📥 Scarica backup JSON",
+                            "ð¥ Scarica backup JSON",
                             f,
                             file_name="backup_completo.json",
                             mime="application/json"
@@ -5400,7 +5336,7 @@ if is_manager():
         
                 st.markdown("---")
         
-                st.subheader("📤 Carica backup manuale")
+                st.subheader("ð€ Carica backup manuale")
         
                 uploaded_file = st.file_uploader(
                     "Carica file backup_completo.json",
@@ -5419,7 +5355,7 @@ if is_manager():
                         )
         
                     if st.button(
-                        "♻️ Ripristina backup caricato"
+                        "â»ïž Ripristina backup caricato"
                     ):
         
                         if ripristina_backup_locale():
@@ -5442,10 +5378,10 @@ if is_manager():
         
                 st.markdown("---")
         
-                st.subheader("☁️ Ripristino da GitHub")
+                st.subheader("âïž Ripristino da GitHub")
         
                 if st.button(
-                    "📥 Scarica e ripristina backup da GitHub"
+                    "ð¥ Scarica e ripristina backup da GitHub"
                 ):
         
                     if scarica_backup_github():
@@ -5468,9 +5404,9 @@ if is_manager():
 
     with tab_manager:
 
-        st.header("👔 Gestione Manager")
+        st.header("ð Gestione Manager")
 
-        st.subheader("➕ Nuovo manager")
+        st.subheader("â Nuovo manager")
 
         with st.form(
             "form_nuovo_manager",
@@ -5486,7 +5422,7 @@ if is_manager():
             )
 
             crea = st.form_submit_button(
-                "➕ Crea manager e invia credenziali"
+                "â Crea manager e invia credenziali"
             )
 
             if crea:
@@ -5513,7 +5449,7 @@ if is_manager():
                 except sqlite3.IntegrityError:
 
                     st.error(
-                        "Email già presente."
+                        "Email giÃ  presente."
                     )
         
         manager_df = pd.read_sql(
@@ -5539,7 +5475,7 @@ if is_manager():
 
         st.markdown("---")
 
-        st.subheader("⚙️ Modifica manager")
+        st.subheader("âïž Modifica manager")
 
         opzioni_manager = {
             f"{row['nome']} ({row['email']})": int(row["id"])
@@ -5592,7 +5528,7 @@ if is_manager():
         )
 
         if st.button(
-            "📧 Reinvia credenziali manager"
+            "ð§ Reinvia credenziali manager"
         ):
         
             invia_credenziali_manager_email(
@@ -5612,7 +5548,7 @@ if is_manager():
         )
 
         if st.button(
-            "🔐 Cambia password manager"
+            "ð Cambia password manager"
         ):
         
             if nuova_password_manager.strip() == "":
@@ -5636,12 +5572,12 @@ if is_manager():
 
         st.markdown("---")
 
-        st.subheader("🗑️ Elimina manager")   
+        st.subheader("ðïž Elimina manager")   
 
         if manager_principale:
 
             st.warning(
-                "Il manager principale non può essere eliminato."
+                "Il manager principale non puÃ² essere eliminato."
             )
         
         else:
@@ -5652,7 +5588,7 @@ if is_manager():
             )
         
             if st.button(
-                "🗑️ Elimina manager"
+                "ðïž Elimina manager"
             ):
         
                 if not conferma_elimina_manager:
@@ -5685,7 +5621,7 @@ if is_manager():
             key="stagione_riepilogo"
         )
         
-        st.header("📊 Riepilogo Presenze")
+        st.header("ð Riepilogo Presenze")
             
         bambini = get_bambini(
             attivi_solo=False
@@ -5790,11 +5726,11 @@ if is_manager():
             )
     
             mappa_giorni = {
-                "Lunedì": 0,
-                "Martedì": 1,
-                "Mercoledì": 2,
-                "Giovedì": 3,
-                "Venerdì": 4,
+                "LunedÃ¬": 0,
+                "MartedÃ¬": 1,
+                "MercoledÃ¬": 2,
+                "GiovedÃ¬": 3,
+                "VenerdÃ¬": 4,
                 "Sabato": 5,
                 "Domenica": 6
             }
@@ -5894,11 +5830,11 @@ if is_manager():
     
                         if presenze_dict[data_str] == 1:
     
-                            riga[str(giorno)] = "✅"
+                            riga[str(giorno)] = "â"
     
                         else:
     
-                            riga[str(giorno)] = "❌"
+                            riga[str(giorno)] = "â"
     
                     else:
     
@@ -5934,7 +5870,7 @@ if is_manager():
             )
     
             st.download_button(
-                "📄 Scarica PDF",
+                "ð Scarica PDF",
                 pdf_data,
                 file_name=f"presenze_{bambino_label}.pdf",
                 mime="application/pdf",
@@ -5942,7 +5878,7 @@ if is_manager():
             )
     
             st.markdown("---")
-            st.subheader("📅 Riepilogo mensile per corso")
+            st.subheader("ð Riepilogo mensile per corso")
                     
             corsi_riepilogo = get_corsi_con_giorni(
                 attivi_solo=True,
@@ -6030,11 +5966,11 @@ if is_manager():
                 )
             
                 mappa_giorni = {
-                    "Lunedì": 0,
-                    "Martedì": 1,
-                    "Mercoledì": 2,
-                    "Giovedì": 3,
-                    "Venerdì": 4,
+                    "LunedÃ¬": 0,
+                    "MartedÃ¬": 1,
+                    "MercoledÃ¬": 2,
+                    "GiovedÃ¬": 3,
+                    "VenerdÃ¬": 4,
                     "Sabato": 5,
                     "Domenica": 6
                 }
@@ -6248,7 +6184,7 @@ if is_manager():
                     )
                         
                     st.download_button(
-                        "📄 Scarica PDF riepilogo mensile corso",
+                        "ð Scarica PDF riepilogo mensile corso",
                         pdf_mensile,
                         file_name=f"riepilogo_mensile_{nome_file_corso}_{mese_label}_{anno_mese}.pdf",
                         mime="application/pdf"
@@ -6257,7 +6193,7 @@ if is_manager():
 if is_manager():
     with tab_chiusure:
 
-        st.header("🚫 Chiusure")
+        st.header("ð« Chiusure")
     
         data_chiusura = st.date_input(
             "Data"
@@ -6267,7 +6203,7 @@ if is_manager():
             "Descrizione"
         )
     
-        if st.button("➕ Inserisci chiusura"):
+        if st.button("â Inserisci chiusura"):
     
             aggiungi_chiusura(
                 str(data_chiusura),
@@ -6297,7 +6233,7 @@ if is_manager():
             )
         
             if st.button(
-                "🗑️ Elimina chiusura"
+                "ðïž Elimina chiusura"
             ):
         
                 elimina_chiusura(
@@ -6314,7 +6250,7 @@ if is_manager():
     with tab_genitori:
 
         st.header(
-            "👨‍👩‍👧 Gestione Genitori"
+            "ðšâð©âð§ Gestione Genitori"
         )
     
         genitori = get_genitori()
@@ -6455,7 +6391,7 @@ if is_genitore():
             bambino.iloc[0]["id"]
         )
 
-        st.subheader("👶 Dati Bambino/a")
+        st.subheader("ð¶ Dati Bambino/a")
 
         scheda = pd.read_sql(
                """
@@ -6654,7 +6590,7 @@ if is_genitore():
                 
         st.markdown("---")
         
-        st.subheader("👨‍👩‍👧 Dati genitore")
+        st.subheader("ðšâð©âð§ Dati genitore")
         
         col1, col2 = st.columns(2)
         
@@ -6745,7 +6681,7 @@ if is_genitore():
         
         
         if st.button(
-            "💾 Salva anagrafica",
+            "ðŸ Salva anagrafica",
             disabled=bloccato
         ):
         
@@ -6912,7 +6848,7 @@ if is_genitore():
 
         st.markdown("---")
 
-        st.subheader("📄 Modulistica")
+        st.subheader("ð Modulistica")
 
         scheda = pd.read_sql(
             """
@@ -6972,32 +6908,84 @@ if is_genitore():
             st.success(
                 """
                 Anagrafica completa.
-                La modulistica può
+                La modulistica puÃ²
                 essere generata.
                 """
             )
         
             if st.button(
-                "📄 Genera modulo PDF",
+                "ð Genera modulo PDF",
                 key=f"genera_modulo_pdf_{bambino_id}"
             ):
             
                 try:
-
-                    pdf_compilato = genera_pdf_compilato(
+            
+                    template_id = st.secrets[
+                        "DRIVE_TEMPLATE_MODULO_ID"
+                    ]
+            
+                    template_bytes = scarica_file_drive_bytes(
+                        template_id
+                    )
+            
+                    mappa = crea_mappa_modulo(
                         bambino,
                         scheda
                     )
-                    
-                    st.download_button(
-                        "📥 Scarica modulo PDF",
-                        data=pdf_compilato.getvalue(),
-                        file_name="Modulo.pdf",
-                        mime="application/pdf"
+            
+                    docx_compilato = compila_docx_template(
+                        template_bytes,
+                        mappa
                     )
+            
+                    nome_file_docx = (
+                        f"Modulo_Iscrizione_"
+                        f"{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.docx"
+                    )
+            
+                    pdf_compilato = converti_docx_in_pdf_drive(
+                        docx_compilato,
+                        nome_file_docx
+                    )
+            
+                    st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ] = pdf_compilato.getvalue()
+            
+                    st.success(
+                        "Modulo PDF generato correttamente."
+                    )
+            
+                except Exception as e:
+            
+                    st.error(
+                        "Errore durante la generazione del modulo."
+                    )
+            
+                    st.code(
+                        str(e)
+                    )
+            
+            # FUORI dal bottone
+            if f"pdf_modulo_{bambino_id}" in st.session_state:
+
+                st.download_button(
+                    "ð¥ Scarica modulo PDF da firmare",
+                    data=st.session_state[
+                        f"pdf_modulo_{bambino_id}"
+                    ],
+                    file_name=(
+                        f"Modulo_Iscrizione_"
+                        f"{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.pdf"
+                    ),
+                    mime="application/pdf",
+                    key=f"download_modulo_pdf_{bambino_id}"
+                )
                 
                 #st.download_button(
-                #    "📥 Scarica modulo DOCX",
+                #    "ð¥ Scarica modulo DOCX",
                 #    data=st.session_state[
                 #        f"docx_modulo_{bambino_id}"
                 #    ],
@@ -7016,7 +7004,7 @@ if is_genitore():
 
         st.markdown("---")
 
-        st.subheader("📤 Documenti")
+        st.subheader("ð€ Documenti")
 
         modulo_firmato = st.file_uploader(
             "Modulo iscrizione firmato",
@@ -7028,8 +7016,8 @@ if is_genitore():
         if richiede_certificato_medico:
 
             st.info(
-                f"Età bambino: {eta_bambino} anni. "
-                "Il certificato medico è obbligatorio."
+                f"EtÃ  bambino: {eta_bambino} anni. "
+                "Il certificato medico Ãš obbligatorio."
             )
         
             certificato_medico = st.file_uploader(
@@ -7042,14 +7030,14 @@ if is_genitore():
         else:
         
             st.success(
-                f"Età bambino: {eta_bambino} anni. "
-                "Il certificato medico non è richiesto."
+                f"EtÃ  bambino: {eta_bambino} anni. "
+                "Il certificato medico non Ãš richiesto."
             )
         
             certificato_medico = True
     
         documento_identita = st.file_uploader(
-            "Documento identità bambino",
+            "Documento identitÃ  bambino",
             type=["pdf","jpg","jpeg","png"],
             disabled=bloccato,
             key=f"documento_identita_{bambino_id}"
@@ -7063,7 +7051,7 @@ if is_genitore():
         )
 
         documento_identita_genitore = st.file_uploader(
-            "Documento identità genitore",
+            "Documento identitÃ  genitore",
             type=["pdf","jpg","jpeg","png"],
             disabled=bloccato,
             key=f"documento_identita_genitore_{bambino_id}"
@@ -7078,7 +7066,7 @@ if is_genitore():
 
         st.markdown("---")
 
-        st.subheader("✅ Invio pratica")
+        st.subheader("â Invio pratica")
 
         completa = pratica_completa(
             scheda,
@@ -7105,7 +7093,7 @@ if is_genitore():
             st.success(
                 """
                 La documentazione
-                è completa.
+                Ãš completa.
         
                 Puoi inviare la pratica.
                 """
@@ -7115,7 +7103,7 @@ if is_genitore():
             completa
             and
             st.button(
-                "✅ Invia documentazione"
+                "â Invia documentazione"
             )
         ):
 
@@ -7144,7 +7132,7 @@ if is_genitore():
                 """
                 Pratica inviata.
             
-                La scheda è ora bloccata.
+                La scheda Ãš ora bloccata.
                 """
             )
     
