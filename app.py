@@ -6419,14 +6419,29 @@ if is_genitore():
         
             anagrafica_completa = all(
                 [
-                    str(r["nome_genitore"]).strip(),
-                    str(r["cognome_genitore"]).strip(),
-                    str(r["cf_genitore"]).strip(),
-                    str(r["indirizzo_genitore"]).strip(),
-                    str(r["comune_genitore"]).strip(),
-                    str(r["cap_genitore"]).strip(),
-                    str(r["telefono1"]).strip(),
-                    str(r["email_genitore"]).strip(),
+            
+                    # DATI BAMBINO
+            
+                    str(r.get("data_nascita_bambino", "")).strip(),
+                    str(r.get("luogo_nascita_bambino", "")).strip(),
+                    str(r.get("cf_bambino", "")).strip(),
+                    str(r.get("indirizzo_bambino", "")).strip(),
+                    str(r.get("comune_bambino", "")).strip(),
+                    str(r.get("cap_bambino", "")).strip(),
+            
+                    # DATI GENITORE
+            
+                    str(r.get("nome_genitore", "")).strip(),
+                    str(r.get("cognome_genitore", "")).strip(),
+                    str(r.get("luogo_nascita_genitore", "")).strip(),
+                    str(r.get("data_nascita_genitore", "")).strip(),
+                    str(r.get("cf_genitore", "")).strip(),
+                    str(r.get("indirizzo_genitore", "")).strip(),
+                    str(r.get("comune_genitore", "")).strip(),
+                    str(r.get("cap_genitore", "")).strip(),
+                    str(r.get("telefono1", "")).strip(),
+                    str(r.get("email_genitore", "")).strip()
+            
                 ]
             )
 
