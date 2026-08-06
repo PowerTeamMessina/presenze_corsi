@@ -1992,33 +1992,6 @@ def get_corso_by_id(corso_id):
         conn,
         params=(corso_id,)
     )
-
-def get_corso_bambino(
-    bambino_id
-):
-
-    try:
-
-        return pd.read_sql(
-            """
-            SELECT
-                c.nome AS corso,
-                s.nome AS stagione
-            FROM bambini b
-            LEFT JOIN corsi c
-                ON c.id = b.corso_id
-            LEFT JOIN stagioni s
-                ON s.id = c.stagione_id
-            WHERE b.id = ?
-            """,
-            conn,
-            params=(bambino_id,)
-        )
-
-    except Exception as e:
-
-        st.error(str(e))
-        raise
         
 def aggiungi_corso(nome, livello, stagione):
 
@@ -6035,8 +6008,16 @@ if is_genitore():
                 disabled=True
             )
 
-        corso_info = get_corso_bambino(
-            bambino_id
+        st.text_input(
+            "Corso ID",
+            value=str(
+                bambino.iloc[0]["corso_id"]
+            )
+            if pd.notna(
+                bambino.iloc[0]["corso_id"]
+            )
+            else "",
+            disabled=True
         )
 
         st.text_input(
