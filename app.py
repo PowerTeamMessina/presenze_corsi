@@ -608,7 +608,9 @@ def get_drive_service():
         "client_email": st.secrets["GOOGLE_CLIENT_EMAIL"],
         "client_id": st.secrets["GOOGLE_CLIENT_ID"],
         "token_uri": "https://oauth2.googleapis.com/token"
-    }   
+    }  
+
+    st.write(list(st.secrets.keys()))
     
     credentials = service_account.Credentials.from_service_account_info(
         service_account_info,
