@@ -466,11 +466,6 @@ CREATE TABLE IF NOT EXISTS schede_genitori (
     indirizzo_genitore TEXT,
     comune_genitore TEXT,
     cap_genitore TEXT,
-
-    telefono1 TEXT,
-    telefono2 TEXT,
-
-    email_genitore TEXT
 )
 """)
 
@@ -1180,7 +1175,7 @@ def crea_mappa_modulo(
         ),
         
         "{{TELEFONO_RIFERIMENTO}}": valore_pulito(
-            s.get("telefono1", "")
+            s.get("telefono_genitore", "")
         ),
         
         "{{EMAIL_RIFERIMENTO}}": valore_pulito(
@@ -1188,7 +1183,7 @@ def crea_mappa_modulo(
         ),
         
         "{{TELEFONO_GENITORE}}": valore_pulito(
-            s.get("telefono1", "")
+            s.get("telefono_genitore", "")
         ),
         
         "{{EMAIL_GENITORE}}": valore_pulito(
@@ -6910,7 +6905,7 @@ if is_genitore():
                     str(r.get("indirizzo_genitore", "")).strip(),
                     str(r.get("comune_genitore", "")).strip(),
                     str(r.get("cap_genitore", "")).strip(),
-                    str(r.get("telefono1", "")).strip(),
+                    str(r.get("telefono_genitore", "")).strip(),
                     str(r.get("email_genitore", "")).strip()
             
                 ]
