@@ -6252,7 +6252,7 @@ if is_genitore():
 
             valore_data = date(1990, 1, 1)
     
-            if not scheda.empty and valori.get("data_nascita_bambino"):
+            if not scheda.empty and valori.get("data_nascita_genitore"):
                         
                 valore_data = datetime.strptime(
                 valori["data_nascita_genitore"],
