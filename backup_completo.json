@@ -88,7 +88,8 @@
             "corso_id": 1,
             "email_genitore": "grifo@altamatematica.it",
             "note": "",
-            "attivo": 1
+            "attivo": 1,
+            "telefono_genitore": null
         }
     ],
     "genitori_bambini": [
