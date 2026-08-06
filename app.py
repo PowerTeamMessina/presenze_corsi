@@ -3647,12 +3647,19 @@ with tab_bambini:
                      "➕ Crea account genitore"
                 ):
                     
-                    genitore_id, password_generata = (
+                    genitore_id, password_generata, gia_esistente = (
                         crea_account_genitore(
                             dati["email_genitore"],
                             f"{dati['nome']} {dati['cognome']}"
                         )
                     )
+
+                    if gia_esistente:
+                        st.info("Account genitore già presente.")
+                    else:
+                        st.success(
+                            f"Account creato. Password: {password_generata}"
+                        )
                     
                     c.execute(
                         """
