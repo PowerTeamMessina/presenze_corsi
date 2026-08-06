@@ -6146,14 +6146,6 @@ if is_genitore():
             disabled=bloccato
         )
         
-        telefono2 = st.text_input(
-            "Telefono secondario",
-            value=valori.get(
-                "telefono2",
-                ""
-            ),
-            disabled=bloccato
-        )
         
         email_genitore = st.text_input(
             "Email",
