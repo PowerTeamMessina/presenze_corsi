@@ -599,14 +599,6 @@ def crea_backup_completo():
     return "backup_completo.json"
 
 def get_drive_service():
-
-    testo = st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"]
-
-    for i, riga in enumerate(
-        testo.splitlines(),
-        start=1
-    ):
-        st.write(i, riga)
     
     service_account_info = {
         "type": "service_account",
