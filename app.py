@@ -6316,20 +6316,41 @@ if is_genitore():
             disabled=bloccato
         ):
         
-            if (
-                nome_genitore.strip() == ""
-                or cognome_genitore.strip() == ""
-                or luogo_nascita_genitore.strip() == ""
-                or data_nascita_genitore.strip() == ""
-                or cf_genitore.strip() == ""
-                or indirizzo_genitore.strip() == ""
-                or comune_genitore.strip() == ""
-                or cap_genitore.strip() == ""
-            ):
-        
+            campi_mancanti = []
+
+            controlli = {
+            
+                "Luogo nascita bambino": luogo_nascita_bambino,
+                "CF bambino": cf_bambino,
+                "Indirizzo bambino": indirizzo_bambino,
+                "Comune bambino": comune_bambino,
+                "CAP bambino": cap_bambino,
+            
+                "Nome genitore": nome_genitore,
+                "Cognome genitore": cognome_genitore,
+                "Luogo nascita genitore": luogo_nascita_genitore,
+                "CF genitore": cf_genitore,
+                "Indirizzo genitore": indirizzo_genitore,
+                "Comune genitore": comune_genitore,
+                "CAP genitore": cap_genitore
+            
+            }
+            
+            for nome, valore in controlli.items():
+            
+                if str(valore).strip() == "":
+                    campi_mancanti.append(nome)
+
+            if campi_mancanti:
+
                 st.error(
-                    "Compilare tutti i campi obbligatori."
+                    "Campi mancanti:\n\n- "
+                    + "\n- ".join(campi_mancanti)
                 )
+            
+            else:
+            
+                # INSERT / UPDATE
         
             else:
         
