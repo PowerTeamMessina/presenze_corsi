@@ -6955,16 +6955,23 @@ if is_genitore():
             if f"docx_modulo_{bambino_id}" in st.session_state:
             
                 st.download_button(
-                    "📥 Scarica modulo DOCX",
-                    data=st.session_state[
-                        f"docx_modulo_{bambino_id}"
-                    ],
-                    file_name=(
-                        f"Modulo_{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.docx"
-                    ),
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    "📥 Scarica modulo PDF da firmare",
+                    data=pdf_compilato.getvalue(),
+                    file_name=f"Modulo_{bambino.iloc[0]['cognome']}_{bambino.iloc[0]['nome']}.pdf",
+                    mime="application/pdf"
                 )
+                
+                #st.download_button(
+                #    "📥 Scarica modulo DOCX",
+                #    data=st.session_state[
+                #        f"docx_modulo_{bambino_id}"
+                #    ],
+                #    file_name=(
+                #        f"Modulo_{bambino.iloc[0]['cognome']}_"
+                #        f"{bambino.iloc[0]['nome']}.docx"
+                #    ),
+                #    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                #)
 
         # ============================================================
         # INTERFACCIA
