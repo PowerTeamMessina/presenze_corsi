@@ -3333,25 +3333,48 @@ def ottieni_nome_stagione():
 
     return f"{oggi.year-1}-{oggi.year}"
 
-def crea_cartella_drive(
+def crea_o_trova_cartella_drive(
     nome_cartella,
     parent_id
 ):
 
     service = get_drive_service()
 
+    query = (
+        f"name='{nome_cartella}' "
+        f"and '{parent_id}' in parents "
+        f"and mimeType='application/vnd.google-apps.folder' "
+        f"and trashed=false"
+    )
+
+    risultati = service.files().list(
+        q=query,
+        fields="files(id,name)"
+    ).execute()
+
+    cartelle = risultati.get(
+        "files",
+        []
+    )
+
+    # se esiste già
+    if len(cartelle) > 0:
+
+        return cartelle[0]["id"]
+
+    # altrimenti la crea
     metadata = {
         "name": nome_cartella,
         "mimeType": "application/vnd.google-apps.folder",
         "parents": [parent_id]
     }
 
-    folder = service.files().create(
+    nuova = service.files().create(
         body=metadata,
         fields="id"
     ).execute()
 
-    return folder["id"]
+    return nuova["id"]
 
 def carica_file_drive(
     uploaded_file,
@@ -7520,7 +7543,7 @@ if is_genitore():
             
             nome_stagione = stagione_corrente()
             
-            cartella_stagione = crea_cartella_drive(
+            cartella_stagione = crea_o_trova_cartella_drive(
                 nome_stagione,
                 st.secrets["DRIVE_FOLDER_ID"]
             )
@@ -7534,7 +7557,7 @@ if is_genitore():
                 f"{bambino.iloc[0]['nome']}"
             )
             
-            cartella_bambino = crea_cartella_drive(
+            cartella_bambino = crea_o_trova_cartella_drive(
                 nome_cartella_bambino,
                 cartella_stagione
             )
