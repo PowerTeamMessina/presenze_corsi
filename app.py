@@ -419,9 +419,54 @@ CREATE TABLE IF NOT EXISTS genitori_bambini (
 )
 """)
 
+c.execute("""
+CREATE TABLE IF NOT EXISTS schede_genitori (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    bambino_id INTEGER UNIQUE,
+
+    compilato INTEGER DEFAULT 0,
+
+    bloccato INTEGER DEFAULT 0,
+
+    data_invio TEXT,
+
+    ultima_modifica TEXT,
+
+    nome_genitore TEXT,
+    cognome_genitore TEXT,
+
+    luogo_nascita_genitore TEXT,
+    data_nascita_genitore TEXT,
+
+    cf_genitore TEXT,
+
+    indirizzo_genitore TEXT,
+    comune_genitore TEXT,
+    cap_genitore TEXT,
+
+    telefono1 TEXT,
+    telefono2 TEXT,
+
+    email_genitore TEXT
+)
+""")
+
+c.execute("""
+CREATE TABLE IF NOT EXISTS storico_schede_genitore (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    bambino_id INTEGER,
+
+    data_snapshot TEXT,
+
+    json_snapshot TEXT
+)
+""")
+
 conn.commit()
-
-
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
 # ============================================================
@@ -697,6 +742,57 @@ def genera_pdf_presenze(
     buffer.close()
 
     return pdf
+
+def pratica_completa(
+    scheda,
+    modulo_firmato,
+    certificato_medico,
+    documento_identita,
+    tessera_sanitaria
+):
+
+    if scheda.empty:
+        return False
+
+    s = scheda.iloc[0]
+
+    campi = [
+        "nome_genitore",
+        "cognome_genitore",
+        "cf_genitore",
+        "indirizzo_genitore",
+        "comune_genitore",
+        "cap_genitore",
+        "telefono1",
+        "email_genitore"
+    ]
+
+    for campo in campi:
+
+        if (
+            pd.isna(
+                s[campo]
+            )
+            or
+            str(
+                s[campo]
+            ).strip() == ""
+        ):
+            return False
+
+    if modulo_firmato is None:
+        return False
+
+    if certificato_medico is None:
+        return False
+
+    if documento_identita is None:
+        return False
+
+    if tessera_sanitaria is None:
+        return False
+
+    return True
     
 def scarica_backup_github():
 
@@ -1762,6 +1858,13 @@ def login():
                 "Credenziali non valide."
             )
 
+def is_genitore():
+
+    return (
+        st.session_state.get(
+            "ruolo"
+        ) == "genitore"
+    )
 
 def is_manager():
 
@@ -1890,6 +1993,25 @@ def get_corso_by_id(corso_id):
         params=(corso_id,)
     )
 
+def get_corso_bambino(
+    bambino_id
+):
+
+    return pd.read_sql(
+        """
+        SELECT
+            c.nome AS corso,
+            s.nome AS stagione
+        FROM bambini b
+        LEFT JOIN corsi c
+            ON c.id = b.corso_id
+        LEFT JOIN stagioni s
+            ON s.id = c.stagione_id
+        WHERE b.id = ?
+        """,
+        conn,
+        params=(bambino_id,)
+    )
 
 def aggiungi_corso(nome, livello, stagione):
 
@@ -3013,7 +3135,23 @@ def backup_giornaliero():
             print(
                 f"Errore backup GitHub: {e}"
             )
-        
+
+def get_bambino_genitore(
+    utente_id
+):
+
+    return pd.read_sql(
+        """
+        SELECT b.*
+        FROM bambini b
+        JOIN genitori_bambini gb
+            ON gb.bambino_id = b.id
+        WHERE gb.utente_id = ?
+        """,
+        conn,
+        params=(utente_id,)
+    )
+    
 # ============================================================
 # INTERFACCIA
 # ============================================================
@@ -3077,6 +3215,7 @@ if is_manager():
             "👔 Manager",
             "👨‍👩‍👧 Genitori",
             "🔗 Assegnazioni",
+            "📄 Documentazione",
             "📊 Riepilogo presenze",
             "🚫 Chiusure",
             "🗂️ Storico",
@@ -3092,10 +3231,21 @@ if is_manager():
     tab_manager = tabs[5]
     tab_genitori = tabs[6]
     tab_assegnazioni = tabs[7]
-    tab_riepilogo = tabs[8]
-    tab_chiusure = tabs[9]
-    tab_storico = tabs[10]
-    tab_backup = tabs[11]
+    tab_documentazione = tabs[8]
+    tab_riepilogo = tabs[9]
+    tab_chiusure = tabs[10]
+    tab_storico = tabs[11]
+    tab_backup = tabs[12]
+
+elif is_genitore():
+
+    tabs = st.tabs(
+        [
+            "🏠 Area personale"
+        ]
+    )
+
+    tab_area_personale = tabs[0]
 
 else:
 
@@ -5810,9 +5960,518 @@ if is_manager():
                     f"{bambino_assoc.iloc[0]['nome']}"
                 )
 
+############## AREA PERSONALE #################
 
+if is_genitore():
 
+    with tab_area_personale:
+        bambino = get_bambino_genitore(
+            st.session_state["utente_id"]
+        )
+        
+        if bambino.empty:
+        
+            st.warning(
+                "Nessun bambino associato."
+            )
+        
+            st.stop()
 
+        bambino_id = int(
+            bambino.iloc[0]["id"]
+        )
+
+        st.subheader("👶 Dati atleta")
+
+        col1, col2 = st.columns(2)
+        
+        with col1:
+        
+            st.text_input(
+                "Nome",
+                value=bambino.iloc[0]["nome"],
+                disabled=True
+            )
+        
+            st.text_input(
+                "Cognome",
+                value=bambino.iloc[0]["cognome"],
+                disabled=True
+            )
+        
+            st.text_input(
+                "Data nascita",
+                value=bambino.iloc[0]["data_nascita"]
+                if pd.notna(bambino.iloc[0]["data_nascita"])
+                else "",
+                disabled=True
+            )
+        
+        with col2:
+        
+            st.text_input(
+                "Email genitore",
+                value=bambino.iloc[0]["email_genitore"]
+                if pd.notna(bambino.iloc[0]["email_genitore"])
+                else "",
+                disabled=True
+            )
+        
+            st.text_input(
+                "Telefono genitore",
+                value=bambino.iloc[0]["telefono_genitore"]
+                if pd.notna(bambino.iloc[0]["telefono_genitore"])
+                else "",
+                disabled=True
+            )
+
+        corso_info = get_corso_bambino(
+            bambino_id
+        )
+
+        st.text_input(
+            "Corso",
+            value=corso_info.iloc[0]["corso"],
+            disabled=True
+        )
+        
+        st.text_input(
+            "Stagione sportiva",
+            value=corso_info.iloc[0]["stagione"],
+            disabled=True
+        )
+
+        scheda = pd.read_sql(
+            """
+            SELECT *
+            FROM schede_genitori
+            WHERE bambino_id = ?
+            """,
+            conn,
+            params=(bambino_id,)
+        )
+
+        bloccato = False
+
+        if (
+            not scheda.empty
+            and
+            scheda.iloc[0]["bloccato"] == 1
+        ):
+        
+            bloccato = True
+
+        st.markdown("---")
+
+        st.subheader("👨‍👩‍👧 Dati genitore")
+        
+        # valori esistenti
+        
+        valori = {}
+        
+        if not scheda.empty:
+        
+            valori = scheda.iloc[0].to_dict()
+        
+        nome_genitore = st.text_input(
+            "Nome genitore",
+            value=valori.get(
+                "nome_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        cognome_genitore = st.text_input(
+            "Cognome genitore",
+            value=valori.get(
+                "cognome_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        luogo_nascita_genitore = st.text_input(
+            "Luogo di nascita",
+            value=valori.get(
+                "luogo_nascita_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        data_nascita_genitore = st.text_input(
+            "Data di nascita",
+            value=valori.get(
+                "data_nascita_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        cf_genitore = st.text_input(
+            "Codice fiscale",
+            value=valori.get(
+                "cf_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        indirizzo_genitore = st.text_input(
+            "Indirizzo",
+            value=valori.get(
+                "indirizzo_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        comune_genitore = st.text_input(
+            "Comune",
+            value=valori.get(
+                "comune_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        cap_genitore = st.text_input(
+            "CAP",
+            value=valori.get(
+                "cap_genitore",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        telefono1 = st.text_input(
+            "Telefono principale",
+            value=valori.get(
+                "telefono1",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        telefono2 = st.text_input(
+            "Telefono secondario",
+            value=valori.get(
+                "telefono2",
+                ""
+            ),
+            disabled=bloccato
+        )
+        
+        email_genitore = st.text_input(
+            "Email",
+            value=valori.get(
+                "email_genitore
+
+        if st.button(
+            "💾 Salva anagrafica",
+            disabled=bloccato
+        ):
+        
+            if (
+                nome_genitore.strip() == ""
+                or cognome_genitore.strip() == ""
+                or luogo_nascita_genitore.strip() == ""
+                or data_nascita_genitore.strip() == ""
+                or cf_genitore.strip() == ""
+                or indirizzo_genitore.strip() == ""
+                or comune_genitore.strip() == ""
+                or cap_genitore.strip() == ""
+                or telefono1.strip() == ""
+                or email_genitore.strip() == ""
+            ):
+        
+                st.error(
+                    "Compilare tutti i campi obbligatori."
+                )
+        
+            else:
+        
+                if scheda.empty:
+        
+                    c.execute(
+                        """
+                        INSERT INTO schede_genitori (
+        
+                            bambino_id,
+        
+                            nome_genitore,
+                            cognome_genitore,
+        
+                            luogo_nascita_genitore,
+                            data_nascita_genitore,
+        
+                            cf_genitore,
+        
+                            indirizzo_genitore,
+                            comune_genitore,
+                            cap_genitore,
+        
+                            telefono1,
+                            telefono2,
+        
+                            email_genitore,
+        
+                            ultima_modifica
+        
+                        )
+        
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        """,
+                        (
+                            bambino_id,
+        
+                            nome_genitore,
+                            cognome_genitore,
+        
+                            luogo_nascita_genitore,
+                            data_nascita_genitore,
+        
+                            cf_genitore,
+        
+                            indirizzo_genitore,
+                            comune_genitore,
+                            cap_genitore,
+        
+                            telefono1,
+                            telefono2,
+        
+                            email_genitore,
+        
+                            str(datetime.now())
+                        )
+                    )
+        
+                else:
+        
+                    c.execute(
+                        """
+                        UPDATE schede_genitori
+                        SET
+        
+                            nome_genitore = ?,
+                            cognome_genitore = ?,
+        
+                            luogo_nascita_genitore = ?,
+                            data_nascita_genitore = ?,
+        
+                            cf_genitore = ?,
+        
+                            indirizzo_genitore = ?,
+                            comune_genitore = ?,
+                            cap_genitore = ?,
+        
+                            telefono1 = ?,
+                            telefono2 = ?,
+        
+                            email_genitore = ?,
+        
+                            ultima_modifica = ?
+        
+                        WHERE bambino_id = ?
+                        """,
+                        (
+                            nome_genitore,
+                            cognome_genitore,
+        
+                            luogo_nascita_genitore,
+                            data_nascita_genitore,
+        
+                            cf_genitore,
+        
+                            indirizzo_genitore,
+                            comune_genitore,
+                            cap_genitore,
+        
+                            telefono1,
+                            telefono2,
+        
+                            email_genitore,
+        
+                            str(datetime.now()),
+        
+                            bambino_id
+                        )
+                    )
+        
+                conn.commit()
+        
+                st.success(
+                    "Anagrafica salvata."
+                )
+        
+                st.rerun()
+
+        st.markdown("---")
+
+        st.subheader("📄 Modulistica")
+
+        scheda = pd.read_sql(
+            """
+            SELECT *
+            FROM schede_genitori
+            WHERE bambino_id = ?
+            """,
+            conn,
+            params=(bambino_id,)
+        )
+
+        anagrafica_completa = False
+
+        if not scheda.empty:
+        
+            r = scheda.iloc[0]
+        
+            anagrafica_completa = all(
+                [
+                    str(r["nome_genitore"]).strip(),
+                    str(r["cognome_genitore"]).strip(),
+                    str(r["cf_genitore"]).strip(),
+                    str(r["indirizzo_genitore"]).strip(),
+                    str(r["comune_genitore"]).strip(),
+                    str(r["cap_genitore"]).strip(),
+                    str(r["telefono1"]).strip(),
+                    str(r["email_genitore"]).strip(),
+                ]
+            )
+
+        if not anagrafica_completa:
+
+            st.warning(
+                """
+                Prima di poter generare
+                la modulistica devi
+                completare e salvare
+                l'anagrafica.
+                """
+            )
+        
+        else:
+        
+            st.success(
+                """
+                Anagrafica completa.
+                La modulistica può
+                essere generata.
+                """
+            )
+
+        st.markdown("---")
+
+        st.subheader("📤 Documenti")
+
+        modulo_firmato = st.file_uploader(
+            "Modulo iscrizione firmato",
+            type=["pdf"],
+            disabled=bloccato,
+            key=f"modulo_firmato_{bambino_id}"
+        )
+
+        certificato_medico = st.file_uploader(
+            "Certificato medico",
+            type=["pdf"],
+            disabled=bloccato,
+            key=f"certificato_medico_{bambino_id}"
+        )
+
+        documento_identita = st.file_uploader(
+            "Documento identità",
+            type=["pdf","jpg","jpeg","png"],
+            disabled=bloccato,
+            key=f"documento_identita_{bambino_id}"
+        )
+
+        tessera_sanitaria = st.file_uploader(
+            "Tessera sanitaria",
+            type=["pdf","jpg","jpeg","png"],
+            disabled=bloccato,
+            key=f"tessera_sanitaria_{bambino_id}"
+        )
+
+        st.info(
+            """
+            I documenti verranno
+            successivamente salvati.
+            """
+        )
+
+        st.markdown("---")
+
+        st.subheader("✅ Invio pratica")
+
+        completa = pratica_completa(
+            scheda,
+            modulo_firmato,
+            certificato_medico,
+            documento_identita,
+            tessera_sanitaria
+        )
+
+        if not completa:
+        
+            st.error(
+                """
+                Documentazione incompleta.
+        
+                Compila tutti i campi
+                e carica tutti i file.
+                """
+            )
+
+        else:
+
+            st.success(
+                """
+                La documentazione
+                è completa.
+        
+                Puoi inviare la pratica.
+                """
+            )
+
+        if (
+            completa
+            and
+            st.button(
+                "✅ Invia documentazione"
+            )
+        ):
+
+        c.execute(
+            """
+            UPDATE schede_genitori
+            SET
+        
+                compilato = 1,
+        
+                bloccato = 1,
+        
+                data_invio = ?
+        
+            WHERE bambino_id = ?
+            """,
+            (
+                str(datetime.now()),
+                bambino_id
+            )
+        )
+        
+        conn.commit()
+
+        st.success(
+            """
+            Pratica inviata.
+        
+            La scheda è ora bloccata.
+            """
+        )
+
+        st.rerun()
 
 
 
