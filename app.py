@@ -6264,7 +6264,7 @@ if is_genitore():
                 max_value=date.today(),
                 disabled=bloccato,
                 format="DD/MM/YYYY",
-                key=f"data_nascita_bambino_{bambino_id}"
+                key=f"data_nascita_genitore_{bambino_id}"
             )
         
         col1, col2 = st.columns(2)
