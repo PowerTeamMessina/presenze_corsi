@@ -3590,6 +3590,34 @@ def genera_pdf_compilato(
         218
     )
 
+    c.save()
+
+    packet.seek(0)
+    
+    overlay_pdf = PdfReader(packet)
+    
+    base_pdf = PdfReader(
+        "templates/modulo_base.pdf"
+    )
+    
+    writer = PdfWriter()
+    
+    page = base_pdf.pages[0]
+    
+    page.merge_page(
+        overlay_pdf.pages[0]
+    )
+    
+    writer.add_page(page)
+    
+    output = io.BytesIO()
+    
+    writer.write(output)
+    
+    output.seek(0)
+    
+    return output
+
 def salva_presenza(bambino_id, corso_id, data_evento, presenza, note):
 
     c.execute(
