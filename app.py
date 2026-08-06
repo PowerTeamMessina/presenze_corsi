@@ -457,7 +457,7 @@ CREATE TABLE IF NOT EXISTS schede_genitori (
     cf_genitore TEXT,
     indirizzo_genitore TEXT,
     comune_genitore TEXT,
-    cap_genitore TEXT,
+    cap_genitore TEXT
 )
 """)
 
@@ -517,10 +517,6 @@ try:
     conn.commit()
 except:
     pass
-
-except Exception as e:
-    st.error(str(e))
-    raise
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS storico_schede_genitore (
