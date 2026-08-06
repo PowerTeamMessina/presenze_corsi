@@ -6944,11 +6944,6 @@ if is_genitore():
                         f"{bambino.iloc[0]['nome']}.docx"
                     )
             
-                    pdf_compilato = converti_docx_in_pdf_drive(
-                        docx_compilato,
-                        nome_file_docx
-                    )
-            
                     st.session_state[
                         f"pdf_modulo_{bambino_id}"
                     ] = pdf_compilato.getvalue()
@@ -6969,32 +6964,18 @@ if is_genitore():
             
             # FUORI dal bottone
             if f"pdf_modulo_{bambino_id}" in st.session_state:
-
+                
                 st.download_button(
-                    "📥 Scarica modulo PDF da firmare",
+                    "📥 Scarica modulo DOCX",
                     data=st.session_state[
-                        f"pdf_modulo_{bambino_id}"
+                        f"docx_modulo_{bambino_id}"
                     ],
                     file_name=(
-                        f"Modulo_Iscrizione_"
-                        f"{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.pdf"
+                        f"Modulo_{bambino.iloc[0]['cognome']}_"
+                        f"{bambino.iloc[0]['nome']}.docx"
                     ),
-                    mime="application/pdf",
-                    key=f"download_modulo_pdf_{bambino_id}"
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
-                
-                #st.download_button(
-                #    "📥 Scarica modulo DOCX",
-                #    data=st.session_state[
-                #        f"docx_modulo_{bambino_id}"
-                #    ],
-                #    file_name=(
-                #        f"Modulo_{bambino.iloc[0]['cognome']}_"
-                #        f"{bambino.iloc[0]['nome']}.docx"
-                #    ),
-                #    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                #)
 
         # ============================================================
         # INTERFACCIA
