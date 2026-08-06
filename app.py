@@ -291,7 +291,6 @@ CREATE TABLE IF NOT EXISTS bambini (
     note TEXT,
     attivo INTEGER DEFAULT 1
 )
-)
 """)
 try:
 
