@@ -1950,6 +1950,26 @@ def crea_account_genitore(
     nome_bambino
 ):
 
+    email = email.strip().lower()
+
+    esistente = pd.read_sql(
+        """
+        SELECT *
+        FROM utenti
+        WHERE lower(username)=?
+        """,
+        conn,
+        params=(email,)
+    )
+
+    if not esistente.empty:
+
+        return (
+            int(esistente.iloc[0]["id"]),
+            esistente.iloc[0]["password_visibile"],
+            True
+        )
+
     password_generata = genera_password_casuale()
 
     password_hash, salt = hash_password(
@@ -1970,7 +1990,7 @@ def crea_account_genitore(
         VALUES(?,?,?,?,?,?,1)
         """,
         (
-            email.strip().lower(),
+            email,
             f"Genitore {nome_bambino}",
             "genitore",
             password_hash,
@@ -1985,7 +2005,8 @@ def crea_account_genitore(
 
     return (
         utente_id,
-        password_generata
+        password_generata,
+        False
     )
 
 def aggiorna_corso(corso_id, nome, livello, stagione, attivo):
@@ -3349,16 +3370,17 @@ with tab_bambini:
                         
                             if genitore_esistente.empty:
                         
-                                genitore_id, password_generata = (
+                                
+                                genitore_id, password_generata, gia_esistente = (
                                     crea_account_genitore(
-                                        email_genitore,
-                                        f"{nome} {cognome}"
+                                        dati["email_genitore"],
+                                        f"{dati['nome']} {dati['cognome']}"
                                     )
                                 )
                         
                                 c.execute(
                                     """
-                                    INSERT INTO genitori_bambini(
+                                    INSERT OR IGNORE INTO genitori_bambini(
                                         utente_id,
                                         bambino_id
                                     )
