@@ -446,23 +446,15 @@ CREATE TABLE IF NOT EXISTS schede_genitori (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     bambino_id INTEGER UNIQUE,
-
     compilato INTEGER DEFAULT 0,
-
     bloccato INTEGER DEFAULT 0,
-
     data_invio TEXT,
-
     ultima_modifica TEXT,
-
     nome_genitore TEXT,
     cognome_genitore TEXT,
-
     luogo_nascita_genitore TEXT,
     data_nascita_genitore TEXT,
-
     cf_genitore TEXT,
-
     indirizzo_genitore TEXT,
     comune_genitore TEXT,
     cap_genitore TEXT,
@@ -525,6 +517,10 @@ try:
     conn.commit()
 except:
     pass
+
+except Exception as e:
+    st.error(str(e))
+    raise
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS storico_schede_genitore (
