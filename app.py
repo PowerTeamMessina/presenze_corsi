@@ -6031,6 +6031,12 @@ if is_genitore():
                conn,
                params=(bambino_id,)
             )
+
+             valori = {}
+        
+            if not scheda.empty:
+            
+                valori = scheda.iloc[0].to_dict()
     
             bloccato = False
     
@@ -6181,12 +6187,6 @@ if is_genitore():
         st.subheader("👨‍👩‍👧 Dati genitore")
         
         # valori esistenti
-        
-        valori = {}
-        
-        if not scheda.empty:
-        
-            valori = scheda.iloc[0].to_dict()
 
         luogo_nascita_bambino = st.text_input(
             "Luogo di nascita del bambino",
