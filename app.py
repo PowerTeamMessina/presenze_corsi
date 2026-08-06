@@ -5982,6 +5982,27 @@ if is_genitore():
             st.subheader(
                 "👶 Dati del bambino"
             )
+
+             scheda = pd.read_sql(
+                """
+                SELECT *
+                FROM schede_genitori
+                WHERE bambino_id = ?
+                """,
+                conn,
+                params=(bambino_id,)
+            )
+    
+            bloccato = False
+    
+            if (
+                not scheda.empty
+                and
+                "bloccato" in scheda.columns
+                and
+                int(scheda.iloc[0]["bloccato"]) == 1
+            ):
+                bloccato = True
             
             data_nascita_bambino = st.date_input(
                 "Data di nascita del bambino",
@@ -6069,27 +6090,6 @@ if is_genitore():
                 disabled=True,
                 key=f"stagione_corso_{bambino_id}"
             )
-
-        scheda = pd.read_sql(
-            """
-            SELECT *
-            FROM schede_genitori
-            WHERE bambino_id = ?
-            """,
-            conn,
-            params=(bambino_id,)
-        )
-
-        bloccato = False
-
-        if (
-            not scheda.empty
-            and
-            "bloccato" in scheda.columns
-            and
-            int(scheda.iloc[0]["bloccato"]) == 1
-        ):
-            bloccato = True
 
         st.markdown("---")
 
