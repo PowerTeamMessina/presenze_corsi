@@ -6005,63 +6005,6 @@ if is_genitore():
             )
 
             corso = pd.DataFrame()
-
-            if pd.notna(
-                bambino.iloc[0]["corso_id"]
-            ):
-            
-                corso = get_info_corso(
-                    int(
-                        bambino.iloc[0]["corso_id"]
-                    )
-                )
-            
-                giorni = get_giorni_corso(
-                    int(
-                        bambino.iloc[0]["corso_id"]
-                    )
-                )
-
-        if not corso.empty:
-
-            st.text_input(
-                "Corso",
-                value=corso.iloc[0]["nome"],
-                disabled=True,
-                key=f"corso_nome_{bambino_id}"
-            )
-        
-            st.text_input(
-                "Stagione sportiva",
-                value=corso.iloc[0]["stagione"],
-                disabled=True,
-                key=f"stagione_{bambino_id}"
-            )
-        
-            if not giorni.empty:
-        
-                elenco_giorni = []
-        
-                for _, r in giorni.iterrows():
-        
-                    elenco_giorni.append(
-                        f"{r['giorno']} - {r['orario']}"
-                    )
-        
-                st.text_area(
-                    "Giorni e orari del corso",
-                    value="\n".join(elenco_giorni),
-                    height=max(120, len(elenco_giorni) * 30),
-                    disabled=True,
-                    key=f"giorni_orari_{bambino_id}"
-                )
-        
-            else:
-        
-                st.info(
-                    "Nessun giorno/orario associato al corso."
-                )
-
                 
         with col2:
         
