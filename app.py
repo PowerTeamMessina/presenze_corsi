@@ -6923,74 +6923,28 @@ if is_genitore():
             )
         
             if st.button(
-                "📄 Genera modulo PDF",
-                key=f"genera_modulo_pdf_{bambino_id}"
+                "📄 Genera modulo",
+                key=f"genera_modulo_{bambino_id}"
             ):
+            
+                st.session_state[
+                    f"docx_modulo_{bambino_id}"
+                ] = docx_compilato.getvalue()
         
-                try:
-        
-                    template_id = st.secrets[
-                        "DRIVE_TEMPLATE_MODULO_ID"
-                    ]
-        
-                    template_bytes = scarica_file_drive_bytes(
-                        template_id
-                    )
-        
-                    mappa = crea_mappa_modulo(
-                        bambino,
-                        scheda
-                    )
+                if f"docx_modulo_{bambino_id}" in st.session_state:
 
-                    st.write(bambino.columns.tolist())
-        
-                    docx_compilato = compila_docx_template(
-                        template_bytes,
-                        mappa
-                    )
-        
-                    nome_file_docx = (
-                        f"Modulo_Iscrizione_"
-                        f"{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.docx"
-                    )
-        
                     st.download_button(
                         "📥 Scarica modulo DOCX",
-                        data=docx_compilato.getvalue(),
-                        file_name=f"Modulo_{bambino.iloc[0]['cognome']}_{bambino.iloc[0]['nome']}.docx",
+                        data=st.session_state[
+                            f"docx_modulo_{bambino_id}"
+                        ],
+                        file_name=(
+                            f"Modulo_{bambino.iloc[0]['cognome']}_"
+                            f"{bambino.iloc[0]['nome']}.docx"
+                        ),
                         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
         
-                    st.success(
-                        "Modulo PDF generato correttamente."
-                    )
-        
-                except Exception as e:
-        
-                    st.error(
-                        "Errore durante la generazione del modulo."
-                    )
-        
-                    st.code(
-                        str(e)
-                    )
-        
-            if f"pdf_modulo_{bambino_id}" in st.session_state:
-        
-                st.download_button(
-                    "📥 Scarica modulo PDF da firmare",
-                    data=st.session_state[
-                        f"pdf_modulo_{bambino_id}"
-                    ],
-                    file_name=(
-                        f"Modulo_Iscrizione_"
-                        f"{bambino.iloc[0]['cognome']}_"
-                        f"{bambino.iloc[0]['nome']}.pdf"
-                    ),
-                    mime="application/pdf",
-                    key=f"download_modulo_pdf_{bambino_id}"
-                )
 
         # ============================================================
         # INTERFACCIA
