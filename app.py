@@ -1049,7 +1049,7 @@ def scrivi_centrato(
     centro_x,
     y,
     font="Helvetica",
-    size=14
+    size=8
 ):
 
     c.setFont(
