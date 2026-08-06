@@ -452,6 +452,18 @@ CREATE TABLE IF NOT EXISTS schede_genitori (
 )
 """)
 
+try:
+
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN data_nascita_bambino TEXT
+    """)
+
+    conn.commit()
+
+except:
+    pass
+
 c.execute("""
 CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 
@@ -792,6 +804,24 @@ def pratica_completa(
         return False
 
     return True
+
+def get_info_corso(
+    corso_id
+):
+
+    return pd.read_sql(
+        """
+        SELECT
+            nome,
+            giorno,
+            orario,
+            stagione
+        FROM corsi
+        WHERE id = ?
+        """,
+        conn,
+        params=(corso_id,)
+    )
     
 def scarica_backup_github():
 
@@ -1933,7 +1963,6 @@ def get_giorni_corso(corso_id):
         conn,
         params=(corso_id,)
     )
-
 
 def descrizione_giorni_corso(corso_id):
 
@@ -5948,14 +5977,51 @@ if is_genitore():
                 disabled=True
             )
         
-            st.text_input(
-                "Data nascita",
-                value=bambino.iloc[0]["data_nascita"]
-                if pd.notna(bambino.iloc[0]["data_nascita"])
-                else "",
-                disabled=True
+            st.markdown("---")
+
+            st.subheader(
+                "👶 Dati del bambino"
             )
-        
+            
+            data_nascita_bambino = st.date_input(
+                "Data di nascita del bambino",
+                disabled=bloccato,
+                key=f"data_nascita_bambino_{bambino_id}"
+            )
+
+            corso = pd.DataFrame()
+
+            if pd.notna(
+                bambino.iloc[0]["corso_id"]
+            ):
+            
+                corso = get_info_corso(
+                    int(
+                        bambino.iloc[0]["corso_id"]
+                    )
+                )
+                giorni = get_giorni_corso(
+                    int(
+                        bambino.iloc[0]["corso_id"]
+                    )
+                )
+                if not giorni.empty:
+
+                    testo_giorni = "\n".join(
+                        [
+                            f"{r['giorno']} - {r['orario']}"
+                            for _, r in giorni.iterrows()
+                        ]
+                    )
+                
+                    st.text_area(
+                        "Giorni del corso",
+                        value=testo_giorni,
+                        height=100,
+                        disabled=True,
+                        key=f"giorni_corso_{bambino_id}"
+                    )
+
         with col2:
         
             st.text_input(
@@ -5974,30 +6040,35 @@ if is_genitore():
                 disabled=True
             )
 
-        st.text_input(
-            "Corso ID",
-            value=str(
-                bambino.iloc[0]["corso_id"]
-            )
-            if pd.notna(
-                bambino.iloc[0]["corso_id"]
-            )
-            else "",
-            disabled=True
-        )
+        if not corso.empty:
 
-        st.text_input(
-            "Corso ID",
-            value=str(
-                bambino.iloc[0]["corso_id"]
+            st.text_input(
+                "Corso",
+                value=corso.iloc[0]["nome"],
+                disabled=True,
+                key=f"nome_corso_{bambino_id}"
             )
-            if pd.notna(
-                bambino.iloc[0]["corso_id"]
+        
+            st.text_input(
+                "Giorno",
+                value=corso.iloc[0]["giorno"],
+                disabled=True,
+                key=f"giorno_corso_{bambino_id}"
             )
-            else "",
-            disabled=True,
-            key=f"corso_id_{bambino_id}"
-        )
+        
+            st.text_input(
+                "Orario",
+                value=corso.iloc[0]["orario"],
+                disabled=True,
+                key=f"orario_corso_{bambino_id}"
+            )
+        
+            st.text_input(
+                "Stagione sportiva",
+                value=corso.iloc[0]["stagione"],
+                disabled=True,
+                key=f"stagione_corso_{bambino_id}"
+            )
 
         scheda = pd.read_sql(
             """
@@ -6153,6 +6224,7 @@ if is_genitore():
                         INSERT INTO schede_genitori (
         
                             bambino_id,
+                            data_nascita_bambino,
         
                             nome_genitore,
                             cognome_genitore,
@@ -6179,6 +6251,7 @@ if is_genitore():
                         """,
                         (
                             bambino_id,
+                            str(data_nascita_bambino),
         
                             nome_genitore,
                             cognome_genitore,
@@ -6208,6 +6281,8 @@ if is_genitore():
                         UPDATE schede_genitori
                         SET
         
+                            data_nascita_bambino = ?,
+                            
                             nome_genitore = ?,
                             cognome_genitore = ?,
         
@@ -6230,6 +6305,8 @@ if is_genitore():
                         WHERE bambino_id = ?
                         """,
                         (
+                            str(data_nascita_bambino),
+                            
                             nome_genitore,
                             cognome_genitore,
         
