@@ -820,7 +820,8 @@ def pratica_completa(
     modulo_firmato,
     certificato_medico,
     documento_identita,
-    tessera_sanitaria
+    tessera_sanitaria,
+    documento_identita_genitore
 ):
 
     if scheda.empty:
@@ -834,9 +835,7 @@ def pratica_completa(
         "cf_genitore",
         "indirizzo_genitore",
         "comune_genitore",
-        "cap_genitore",
-        "telefono1",
-        "email_genitore"
+        "cap_genitore"
     ]
 
     for campo in campi:
@@ -862,6 +861,9 @@ def pratica_completa(
         return False
 
     if tessera_sanitaria is None:
+        return False
+
+    if documento_identita_genitore is None:
         return False
 
     return True
@@ -6525,17 +6527,24 @@ if is_genitore():
             certificato_medico = True
     
         documento_identita = st.file_uploader(
-            "Documento identità",
+            "Documento identità bambino",
             type=["pdf","jpg","jpeg","png"],
             disabled=bloccato,
             key=f"documento_identita_{bambino_id}"
         )
 
         tessera_sanitaria = st.file_uploader(
-            "Tessera sanitaria",
+            "Tessera sanitaria bambino",
             type=["pdf","jpg","jpeg","png"],
             disabled=bloccato,
             key=f"tessera_sanitaria_{bambino_id}"
+        )
+
+        documento_identita_genitore = st.file_uploader(
+            "Documento identità genitore",
+            type=["pdf","jpg","jpeg","png"],
+            disabled=bloccato,
+            key=f"documento_identita_genitore_{bambino_id}"
         )
 
         st.info(
