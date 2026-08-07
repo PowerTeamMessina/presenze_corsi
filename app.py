@@ -7240,7 +7240,7 @@ if is_manager():
 
         st.markdown("---")
 
-        if genitori.empty:
+        if genitore.empty:
 
             st.warning(
                 "Nessun account genitore presente."
@@ -7255,12 +7255,12 @@ if is_manager():
             
             conferma_elimina_genitore = st.checkbox(
                 "Confermo eliminazione account genitore",
-                key=f"conferma_elimina_genitore_{genitore_id}"
+                key="conferma_elimina_genitore"
             )
         
             if st.button(
                     "🗑️ Elimina account genitore",
-                    key=f"elimina_genitore_{genitore_id}"
+                    key="elimina_genitore"
                 ):
                 
                     if not conferma_elimina_genitore:
