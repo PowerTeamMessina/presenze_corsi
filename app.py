@@ -5260,7 +5260,6 @@ if is_manager():
             st.dataframe(
                 corsi[
                     [
-                        "id",
                         "nome",
                         "livello",
                         "stagione",
