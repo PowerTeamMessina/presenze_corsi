@@ -7383,25 +7383,6 @@ if is_manager():
                         st.subheader(
                             "DEBUG PRESENZE ISTRUTTORI"
                         )
-                        
-                        debug_presenze = pd.read_sql(
-                            """
-                            SELECT *
-                            FROM presenze_istruttori
-                            """,
-                            conn
-                        )
-                        
-                        st.write(
-                            "Righe nel riepilogo:",
-                            len(debug_presenze)
-                        )
-                        
-                        st.dataframe(
-                            debug_presenze,
-                            use_container_width=True,
-                            hide_index=True
-                        )
 
                         st.write(
                             "ISTRUTTORE SELEZIONATO:",
