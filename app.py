@@ -8093,23 +8093,41 @@ if is_genitore():
                     
                     conn.commit()
         
-                    pratica_inviata = scheda.iloc[0]["pratica_inviata"]
-        
-                    data_invio = scheda.iloc[0]["data_invio"]
-        
-                    if pratica_inviata:
+                    # rileggo la scheda aggiornata dal database
+
+                    scheda = pd.read_sql(
+                        """
+                        SELECT *
+                        FROM schede_genitori
+                        WHERE bambino_id = ?
+                        """,
+                        conn,
+                        params=(bambino_id,)
+                    )
                     
-                        st.success(
-                            f"""
-                            ✅ Pratica inviata
+                    if not scheda.empty:
                     
-                            Data invio:
-                            {data_invio}
-                    
-                            Il modulo è stato inviato correttamente.
-                            La scheda è bloccata e non può più essere modificata.
-                            """
+                        pratica_inviata = (
+                            scheda.iloc[0]["pratica_inviata"]
                         )
+                    
+                        data_invio = (
+                            scheda.iloc[0]["data_invio"]
+                        )
+                    
+                        if pratica_inviata:
+                    
+                            st.success(
+                                f"""
+                                ✅ Pratica inviata
+                    
+                                Data invio:
+                                {data_invio}
+                    
+                                Il modulo è stato inviato correttamente.
+                                La scheda è bloccata e non può più essere modificata.
+                                """
+                            )
     
             st.rerun()
 
