@@ -7481,23 +7481,16 @@ if is_manager():
                     
                         df_presenze_mese = pd.read_sql(
                             """
-                            SELECT
-                                data,
-                                presente,
-                                ore_lavorate,
-                                note
+                            SELECT *
                             FROM presenze_istruttori
-                            WHERE istruttore_id = ?
-                            AND data >= ?
-                            AND data <= ?
-                            ORDER BY data
                             """,
-                            conn,
-                            params=(
-                                istruttore_id,
-                                data_inizio_mese,
-                                data_fine_mese
-                            )
+                            conn
+                        )
+                        
+                        st.dataframe(
+                            df_presenze_mese,
+                            use_container_width=True,
+                            hide_index=True
                         )
                     
                         df_presenze_stagione = pd.read_sql(
