@@ -6898,10 +6898,6 @@ if is_manager():
                     f"{bambino_assoc.iloc[0]['cognome']} "
                     f"{bambino_assoc.iloc[0]['nome']}"
                 )
-
-            st.write(
-                bambino_assoc.columns.tolist()
-            )
             
             scheda = pd.read_sql(
                 """
