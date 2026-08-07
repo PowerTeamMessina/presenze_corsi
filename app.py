@@ -552,12 +552,6 @@ def invia_documentazione_email(
 ):
 
     msg = EmailMessage()
-
-    msg["Subject"] = (
-        f"Nuova iscrizione - "
-        f"{bambino.iloc[0]['cognome']} "
-        f"{bambino.iloc[0]['nome']}"
-    )
     
     msg["Subject"] = (
         f"Nuova iscrizione - "
