@@ -4765,7 +4765,10 @@ if not is_genitore():
             bambini_visual = bambini.copy()
     
             st.dataframe(
-                bambini_visual[
+                bambini_visual
+                .sort_values(
+                    by=["cognome", "nome"]
+                )[
                     [
                         "cognome",
                         "nome",
