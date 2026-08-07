@@ -355,6 +355,19 @@ try:
 
 except:
     pass
+
+try:
+
+    c.execute(
+        """
+        ALTER TABLE bambini
+        ADD COLUMN scadenza_certificato TEXT
+        """
+    )
+
+except Exception:
+
+    pass
     
 c.execute("""
 CREATE TABLE IF NOT EXISTS assegnazioni_istruttori (
@@ -3803,7 +3816,8 @@ def aggiungi_bambino(
     corso_id,
     email_genitore,
     telefono_genitore,
-    note
+    note,
+    scadenza_certificato=None
 ):
 
     c.execute(
@@ -3815,9 +3829,10 @@ def aggiungi_bambino(
             email_genitore,
             telefono_genitore,
             note,
+            scadenza_certificato,
             attivo
         )
-        VALUES(?,?,?,?,?,?,1)
+        VALUES(?,?,?,?,?,?,?,1)
         """,
         (
             nome,
@@ -3825,7 +3840,14 @@ def aggiungi_bambino(
             corso_id,
             email_genitore,
             telefono_genitore,
-            note
+            note,
+            (
+                scadenza_certificato.strftime(
+                    "%Y-%m-%d"
+                )
+                if scadenza_certificato
+                else None
+            )
         )
     )
 
@@ -5309,6 +5331,18 @@ if not is_genitore():
                 telefono_genitore = st.text_input(
                     "Telefono genitore (facoltativo)"
                 )
+
+                ha_scadenza_certificato = st.checkbox(
+                    "Inserisci scadenza certificato medico"
+                )
+                
+                scadenza_certificato = None
+                
+                if ha_scadenza_certificato:
+                
+                    scadenza_certificato = st.date_input(
+                        "Scadenza certificato medico"
+                    )
     
                 corsi = get_corsi(
                     attivi_solo=True
@@ -5357,7 +5391,8 @@ if not is_genitore():
                                 corso_id,
                                 email_genitore,
                                 telefono_genitore,
-                                note
+                                note,
+                                scadenza_certificato
                             )
                             
                             if email_genitore.strip() != "":
@@ -5455,7 +5490,8 @@ if not is_genitore():
                         "email_genitore",
                         "telefono_genitore",
                         "note",
-                        "attivo"
+                        "attivo",
+                        "scadenza_certificato"
                     ]
                 ],
                 use_container_width=True,
