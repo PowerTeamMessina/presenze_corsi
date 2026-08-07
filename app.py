@@ -556,26 +556,6 @@ CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 
 c.execute(
     """
-    CREATE TABLE IF NOT EXISTS presenze_istruttori (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-        istruttore_id INTEGER NOT NULL,
-
-        data TEXT NOT NULL,
-
-        presente INTEGER DEFAULT 0,
-
-        ore_lavorate REAL DEFAULT 0,
-
-        note TEXT,
-
-        ultima_modifica TEXT
-    )
-    """
-)
-
-c.execute(
-    """
     CREATE UNIQUE INDEX IF NOT EXISTS
     idx_presenze_istruttori_unica
     ON presenze_istruttori(
@@ -584,6 +564,35 @@ c.execute(
     )
     """
 )
+
+try:
+
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS presenze_istruttori (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            istruttore_id INTEGER NOT NULL,
+
+            data TEXT NOT NULL,
+
+            corso_id INTEGER,
+
+            presente INTEGER DEFAULT 1,
+
+            ore_lavorate REAL DEFAULT 0,
+
+            note TEXT,
+
+            ultima_modifica TEXT
+        )
+        """
+    )
+
+except Exception as e:
+
+    print(e)
+    st.error(str(e))
 
 c.execute(
     """
