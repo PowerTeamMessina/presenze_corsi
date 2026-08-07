@@ -7242,15 +7242,6 @@ if is_manager():
 
         st.markdown("---")
 
-        st.subheader(
-            "🗑️ Eliminazione account genitore"
-        )
-        
-        conferma_elimina_genitore = st.checkbox(
-            "Confermo eliminazione account genitore",
-            key=f"conferma_elimina_genitore_{genitore_id}"
-        )
-        
         if genitori.empty:
 
             st.warning(
@@ -7260,6 +7251,15 @@ if is_manager():
         else:
         
             # tutta la sezione account genitore
+            st.subheader(
+                "🗑️ Eliminazione account genitore"
+            )
+            
+            conferma_elimina_genitore = st.checkbox(
+                "Confermo eliminazione account genitore",
+                key=f"conferma_elimina_genitore_{genitore_id}"
+            )
+        
             if st.button(
                     "🗑️ Elimina account genitore",
                     key=f"elimina_genitore_{genitore_id}"
