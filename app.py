@@ -6124,7 +6124,7 @@ if is_manager():
                 row["nome"]: int(
                     row["id"]
                 )
-                for _, row in istruttori_df.iterrows()
+                for _, row in istruttori.iterrows()
             }
 
             corsi_assegnabili = get_corsi_con_giorni(
