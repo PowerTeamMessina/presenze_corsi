@@ -524,6 +524,22 @@ try:
 except:
     pass
 
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN pratica_inviata INTEGER DEFAULT 0
+    """)
+except:
+    pass
+
+try:
+    c.execute("""
+        ALTER TABLE schede_genitori
+        ADD COLUMN data_invio TEXT
+    """)
+except:
+    pass
+
 c.execute("""
 CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 
@@ -7564,6 +7580,13 @@ if is_genitore():
 
         st.subheader("✅ Invio pratica")
 
+        pratica_inviata = (
+            scheda.iloc[0].get(
+                "pratica_inviata",
+                0
+            )
+        )
+
         completa = pratica_completa(
             scheda,
             modulo_firmato,
@@ -7573,79 +7596,113 @@ if is_genitore():
             documento_identita_genitore
         )
 
-        if not completa:
-        
-            st.error(
-                """
-                Documentazione incompleta.
-        
-                Compila tutti i campi
-                e carica tutti i file.
-                """
-            )
-
-        else:
+        if pratica_inviata == 1:
 
             st.success(
-                """
-                La documentazione
-                è completa.
+                f"""
+                ✅ Pratica già inviata
         
-                Puoi inviare la pratica.
+                Data invio:
+                {scheda.iloc[0]['data_invio']}
                 """
             )
-
-        if (
-            completa
-            and
-            st.button(
-                "✅ Invia documentazione"
-            )
-        ):
-
-            # ==========================
-            # CARTELLA STAGIONE
-            # ==========================
-            
-            nome_stagione = stagione_corrente()
-
-            invia_documentazione_email(
-                bambino,
+        
+        else:
+        
+            completa = pratica_completa(
+                scheda,
                 modulo_firmato,
                 certificato_medico,
                 documento_identita,
                 tessera_sanitaria,
                 documento_identita_genitore
             )
-
-            c.execute(
-                """
-                UPDATE schede_genitori
-                SET
-            
-                    compilato = 1,
-            
-                    bloccato = 1,
-            
-                    data_invio = ?
-            
-                WHERE bambino_id = ?
-                """,
-                (
-                    str(datetime.now()),
-                    bambino_id
+        
+            if not completa:
+        
+                st.error(
+                    """
+                    Documentazione incompleta.
+        
+                    Compila tutti i campi
+                    e carica tutti i file.
+                    """
                 )
-            )
+        
+            else:
+        
+                st.success(
+                    """
+                    La documentazione
+                    è completa.
+        
+                    Puoi inviare la pratica.
+                    """
+                )
+
+                if (
+                    completa
+                    and
+                    st.button(
+                        "✅ Invia documentazione"
+                    )
+                ):
+        
+                    # ==========================
+                    # CARTELLA STAGIONE
+                    # ==========================
+                    
+                    nome_stagione = stagione_corrente()
+        
+                    invia_documentazione_email(
+                        bambino,
+                        modulo_firmato,
+                        certificato_medico,
+                        documento_identita,
+                        tessera_sanitaria,
+                        documento_identita_genitore
+                    )
+        
+                    c.execute(
+                        """
+                        UPDATE schede_genitori
+                        SET
+                    
+                            compilato = 1,
+                    
+                            bloccato = 1,
+                    
+                            pratica_inviata = 1,
+                    
+                            data_invio = ?
+                    
+                        WHERE bambino_id = ?
+                        """,
+                        (
+                            str(datetime.now()),
+                            bambino_id
+                        )
+                    )
+                    
+                    conn.commit()
+        
+                    pratica_inviata = scheda.iloc[0]["pratica_inviata"]
+        
+                    data_invio = scheda.iloc[0]["data_invio"]
+        
+                    if pratica_inviata:
+        
+                        st.success(
+                            f"""
+                            ✅ Pratica inviata
+                    
+                            Data invio:
+                            {data_invio}
+                            """
+        
+                            La scheda è ora bloccata.
+                        )
             
-            conn.commit()
-    
-            st.success(
-                """
-                Pratica inviata.
-            
-                La scheda è ora bloccata.
-                """
-            )
     
             st.rerun()
 
