@@ -7472,6 +7472,24 @@ if is_manager():
                             """,
                             conn
                         )
+
+                        df_presenze_mese = pd.read_sql(
+                            """
+                            SELECT *
+                            FROM presenze_istruttori
+                            """,
+                            conn
+                        )
+                        
+                        st.subheader(
+                            "DEBUG - Tutte le presenze istruttori salvate"
+                        )
+                        
+                        st.dataframe(
+                            df_presenze_mese,
+                            use_container_width=True,
+                            hide_index=True
+                        )
                         
                         st.dataframe(
                             df_presenze_mese,
