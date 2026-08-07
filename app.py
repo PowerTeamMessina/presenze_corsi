@@ -4855,27 +4855,27 @@ if not is_genitore():
                     "Confermo eliminazione definitiva bambino"
                 )
     
-                if st.button(
-                    "🗑️ Elimina bambino"
-                ):
+            if st.button(
+                "🗑️ Elimina bambino"
+            ):
     
-                    if not conferma_elimina:
+                if not conferma_elimina:
     
-                        st.error(
-                            "Devi confermare l'eliminazione."
-                        )
+                    st.error(
+                        "Devi confermare l'eliminazione."
+                    )
     
-                    else:
+                else:
     
-                        elimina_bambino(
-                            bambino_id
-                        )
+                    elimina_bambino(
+                        bambino_id
+                    )
     
-                        st.success(
-                            "Bambino eliminato."
-                        )
+                    st.success(
+                        "Bambino eliminato."
+                    )
     
-                        st.rerun()
+                    st.rerun()
 
 ######### STAGIONI #########
 if is_manager():
