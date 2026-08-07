@@ -7386,6 +7386,21 @@ if is_manager():
                             """,
                             conn
                         )
+
+                        st.write(
+                            "ISTRUTTORE SELEZIONATO:",
+                            istruttore_id
+                        )
+                        
+                        st.write(
+                            "INIZIO MESE:",
+                            data_inizio_mese
+                        )
+                        
+                        st.write(
+                            "FINE MESE:",
+                            data_fine_mese
+                        )
                     
                         mesi_riepilogo_istruttori = [
                             ("Settembre", 9),
