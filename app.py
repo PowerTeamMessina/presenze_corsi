@@ -5609,7 +5609,10 @@ if is_manager():
             )
             
             st.dataframe(
-                istruttori_visibili,
+                istruttori_visibili.drop(
+                    columns=["id"],
+                    errors="ignore"
+                ),
                 use_container_width=True,
                 hide_index=True
             )
