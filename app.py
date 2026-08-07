@@ -1096,6 +1096,193 @@ def valore_pulito(
         valore
     )
 
+def assicurati_tabella_presenze_istruttori():
+
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS presenze_istruttori (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            istruttore_id INTEGER NOT NULL,
+
+            corso_id INTEGER,
+
+            data TEXT NOT NULL,
+
+            presente INTEGER DEFAULT 1,
+
+            ore_lavorate REAL DEFAULT 0,
+
+            note TEXT,
+
+            ultima_modifica TEXT
+        )
+        """
+    )
+
+    try:
+
+        c.execute(
+            """
+            ALTER TABLE presenze_istruttori
+            ADD COLUMN corso_id INTEGER
+            """
+        )
+
+    except Exception:
+
+        pass
+
+    c.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS
+        idx_presenze_istruttori
+        ON presenze_istruttori (
+            istruttore_id,
+            data,
+            corso_id
+        )
+        """
+    )
+
+    conn.commit()
+
+def importa_presenze_istruttori_da_backup(
+    file_json="backup_completo.json"
+):
+
+    assicurati_tabella_presenze_istruttori()
+
+    try:
+
+        with open(
+            file_json,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            backup = json.load(f)
+
+    except Exception as e:
+
+        st.error(
+            f"Errore lettura backup JSON: {e}"
+        )
+
+        return False
+
+    righe = backup.get(
+        "presenze_istruttori",
+        []
+    )
+
+    c.execute(
+        """
+        DELETE FROM presenze_istruttori
+        """
+    )
+
+    if not righe:
+
+        st.warning(
+            "Nel backup non ci sono presenze istruttori da importare."
+        )
+
+        return False
+
+    for riga in righe:
+
+        c.execute(
+            """
+            INSERT OR REPLACE INTO presenze_istruttori (
+
+                id,
+                istruttore_id,
+                corso_id,
+                data,
+                presente,
+                ore_lavorate,
+                note,
+                ultima_modifica
+
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                riga.get("id"),
+                riga.get("istruttore_id"),
+                riga.get("corso_id"),
+                riga.get("data"),
+                riga.get("presente", 1),
+                riga.get("ore_lavorate", 0),
+                riga.get("note", ""),
+                riga.get("ultima_modifica", "")
+            )
+        )
+
+    conn.commit()
+
+    return True
+
+def sincronizza_presenze_istruttori_da_backup():
+
+    try:
+
+        with open(
+            "backup_completo.json",
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            backup = json.load(f)
+
+    except Exception:
+
+        return
+
+    righe = backup.get(
+        "presenze_istruttori",
+        []
+    )
+
+    if not righe:
+
+        return
+
+    for riga in righe:
+
+        c.execute(
+            """
+            INSERT OR REPLACE INTO
+            presenze_istruttori (
+
+                id,
+                istruttore_id,
+                corso_id,
+                data,
+                presente,
+                ore_lavorate,
+                note,
+                ultima_modifica
+
+            )
+
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                riga.get("id"),
+                riga.get("istruttore_id"),
+                riga.get("corso_id"),
+                riga.get("data"),
+                riga.get("presente"),
+                riga.get("ore_lavorate"),
+                riga.get("note"),
+                riga.get("ultima_modifica")
+            )
+        )
+
+    conn.commit()
+    
 def formatta_data_modulo(
     valore
 ):
@@ -7340,6 +7527,20 @@ if is_manager():
 
                     st.subheader(
                         "🧑‍🏫 Riepilogo presenze istruttori"
+                    )
+
+                    sincronizza_presenze_istruttori_da_backup()
+
+                    debug = pd.read_sql(
+                        """
+                        SELECT *
+                        FROM presenze_istruttori
+                        """,
+                        conn
+                    )
+                    
+                    st.write(
+                        f"Righe trovate: {len(debug)}"
                     )
                     
                     try:
