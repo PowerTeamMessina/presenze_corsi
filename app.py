@@ -594,17 +594,23 @@ except Exception as e:
     print(e)
     st.error(str(e))
 
-c.execute(
-    """
-    CREATE UNIQUE INDEX IF NOT EXISTS
-    idx_presenze_istruttori
-    ON presenze_istruttori(
-        istruttore_id,
-        data,
-        corso_id
+try:
+
+    c.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS
+        idx_presenze_istruttori
+        ON presenze_istruttori(
+            istruttore_id,
+            data,
+            corso_id
+        )
+        """
     )
-    """
-)
+
+except Exception as e:
+
+    st.error(str(e))
 
 conn.commit()
 # ============================================================
