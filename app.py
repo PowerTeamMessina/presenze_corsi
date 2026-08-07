@@ -554,54 +554,48 @@ CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 )
 """)
 
-try:
+c.execute(
+    """
+    DROP TABLE IF EXISTS presenze_istruttori
+    """
+)
 
-    c.execute(
-        """
-        CREATE TABLE IF NOT EXISTS presenze_istruttori (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+c.execute(
+    """
+    CREATE TABLE IF NOT EXISTS presenze_istruttori (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-            istruttore_id INTEGER NOT NULL,
+        istruttore_id INTEGER NOT NULL,
 
-            data TEXT NOT NULL,
+        corso_id INTEGER,
 
-            corso_id INTEGER,
+        data TEXT NOT NULL,
 
-            presente INTEGER DEFAULT 1,
+        presente INTEGER DEFAULT 1,
 
-            ore_lavorate REAL DEFAULT 0,
+        ore_lavorate REAL DEFAULT 0,
 
-            note TEXT,
+        note TEXT,
 
-            ultima_modifica TEXT
-        )
-        """
+        ultima_modifica TEXT
     )
+    """
+)
 
-except Exception as e:
-
-    print(e)
-    st.error(str(e))
-
-try:
-
-    c.execute(
-        """
-        CREATE UNIQUE INDEX IF NOT EXISTS
-        idx_presenze_istruttori
-        ON presenze_istruttori(
-            istruttore_id,
-            data,
-            corso_id
-        )
-        """
+c.execute(
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS
+    idx_presenze_istruttori
+    ON presenze_istruttori(
+        istruttore_id,
+        data,
+        corso_id
     )
-
-except Exception as e:
-
-    st.error(str(e))
+    """
+)
 
 conn.commit()
+
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
 # ============================================================
