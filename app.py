@@ -7251,30 +7251,39 @@ if is_manager():
             key=f"conferma_elimina_genitore_{genitore_id}"
         )
         
-        if st.button(
-            "🗑️ Elimina account genitore",
-            key=f"elimina_genitore_{genitore_id}"
-        ):
+        if genitori.empty:
+
+            st.warning(
+                "Nessun account genitore presente."
+            )
         
-            if not conferma_elimina_genitore:
+        else:
         
-                st.error(
-                    "Devi confermare l'eliminazione."
-                )
-        
-            else:
-        
-                ok = elimina_genitore(
-                    genitore_id
-                )
-        
-                if ok:
-        
-                    st.success(
-                        "Account genitore eliminato."
-                    )
-        
-                    st.rerun()
+            # tutta la sezione account genitore
+            if st.button(
+                    "🗑️ Elimina account genitore",
+                    key=f"elimina_genitore_{genitore_id}"
+                ):
+                
+                    if not conferma_elimina_genitore:
+                
+                        st.error(
+                            "Devi confermare l'eliminazione."
+                        )
+                
+                    else:
+                
+                        ok = elimina_genitore(
+                            genitore_id
+                        )
+                
+                        if ok:
+                
+                            st.success(
+                                "Account genitore eliminato."
+                            )
+                
+                            st.rerun()
 
 ############## AREA PERSONALE #################
 
