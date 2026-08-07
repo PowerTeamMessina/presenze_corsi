@@ -7553,32 +7553,6 @@ if is_manager():
                         hide_index=True
                     )
                     
-                    if not debug.empty:
-                    
-                        st.write(
-                            "Valori esatti della colonna data:"
-                        )
-                    
-                        st.write(
-                            debug["data"].tolist()
-                        )
-                    
-                        st.write(
-                            "Tipo Python della prima data:"
-                        )
-                    
-                        st.write(
-                            type(debug.iloc[0]["data"])
-                        )
-                    
-                        st.write(
-                            "Prima data salvata:"
-                        )
-                    
-                        st.write(
-                            debug.iloc[0]["data"]
-                        )
-                    
                     try:
                     
                         istruttori_df = get_istruttori(
