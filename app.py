@@ -4963,8 +4963,6 @@ if not is_genitore():
                             str(data_evento)
                         )
                     )
-
-                    st.error("ARRIVATO ALL'INSERT")
                     
                     c.execute(
                         """
@@ -4996,25 +4994,8 @@ if not is_genitore():
                             timestamp
                         )
                     )
-
-                    st.error("INSERT ESEGUITA")
                     
                     conn.commit()
-
-                    st.error("COMMIT ESEGUITO")
-
-                    st.subheader(
-                        "DEBUG PRESENZE ISTRUTTORI"
-                    )
-                    
-                    debug_presenze = pd.read_sql(
-                        """
-                        SELECT *
-                        FROM presenze_istruttori
-                        ORDER BY id DESC
-                        """,
-                        conn
-                    )
                     
                     st.dataframe(
                         debug_presenze,
@@ -7408,12 +7389,6 @@ if is_manager():
                             FROM presenze_istruttori
                             """,
                             conn
-                        )
-                        
-                        st.dataframe(
-                            debug_presenze,
-                            use_container_width=True,
-                            hide_index=True
                         )
                     
                         mesi_riepilogo_istruttori = [
