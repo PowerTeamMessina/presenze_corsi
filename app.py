@@ -7044,7 +7044,7 @@ if is_manager():
                             cognome_genitore,
                             cf_genitore,
                             int(
-                                bambino_assoc.iloc[0]["id"]
+                                bambino_id
                             )
                         )
                     )
@@ -7070,7 +7070,7 @@ if is_manager():
                         """,
                         (
                             int(
-                                bambino_assoc.iloc[0]["id"]
+                                bambino_id
                             ),
                         )
                     )
