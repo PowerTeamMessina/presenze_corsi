@@ -1647,11 +1647,11 @@ def genera_pdf_presenze_istruttore(
 
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=A4,
-        rightMargin=30,
-        leftMargin=30,
-        topMargin=30,
-        bottomMargin=30
+        pagesize=landscape(A4),
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=20,
+        bottomMargin=20
     )
 
     elementi = []
