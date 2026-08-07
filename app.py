@@ -5102,7 +5102,7 @@ if not is_genitore():
                     "Ore lavorate",
                     min_value=0.0,
                     max_value=6.0,
-                    step=1,
+                    step=1.0,
                     value=default_ore
                 )
                 
