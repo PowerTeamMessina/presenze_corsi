@@ -7698,9 +7698,11 @@ if is_manager():
                             "Al:",
                             data_fine_mese
                         )
-                        
-                        st.write(
-                            df_presenze_mese
+
+                        st.dataframe(
+                            debug,
+                            use_container_width=True,
+                            hide_index=True
                         )
                     
                         df_presenze_stagione = debug.copy()
