@@ -3413,38 +3413,190 @@ def invia_credenziali_genitore_email(
     
     server.quit()    
 
-def elimina_bambino(bambino_id):
+def elimina_bambino(
+    bambino_id
+):
 
-    c.execute(
-        """
-        DELETE FROM presenze
-        WHERE bambino_id = ?
-        """,
-        (bambino_id,)
-    )
-
-    c.execute(
-        """
-        DELETE FROM bambini
-        WHERE id = ?
-        """,
-        (bambino_id,)
-    )
-
-    conn.commit()
+    conn = get_connection()
+    c = conn.cursor()
 
     try:
 
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
-    except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
+        # ----------------------------------
+        # Recupera eventuale genitore associato
+        # ----------------------------------
+
+        genitore = pd.read_sql(
+            """
+            SELECT utente_id
+            FROM genitori_bambini
+            WHERE bambino_id = ?
+            """,
+            conn,
+            params=(bambino_id,)
         )
 
+        genitore_id = None
+
+        if not genitore.empty:
+
+            genitore_id = int(
+                genitore.iloc[0]["utente_id"]
+            )
+
+        # ----------------------------------
+        # Elimina scheda compilata
+        # ----------------------------------
+
+        c.execute(
+            """
+            DELETE FROM schede_genitori
+            WHERE bambino_id = ?
+            """,
+            (
+                bambino_id,
+            )
+        )
+
+        # ----------------------------------
+        # Elimina collegamento
+        # genitore ↔ bambino
+        # ----------------------------------
+
+        c.execute(
+            """
+            DELETE FROM genitori_bambini
+            WHERE bambino_id = ?
+            """,
+            (
+                bambino_id,
+            )
+        )
+
+        # ----------------------------------
+        # Elimina eventuali presenze
+        # ----------------------------------
+
+        try:
+
+            c.execute(
+                """
+                DELETE FROM presenze
+                WHERE bambino_id = ?
+                """,
+                (
+                    bambino_id,
+                )
+            )
+
+        except:
+            pass
+
+        # ----------------------------------
+        # Elimina bambino
+        # ----------------------------------
+
+        c.execute(
+            """
+            DELETE FROM bambini
+            WHERE id = ?
+            """,
+            (
+                bambino_id,
+            )
+        )
+
+        # ----------------------------------
+        # Elimina account genitore
+        # SOLO se non ha altri figli
+        # ----------------------------------
+
+        if genitore_id is not None:
+
+            figli_rimasti = pd.read_sql(
+                """
+                SELECT COUNT(*) AS totale
+                FROM genitori_bambini
+                WHERE utente_id = ?
+                """,
+                conn,
+                params=(genitore_id,)
+            )
+
+            totale = int(
+                figli_rimasti.iloc[0]["totale"]
+            )
+
+            if totale == 0:
+
+                c.execute(
+                    """
+                    DELETE FROM utenti
+                    WHERE id = ?
+                    AND ruolo = 'genitore'
+                    """,
+                    (
+                        genitore_id,
+                    )
+                )
+
+        conn.commit()
+
+    except Exception as e:
+
+        conn.rollback()
+
+        raise e
+
+    finally:
+
+        conn.close()
+
+def elimina_genitore(
+    genitore_id
+):
+
+    conn = get_connection()
+    c = conn.cursor()
+
+    try:
+
+        # elimina associazioni
+
+        c.execute(
+            """
+            DELETE FROM genitori_bambini
+            WHERE utente_id = ?
+            """,
+            (
+                genitore_id,
+            )
+        )
+
+        # elimina account
+
+        c.execute(
+            """
+            DELETE FROM utenti
+            WHERE id = ?
+            AND ruolo = 'genitore'
+            """,
+            (
+                genitore_id,
+            )
+        )
+
+        conn.commit()
+
+    except Exception as e:
+
+        conn.rollback()
+
+        raise e
+
+    finally:
+
+        conn.close()
 
 # ============================================================
 # FUNZIONI PRESENZE
@@ -7080,6 +7232,40 @@ if is_manager():
                     )
                     
                     st.rerun()
+
+        st.markdown("---")
+
+        st.subheader(
+            "🗑️ Eliminazione account genitore"
+        )
+        
+        conferma_elimina_genitore = st.checkbox(
+            "Confermo eliminazione account genitore",
+            key=f"conferma_elimina_genitore_{genitore_id}"
+        )
+        
+        if st.button(
+            "🗑️ Elimina account genitore",
+            key=f"elimina_genitore_{genitore_id}"
+        ):
+        
+            if not conferma_elimina_genitore:
+        
+                st.error(
+                    "Devi confermare l'eliminazione."
+                )
+        
+            else:
+        
+                elimina_genitore(
+                    int(genitore_row["id"])
+                )
+        
+                st.success(
+                    "Account genitore eliminato."
+                )
+        
+                st.rerun()
 
 
 ############## AREA PERSONALE #################
