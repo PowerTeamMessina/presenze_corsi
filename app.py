@@ -585,6 +585,19 @@ c.execute(
     """
 )
 
+c.execute(
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS
+    idx_presenze_istruttori
+    ON presenze_istruttori(
+        istruttore_id,
+        data,
+        corso_id
+    )
+    """
+)
+
+conn.commit()
 
 conn.commit()
 # ============================================================
@@ -4836,6 +4849,22 @@ if not is_genitore():
                     st.markdown("---")
     
                 assenti = len(bambini) - presenti
+
+                presenza_istruttore_esistente = pd.read_sql(
+                    """
+                    SELECT *
+                    FROM presenze_istruttori
+                    WHERE istruttore_id = ?
+                    AND corso_id = ?
+                    AND data = ?
+                    """,
+                    conn,
+                    params=(
+                        st.session_state["utente_id"],
+                        corso_id,
+                        str(data_evento)
+                    )
+                )
     
                 c1, c2, c3 = st.columns(3)
     
@@ -4853,6 +4882,56 @@ if not is_genitore():
                     "Assenti",
                     assenti
                 )
+
+                st.markdown("---")
+
+                st.subheader(
+                    "🧑‍🏫 Presenza istruttore"
+                )
+                
+                default_presente = True
+                default_ore = 1.0
+                default_note_istruttore = ""
+                
+                if not presenza_istruttore_esistente.empty:
+                
+                    default_presente = bool(
+                        presenza_istruttore_esistente.iloc[0]["presente"]
+                    )
+                
+                    default_ore = float(
+                        presenza_istruttore_esistente.iloc[0]["ore_lavorate"]
+                    )
+                
+                    default_note_istruttore = (
+                        presenza_istruttore_esistente.iloc[0]["note"]
+                        if pd.notna(
+                            presenza_istruttore_esistente.iloc[0]["note"]
+                        )
+                        else ""
+                    )
+                
+                col1, col2, col3 = st.columns(
+                    [1, 1, 2]
+                )
+                
+                presente_istruttore = col1.toggle(
+                    "Presente",
+                    value=default_presente
+                )
+                
+                ore_istruttore = col2.number_input(
+                    "Ore lavorate",
+                    min_value=0.0,
+                    max_value=12.0,
+                    step=0.5,
+                    value=default_ore
+                )
+                
+                note_istruttore = col3.text_input(
+                    "Note istruttore",
+                    value=default_note_istruttore
+                )
     
                 if st.button(
                     "💾 Salva presenze",
@@ -4868,6 +4947,59 @@ if not is_genitore():
                             dati["presenza"],
                             dati["note"]
                         )
+
+                    timestamp = datetime.now(
+                        ZoneInfo("Europe/Rome")
+                    ).strftime(
+                        "%d/%m/%Y %H:%M:%S"
+                    )
+                    
+                    c.execute(
+                        """
+                        DELETE FROM presenze_istruttori
+                        WHERE istruttore_id = ?
+                        AND corso_id = ?
+                        AND data = ?
+                        """,
+                        (
+                            st.session_state["utente_id"],
+                            corso_id,
+                            str(data_evento)
+                        )
+                    )
+                    
+                    c.execute(
+                        """
+                        INSERT INTO presenze_istruttori (
+                    
+                            istruttore_id,
+                            corso_id,
+                            data,
+                    
+                            presente,
+                            ore_lavorate,
+                            note,
+                    
+                            ultima_modifica
+                    
+                        )
+                    
+                        VALUES(?,?,?,?,?,?,?)
+                        """,
+                        (
+                            st.session_state["utente_id"],
+                            corso_id,
+                            str(data_evento),
+                    
+                            int(presente_istruttore),
+                            ore_istruttore,
+                            note_istruttore,
+                    
+                            timestamp
+                        )
+                    )
+                    
+                    conn.commit()
     
                     st.success(
                         "Presenze salvate correttamente."
