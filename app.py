@@ -7172,11 +7172,9 @@ if is_manager():
                         """
                         SELECT
                             id,
-                            nome,
-                            cognome
+                            nome
                         FROM istruttori
                         ORDER BY
-                            cognome,
                             nome
                         """,
                         conn
