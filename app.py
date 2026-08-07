@@ -4179,10 +4179,10 @@ if is_manager():
     tab_manager = tabs[5]
     tab_genitori = tabs[6]
     tab_assegnazioni = tabs[7]
-    tab_riepilogo = tabs[9]
-    tab_chiusure = tabs[10]
-    tab_storico = tabs[11]
-    tab_backup = tabs[12]
+    tab_riepilogo = tabs[8]
+    tab_chiusure = tabs[9]
+    tab_storico = tabs[10]
+    tab_backup = tabs[11]
 
 elif is_genitore():
 
