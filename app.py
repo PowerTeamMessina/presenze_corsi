@@ -554,6 +554,38 @@ CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 )
 """)
 
+c.execute(
+    """
+    CREATE TABLE IF NOT EXISTS presenze_istruttori (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        istruttore_id INTEGER NOT NULL,
+
+        data TEXT NOT NULL,
+
+        presente INTEGER DEFAULT 0,
+
+        ore_lavorate REAL DEFAULT 0,
+
+        note TEXT,
+
+        ultima_modifica TEXT
+    )
+    """
+)
+
+c.execute(
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS
+    idx_presenze_istruttori_unica
+    ON presenze_istruttori(
+        istruttore_id,
+        data
+    )
+    """
+)
+
+
 conn.commit()
 # ============================================================
 # MIGRAZIONE CORSI VECCHI
@@ -6089,8 +6121,10 @@ if is_manager():
         else:
 
             opzioni_istruttori = {
-                f"{row['nome']} ({row['username']})": int(row["id"])
-                for _, row in istruttori.iterrows()
+                row["nome"]: int(
+                    row["id"]
+                )
+                for _, row in istruttori_df.iterrows()
             }
 
             corsi_assegnabili = get_corsi_con_giorni(
@@ -7324,10 +7358,6 @@ if is_manager():
                                 )
                             )
                     
-                        else:
-                    
-                            df_presenze_mese["presente_label"] = []
-                    
                         if not df_presenze_stagione.empty:
                     
                             df_presenze_stagione["presente_label"] = (
@@ -7339,10 +7369,6 @@ if is_manager():
                                     }
                                 )
                             )
-                    
-                        else:
-                    
-                            df_presenze_stagione["presente_label"] = []
                     
                         totale_ore_mese = 0.0
                     
