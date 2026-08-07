@@ -6877,6 +6877,191 @@ if is_manager():
                     f"{bambino_assoc.iloc[0]['nome']}"
                 )
 
+            scheda = pd.read_sql(
+                """
+                SELECT *
+                FROM schede_genitori
+                WHERE bambino_id = ?
+                """,
+                conn,
+                params=(
+                    int(
+                        bambino_assoc.iloc[0]["id"]
+                    ),
+                )
+            )
+
+            if scheda.empty:
+                
+                st.warning(
+                    "Nessuna pratica inviata."
+                )
+
+            else:
+
+                scheda = scheda.iloc[0]
+
+                st.subheader(
+                    "👦 Dati atleta"
+                )
+                
+                st.text_input(
+                    "Luogo nascita",
+                    value=scheda["luogo_nascita_bambino"]
+                    if pd.notna(
+                        scheda["luogo_nascita_bambino"]
+                    )
+                    else ""
+                )
+                
+                st.text_input(
+                    "Data nascita",
+                    value=scheda["data_nascita_bambino"]
+                    if pd.notna(
+                        scheda["data_nascita_bambino"]
+                    )
+                    else ""
+                )
+                
+                st.text_input(
+                    "Codice fiscale",
+                    value=scheda["cf_bambino"]
+                    if pd.notna(
+                        scheda["cf_bambino"]
+                    )
+                    else ""
+                )
+                
+                st.text_input(
+                    "Comune",
+                    value=scheda["comune_bambino"]
+                    if pd.notna(
+                        scheda["comune_bambino"]
+                    )
+                    else ""
+                )
+                
+                st.text_input(
+                    "Indirizzo",
+                    value=scheda["indirizzo_bambino"]
+                    if pd.notna(
+                        scheda["indirizzo_bambino"]
+                    )
+                    else ""
+                )
+
+                st.subheader(
+                    "👨‍👩‍👧 Dati genitore"
+                )
+                
+                nome_genitore = st.text_input(
+                    "Nome genitore",
+                    value=scheda["nome_genitore"]
+                    if pd.notna(
+                        scheda["nome_genitore"]
+                    )
+                    else ""
+                )
+                
+                cognome_genitore = st.text_input(
+                    "Cognome genitore",
+                    value=scheda["cognome_genitore"]
+                    if pd.notna(
+                        scheda["cognome_genitore"]
+                    )
+                    else ""
+                )
+                
+                cf_genitore = st.text_input(
+                    "Codice fiscale genitore",
+                    value=scheda["cf_genitore"]
+                    if pd.notna(
+                        scheda["cf_genitore"]
+                    )
+                    else ""
+                )
+
+                st.subheader(
+                    "📋 Stato pratica"
+                )
+                
+                if scheda["pratica_inviata"] == 1:
+                
+                    st.success(
+                        f"""
+                        ✅ Pratica inviata
+                
+                        Data invio:
+                        {scheda["data_invio"]}
+                        """
+                    )
+                
+                else:
+                
+                    st.warning(
+                        "Pratica non inviata."
+                    )
+
+                if st.button(
+                    "💾 Salva modifiche manager"
+                ):
+
+                    c.execute(
+                        """
+                        UPDATE schede_genitori
+                        SET
+                    
+                            nome_genitore = ?,
+                            cognome_genitore = ?,
+                            cf_genitore = ?
+                    
+                        WHERE bambino_id = ?
+                        """,
+                        (
+                            nome_genitore,
+                            cognome_genitore,
+                            cf_genitore,
+                            int(
+                                bambino_assoc.iloc[0]["id"]
+                            )
+                        )
+                    )
+                    
+                    conn.commit()
+                    
+                    st.success(
+                        "Modifiche salvate."
+                    )
+
+                if st.button(
+                    "🔓 Riapri pratica al genitore"
+                ):
+                    c.execute(
+                        """
+                        UPDATE schede_genitori
+                        SET
+                    
+                            bloccato = 0,
+                            pratica_inviata = 0
+                    
+                        WHERE bambino_id = ?
+                        """,
+                        (
+                            int(
+                                bambino_assoc.iloc[0]["id"]
+                            ),
+                        )
+                    )
+                    
+                    conn.commit()
+                    
+                    st.success(
+                        "Pratica riaperta."
+                    )
+                    
+                    st.rerun()
+
+
 ############## AREA PERSONALE #################
 
 if is_genitore():
