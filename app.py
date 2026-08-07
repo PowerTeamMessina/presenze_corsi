@@ -7417,90 +7417,90 @@ if is_genitore():
                     )
                 )
                         
-                with col2:
+        with col2:
 
-                    st.text_input(
-                        "Cognome",
-                        value=bambino.iloc[0]["cognome"],
-                        disabled=True
-                    ) 
+            st.text_input(
+                "Cognome",
+                value=bambino.iloc[0]["cognome"],
+                disabled=True
+            ) 
 
-                    valore_data = date(2018, 1, 1)
+            valore_data = date(2018, 1, 1)
 
-                    if not scheda.empty and valori.get("data_nascita_bambino"):
+            if not scheda.empty and valori.get("data_nascita_bambino"):
                     
-                        valore_data = datetime.strptime(
-                            valori["data_nascita_bambino"],
-                            "%Y-%m-%d"
-                        ).date()
+                valore_data = datetime.strptime(
+                    valori["data_nascita_bambino"],
+                    "%Y-%m-%d"
+                ).date()
                     
-                    data_nascita_bambino = st.date_input(
-                        "Data di nascita del bambino",
-                        value=valore_data,
-                        min_value=date(2000, 1, 1),
-                        max_value=date.today(),
-                        disabled=bloccato,
-                        format="DD/MM/YYYY",
-                        key=f"data_nascita_bambino_{bambino_id}"
-                    )
+            data_nascita_bambino = st.date_input(
+                "Data di nascita del bambino",
+                value=valore_data,
+                min_value=date(2000, 1, 1),
+                max_value=date.today(),
+                disabled=bloccato,
+                format="DD/MM/YYYY",
+                key=f"data_nascita_bambino_{bambino_id}"
+            )
 
-                    eta_bambino = calcola_eta(
-                        data_nascita_bambino
-                    )
+            eta_bambino = calcola_eta(
+                data_nascita_bambino
+            )
                     
-                    richiede_certificato_medico = (
-                        eta_bambino >= 6
-                    )
+            richiede_certificato_medico = (
+                eta_bambino >= 6
+            )
 
-                    comune_bambino = st.text_input(
-                        "Comune di residenza",
-                        value=valori.get(
-                            "comune_bambino",
-                            ""
-                        ),
-                        disabled=bloccato,
-                        key=f"comune_bambino_{bambino_id}"
-                    )
+            comune_bambino = st.text_input(
+                "Comune di residenza",
+                value=valori.get(
+                    "comune_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"comune_bambino_{bambino_id}"
+            )
 
-                    cap_bambino = st.text_input(
-                        "CAP",
-                        value=valori.get(
-                            "cap_bambino",
-                            ""
-                        ),
-                        disabled=bloccato,
-                        key=f"cap_bambino_{bambino_id}"
-                    )
+            cap_bambino = st.text_input(
+                "CAP",
+                value=valori.get(
+                    "cap_bambino",
+                    ""
+                ),
+                disabled=bloccato,
+                key=f"cap_bambino_{bambino_id}"
+            )
                 
-                    st.text_input(
-                        "Telefono genitore",
-                        value=bambino.iloc[0]["telefono_genitore"]
-                        if pd.notna(bambino.iloc[0]["telefono_genitore"])
-                        else "",
-                        disabled=True
-                    )
+            st.text_input(
+                "Telefono genitore",
+                value=bambino.iloc[0]["telefono_genitore"]
+                if pd.notna(bambino.iloc[0]["telefono_genitore"])
+                else "",
+                disabled=True
+            )
 
-                    st.text_input(
-                        "Stagione sportiva",
-                        value=corso.iloc[0]["stagione"],
-                        disabled=True,
-                        key=f"stagione_corso_{bambino_id}"
-                    )
+            st.text_input(
+                "Stagione sportiva",
+                value=corso.iloc[0]["stagione"],
+                disabled=True,
+                key=f"stagione_corso_{bambino_id}"
+            )
         
-                if not corso.empty:
+        if not corso.empty:
         
-                    st.text_input(
-                        "Corso",
-                        value=corso.iloc[0]["nome"],
-                        disabled=True,
-                        key=f"nome_corso_{bambino_id}"
-                    )
+            st.text_input(
+                "Corso",
+                value=corso.iloc[0]["nome"],
+                disabled=True,
+                key=f"nome_corso_{bambino_id}"
+            )
 
-                    st.dataframe(
-                        giorni,
-                        hide_index=True,
-                        width="stretch"
-                    )
+            st.dataframe(
+                giorni,
+                hide_index=True,
+                width="stretch"
+            )
                 
         st.markdown("---")
         
@@ -8134,7 +8134,7 @@ if is_genitore():
                                 """
                             )
     
-            st.rerun()
+                            st.rerun()
 
 
 
