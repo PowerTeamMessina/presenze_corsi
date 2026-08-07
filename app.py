@@ -7392,10 +7392,10 @@ if is_manager():
                             istruttore_id
                         )
                         
-                        st.write(
-                            "INIZIO MESE:",
-                            data_inizio_mese
-                        )
+                        #st.write(
+                        #    "INIZIO MESE:",
+                        #    data_inizio_mese
+                        #)
                         
                         #st.write(
                         #    "FINE MESE:",
