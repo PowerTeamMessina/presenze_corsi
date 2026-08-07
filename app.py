@@ -7416,6 +7416,34 @@ if is_genitore():
                         int(bambino.iloc[0]["corso_id"]),
                     )
                 )
+
+                if not corso.empty:
+
+                st.text_input(
+                    "Stagione sportiva",
+                    value=corso.iloc[0]["stagione"],
+                    disabled=True,
+                    key=f"stagione_corso_{bambino_id}"
+                )
+            
+                st.text_input(
+                    "Corso",
+                    value=corso.iloc[0]["nome"],
+                    disabled=True,
+                    key=f"nome_corso_{bambino_id}"
+                )
+            
+                st.dataframe(
+                    giorni,
+                    hide_index=True,
+                    use_container_width=True
+                )
+            
+            else:
+            
+                st.warning(
+                    "Nessun corso associato al bambino."
+                )
                         
         with col2:
 
@@ -7505,34 +7533,6 @@ if is_genitore():
                 else "",
                 disabled=True
             )
-
-            if not corso.empty:
-
-                st.text_input(
-                    "Stagione sportiva",
-                    value=corso.iloc[0]["stagione"],
-                    disabled=True,
-                    key=f"stagione_corso_{bambino_id}"
-                )
-            
-                st.text_input(
-                    "Corso",
-                    value=corso.iloc[0]["nome"],
-                    disabled=True,
-                    key=f"nome_corso_{bambino_id}"
-                )
-            
-                st.dataframe(
-                    giorni,
-                    hide_index=True,
-                    use_container_width=True
-                )
-            
-            else:
-            
-                st.warning(
-                    "Nessun corso associato al bambino."
-                )
                 
         st.markdown("---")
         
