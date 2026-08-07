@@ -7594,6 +7594,16 @@ if is_manager():
                         istruttore_id = opzioni_istruttori[
                             istruttore_label
                         ]
+
+                        st.write(
+                            "ID selezionato:",
+                            istruttore_id
+                        )
+                        
+                        st.write(
+                            "ID presenti:",
+                            debug["istruttore_id"].unique().tolist()
+                        )
                     
                         mesi_riepilogo_istruttori = [
                             ("Settembre", 9),
@@ -7658,25 +7668,20 @@ if is_manager():
                             f"{anno_inizio_istruttore + 1}-08-31"
                         )
                     
-                        df_presenze_mese = pd.read_sql(
-                            """
-                            SELECT
-                                data,
-                                presente,
-                                ore_lavorate,
-                                note
-                            FROM presenze_istruttori
-                            WHERE istruttore_id = ?
-                            AND data >= ?
-                            AND data <= ?
-                            ORDER BY data
-                            """,
-                            conn,
-                            params=(
-                                istruttore_id,
-                                data_inizio_mese,
-                                data_fine_mese
-                            )
+                        df_presenze_mese = debug.copy()
+
+                        df_presenze_mese = df_presenze_mese[
+                            df_presenze_mese["istruttore_id"] == istruttore_id
+                        ]
+                        
+                        df_presenze_mese = df_presenze_mese[
+                            (df_presenze_mese["data"] >= data_inizio_mese)
+                            &
+                            (df_presenze_mese["data"] <= data_fine_mese)
+                        ]
+                        
+                        df_presenze_mese = df_presenze_mese.sort_values(
+                            "data"
                         )
 
                         st.write(
@@ -7698,25 +7703,20 @@ if is_manager():
                             df_presenze_mese
                         )
                     
-                        df_presenze_stagione = pd.read_sql(
-                            """
-                            SELECT
-                                data,
-                                presente,
-                                ore_lavorate,
-                                note
-                            FROM presenze_istruttori
-                            WHERE istruttore_id = ?
-                            AND data >= ?
-                            AND data <= ?
-                            ORDER BY data
-                            """,
-                            conn,
-                            params=(
-                                istruttore_id,
-                                data_inizio_stagione,
-                                data_fine_stagione
-                            )
+                        df_presenze_stagione = debug.copy()
+
+                        df_presenze_stagione = df_presenze_stagione[
+                            df_presenze_stagione["istruttore_id"] == istruttore_id
+                        ]
+                        
+                        df_presenze_stagione = df_presenze_stagione[
+                            (df_presenze_stagione["data"] >= data_inizio_stagione)
+                            &
+                            (df_presenze_stagione["data"] <= data_fine_stagione)
+                        ]
+                        
+                        df_presenze_stagione = df_presenze_stagione.sort_values(
+                            "data"
                         )
                     
                         if not df_presenze_mese.empty:
