@@ -7578,11 +7578,6 @@ if is_manager():
                         istruttore_id = opzioni_istruttori[
                             istruttore_label
                         ]
-
-                        st.write(
-                            "ID selezionato:",
-                            istruttore_id
-                        )
                     
                         mesi_riepilogo_istruttori = [
                             ("Settembre", 9),
@@ -7661,27 +7656,6 @@ if is_manager():
                         
                         df_presenze_mese = df_presenze_mese.sort_values(
                             "data"
-                        )
-
-                        st.write(
-                            "ID istruttore selezionato:",
-                            istruttore_id
-                        )
-                        
-                        st.write(
-                            "Dal:",
-                            data_inizio_mese
-                        )
-                        
-                        st.write(
-                            "Al:",
-                            data_fine_mese
-                        )
-
-                        st.dataframe(
-                            debug,
-                            use_container_width=True,
-                            hide_index=True
                         )
                     
                         df_presenze_stagione = debug.copy()
