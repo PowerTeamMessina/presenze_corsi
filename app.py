@@ -7419,25 +7419,25 @@ if is_genitore():
 
                 if not corso.empty:
 
-                st.text_input(
-                    "Stagione sportiva",
-                    value=corso.iloc[0]["stagione"],
-                    disabled=True,
-                    key=f"stagione_corso_{bambino_id}"
-                )
-            
-                st.text_input(
-                    "Corso",
-                    value=corso.iloc[0]["nome"],
-                    disabled=True,
-                    key=f"nome_corso_{bambino_id}"
-                )
-            
-                st.dataframe(
-                    giorni,
-                    hide_index=True,
-                    use_container_width=True
-                )
+                    st.text_input(
+                        "Stagione sportiva",
+                        value=corso.iloc[0]["stagione"],
+                        disabled=True,
+                        key=f"stagione_corso_{bambino_id}"
+                    )
+                
+                    st.text_input(
+                        "Corso",
+                        value=corso.iloc[0]["nome"],
+                        disabled=True,
+                        key=f"nome_corso_{bambino_id}"
+                    )
+                
+                    st.dataframe(
+                        giorni,
+                        hide_index=True,
+                        use_container_width=True
+                    )
             
             else:
             
