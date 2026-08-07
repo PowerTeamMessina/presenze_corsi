@@ -714,6 +714,7 @@ def crea_backup_completo():
         "genitori_bambini",
         "assegnazioni_istruttori",
         "presenze",
+        "presenze_istruttori",
         "stagioni",
         "sistema",
         "chiusure"
