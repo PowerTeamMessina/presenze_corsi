@@ -7469,16 +7469,8 @@ if is_manager():
                         data_fine_stagione = (
                             f"{anno_inizio_istruttore + 1}-08-31"
                         )
-                    
-                        df_presenze_mese = pd.read_sql(
-                            """
-                            SELECT *
-                            FROM presenze_istruttori
-                            """,
-                            conn
-                        )
 
-                        df_presenze_mese = pd.read_sql(
+                        debug_presenze = pd.read_sql(
                             """
                             SELECT *
                             FROM presenze_istruttori
@@ -7486,12 +7478,13 @@ if is_manager():
                             conn
                         )
                         
-                        st.subheader(
-                            "DEBUG - Tutte le presenze istruttori salvate"
+                        st.write(
+                            "Numero righe:",
+                            len(debug_presenze)
                         )
                         
                         st.dataframe(
-                            df_presenze_mese,
+                            debug_presenze,
                             use_container_width=True,
                             hide_index=True
                         )
