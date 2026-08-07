@@ -3561,7 +3561,7 @@ def elimina_genitore(
 
     try:
 
-        # elimina associazioni
+        # Elimina le associazioni genitore-bambino
 
         c.execute(
             """
@@ -3573,7 +3573,7 @@ def elimina_genitore(
             )
         )
 
-        # elimina account
+        # Elimina account genitore
 
         c.execute(
             """
@@ -3588,11 +3588,17 @@ def elimina_genitore(
 
         conn.commit()
 
+        return True
+
     except Exception as e:
 
         conn.rollback()
 
-        raise e
+        st.error(
+            f"Errore eliminazione genitore: {e}"
+        )
+
+        return False
 
     finally:
 
@@ -7260,9 +7266,9 @@ if is_manager():
                 )
         
             else:
-
+        
                 elimina_genitore(
-                    int(genitore.iloc[0]["id"])
+                    genitore_id
                 )
         
                 st.success(
@@ -7270,7 +7276,6 @@ if is_manager():
                 )
         
                 st.rerun()
-
 
 ############## AREA PERSONALE #################
 
