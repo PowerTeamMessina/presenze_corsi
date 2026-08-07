@@ -114,15 +114,6 @@
     ],
     "presenze": [
         {
-            "id": 1,
-            "bambino_id": 1,
-            "corso_id": 1,
-            "data": "2026-08-07",
-            "presenza": 1,
-            "note": "",
-            "inserito_da": 1
-        },
-        {
             "id": 11,
             "bambino_id": 1,
             "corso_id": 1,
