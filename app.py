@@ -554,17 +554,6 @@ CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 )
 """)
 
-c.execute(
-    """
-    CREATE UNIQUE INDEX IF NOT EXISTS
-    idx_presenze_istruttori_unica
-    ON presenze_istruttori(
-        istruttore_id,
-        data
-    )
-    """
-)
-
 try:
 
     c.execute(
