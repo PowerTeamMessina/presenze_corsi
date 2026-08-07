@@ -3255,7 +3255,6 @@ def get_corsi_visibili_per_utente(data_evento=None):
 def aggiungi_bambino(
     nome,
     cognome,
-    data_nascita,
     corso_id,
     email_genitore,
     telefono_genitore,
@@ -3273,12 +3272,11 @@ def aggiungi_bambino(
             note,
             attivo
         )
-        VALUES(?,?,?,?,?,?,?,1)
+        VALUES(?,?,?,?,?,?,1)
         """,
         (
             nome,
             cognome,
-            data_nascita,
             corso_id,
             email_genitore,
             telefono_genitore,
@@ -4698,8 +4696,8 @@ if not is_genitore():
                                     
                                     genitore_id, password_generata, gia_esistente = (
                                         crea_account_genitore(
-                                            dati["email_genitore"],
-                                            f"{dati['nome']} {dati['cognome']}"
+                                            email_genitore,
+                                            f"{nome} {cognome}"
                                         )
                                     )
                             
@@ -4974,8 +4972,8 @@ if not is_genitore():
                         
                         genitore_id, password_generata, gia_esistente = (
                             crea_account_genitore(
-                                dati["email_genitore"],
-                                f"{dati['nome']} {dati['cognome']}"
+                                email_genitore,
+                                f"{nome} {cognome}"
                             )
                         )
     
