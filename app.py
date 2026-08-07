@@ -11,6 +11,7 @@ import base64
 import requests
 from calendar import monthrange
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from email.mime.text import MIMEText
 from io import BytesIO
 from reportlab.platypus import (
@@ -7689,7 +7690,11 @@ if is_genitore():
                             comune_genitore,
                             cap_genitore,
         
-                            str(datetime.now())
+                            datetime.now(
+                                ZoneInfo("Europe/Rome")
+                            ).strftime(
+                                "%d/%m/%Y %H:%M:%S"
+                            )
                         )
                     )
         
