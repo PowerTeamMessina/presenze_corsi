@@ -6818,6 +6818,12 @@ if is_manager():
                 conn,
                 params=(genitore_id,)
             ).iloc[0]
+    
+            bambino_assoc = (
+                get_bambino_associato_genitore(
+                    genitore_id
+                )
+            )
 
             bambino_id_df = pd.read_sql(
                 """
@@ -6828,17 +6834,17 @@ if is_manager():
                 conn,
                 params=(genitore_id,)
             )
-
-            if not bambino_id_df.empty:
-
-                bambino_id = int(
-                    bambino_id_df.iloc[0]["bambino_id"]
+            
+            if bambino_id_df.empty:
+            
+                st.error(
+                    "Nessun bambino associato."
                 )
-    
-            bambino_assoc = (
-                get_bambino_associato_genitore(
-                    genitore_id
-                )
+            
+                st.stop()
+            
+            bambino_id = int(
+                bambino_id_df.iloc[0]["bambino_id"]
             )
 
             email = pd.read_sql(
