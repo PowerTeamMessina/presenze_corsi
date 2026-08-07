@@ -556,12 +556,6 @@ CREATE TABLE IF NOT EXISTS storico_schede_genitore (
 
 c.execute(
     """
-    DROP TABLE IF EXISTS presenze_istruttori
-    """
-)
-
-c.execute(
-    """
     CREATE TABLE IF NOT EXISTS presenze_istruttori (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
