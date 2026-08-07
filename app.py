@@ -7348,16 +7348,19 @@ if is_manager():
                     )
                     
                     try:
-
+                    
                         istruttori_df = get_istruttori(
                             attivi_solo=False
                         )
                     
                     except Exception as e:
                     
-                        st.error(str(e))
+                        st.error(
+                            str(e)
+                        )
                     
                         st.stop()
+                    
                     
                     if istruttori_df.empty:
                     
@@ -7385,25 +7388,6 @@ if is_manager():
                         istruttore_id = opzioni_istruttori[
                             istruttore_label
                         ]
-
-                        st.subheader(
-                            "DEBUG PRESENZE ISTRUTTORI"
-                        )
-
-                        st.write(
-                            "ISTRUTTORE SELEZIONATO:",
-                            istruttore_id
-                        )
-                        
-                        #st.write(
-                        #    "INIZIO MESE:",
-                        #    data_inizio_mese
-                        #)
-                        
-                        #st.write(
-                        #    "FINE MESE:",
-                        #    data_fine_mese
-                        #)
                     
                         mesi_riepilogo_istruttori = [
                             ("Settembre", 9),
@@ -7457,7 +7441,7 @@ if is_manager():
                         data_fine_mese = (
                             f"{anno_mese_istruttore}-"
                             f"{mese_numero_istruttore:02d}-"
-                            f"{monthrange(anno_mese_istruttore, mese_numero_istruttore)[1]:02d}"
+                            f"{monthrange(anno_mese_istruttore, mese_numero_istruttore)02d}"
                         )
                     
                         data_inizio_stagione = (
@@ -7467,24 +7451,26 @@ if is_manager():
                         data_fine_stagione = (
                             f"{anno_inizio_istruttore + 1}-08-31"
                         )
-
-                        debug_presenze = pd.read_sql(
+                    
+                        df_presenze_mese = pd.read_sql(
                             """
-                            SELECT *
+                            SELECT
+                                data,
+                                presente,
+                                ore_lavorate,
+                                note
                             FROM presenze_istruttori
+                            WHERE istruttore_id = ?
+                            AND data >= ?
+                            AND data <= ?
+                            ORDER BY data
                             """,
-                            conn
-                        )
-                        
-                        st.write(
-                            "Numero righe:",
-                            len(debug_presenze)
-                        )
-                        
-                        st.dataframe(
-                            debug_presenze,
-                            use_container_width=True,
-                            hide_index=True
+                            conn,
+                            params=(
+                                istruttore_id,
+                                data_inizio_mese,
+                                data_fine_mese
+                            )
                         )
                     
                         df_presenze_stagione = pd.read_sql(
