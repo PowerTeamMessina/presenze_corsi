@@ -1386,7 +1386,9 @@ def crea_mappa_modulo(
             )
         ),
 
-        "{{DATA_MODULO}}": datetime.now().strftime(
+        "{{DATA_MODULO}}": datetime.now(
+            ZoneInfo("Europe/Rome")
+        ).strftime(
             "%d/%m/%Y"
         )
     }
@@ -1597,6 +1599,303 @@ def ripristina_backup_locale():
 
     return True
 
+
+def genera_pdf_presenze_istruttore(
+    nome_istruttore,
+    stagione,
+    mese_label,
+    df_mese,
+    totale_ore_mese,
+    df_stagione,
+    totale_ore_stagione,
+    data_generazione
+):
+
+    buffer = io.BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
+    )
+
+    elementi = []
+
+    styles = getSampleStyleSheet()
+
+    titolo = Paragraph(
+        f"Riepilogo presenze istruttore - {nome_istruttore}",
+        styles["Title"]
+    )
+
+    elementi.append(
+        titolo
+    )
+
+    elementi.append(
+        Spacer(
+            1,
+            12
+        )
+    )
+
+    info = Paragraph(
+        f"""
+        <b>Stagione:</b> {stagione}<br/>
+        <b>Mese selezionato:</b> {mese_label}<br/>
+        <b>Data generazione:</b> {data_generazione}<br/>
+        """,
+        styles["Normal"]
+    )
+
+    elementi.append(
+        info
+    )
+
+    elementi.append(
+        Spacer(
+            1,
+            12
+        )
+    )
+
+    riepilogo = Paragraph(
+        f"""
+        <b>Totale ore mese:</b> {totale_ore_mese}<br/>
+        <b>Totale ore stagione:</b> {totale_ore_stagione}
+        """,
+        styles["Normal"]
+    )
+
+    elementi.append(
+        riepilogo
+    )
+
+    elementi.append(
+        Spacer(
+            1,
+            18
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            "Dettaglio mese",
+            styles["Heading2"]
+        )
+    )
+
+    if df_mese.empty:
+
+        elementi.append(
+            Paragraph(
+                "Nessuna presenza registrata nel mese selezionato.",
+                styles["Normal"]
+            )
+        )
+
+    else:
+
+        dati_tabella_mese = [
+            [
+                "Data",
+                "Presente",
+                "Ore",
+                "Note"
+            ]
+        ]
+
+        for _, row in df_mese.iterrows():
+
+            dati_tabella_mese.append(
+                [
+                    str(
+                        row.get(
+                            "data",
+                            ""
+                        )
+                    ),
+                    str(
+                        row.get(
+                            "presente_label",
+                            ""
+                        )
+                    ),
+                    str(
+                        row.get(
+                            "ore_lavorate",
+                            ""
+                        )
+                    ),
+                    str(
+                        row.get(
+                            "note",
+                            ""
+                        )
+                    )
+                ]
+            )
+
+        tabella_mese = Table(
+            dati_tabella_mese,
+            repeatRows=1
+        )
+
+        tabella_mese.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        colors.lightgrey
+                    ),
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.5,
+                        colors.grey
+                    ),
+                    (
+                        "FONTNAME",
+                        (0, 0),
+                        (-1, 0),
+                        "Helvetica-Bold"
+                    ),
+                    (
+                        "ALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "CENTER"
+                    ),
+                ]
+            )
+        )
+
+        elementi.append(
+            tabella_mese
+        )
+
+    elementi.append(
+        Spacer(
+            1,
+            18
+        )
+    )
+
+    elementi.append(
+        Paragraph(
+            "Dettaglio stagione",
+            styles["Heading2"]
+        )
+    )
+
+    if df_stagione.empty:
+
+        elementi.append(
+            Paragraph(
+                "Nessuna presenza registrata nella stagione.",
+                styles["Normal"]
+            )
+        )
+
+    else:
+
+        dati_tabella_stagione = [
+            [
+                "Data",
+                "Presente",
+                "Ore",
+                "Note"
+            ]
+        ]
+
+        for _, row in df_stagione.iterrows():
+
+            dati_tabella_stagione.append(
+                [
+                    str(
+                        row.get(
+                            "data",
+                            ""
+                        )
+                    ),
+                    str(
+                        row.get(
+                            "presente_label",
+                            ""
+                        )
+                    ),
+                    str(
+                        row.get(
+                            "ore_lavorate",
+                            ""
+                        )
+                    ),
+                    str(
+                        row.get(
+                            "note",
+                            ""
+                        )
+                    )
+                ]
+            )
+
+        tabella_stagione = Table(
+            dati_tabella_stagione,
+            repeatRows=1
+        )
+
+        tabella_stagione.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        colors.lightgrey
+                    ),
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.5,
+                        colors.grey
+                    ),
+                    (
+                        "FONTNAME",
+                        (0, 0),
+                        (-1, 0),
+                        "Helvetica-Bold"
+                    ),
+                    (
+                        "ALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "CENTER"
+                    ),
+                ]
+            )
+        )
+
+        elementi.append(
+            tabella_stagione
+        )
+
+    doc.build(
+        elementi
+    )
+
+    buffer.seek(
+        0
+    )
+
+    return buffer.getvalue()
+    
 def database_vuoto():
 
     try:
@@ -6862,6 +7161,338 @@ if is_manager():
                         file_name=f"riepilogo_mensile_{nome_file_corso}_{mese_label}_{anno_mese}.pdf",
                         mime="application/pdf"
                     )
+
+                    st.markdown("---")
+
+                    st.subheader(
+                        "🧑‍🏫 Riepilogo presenze istruttori"
+                    )
+                    
+                    istruttori_df = pd.read_sql(
+                        """
+                        SELECT
+                            id,
+                            nome,
+                            cognome
+                        FROM istruttori
+                        ORDER BY
+                            cognome,
+                            nome
+                        """,
+                        conn
+                    )
+                    
+                    if istruttori_df.empty:
+                    
+                        st.info(
+                            "Nessun istruttore presente."
+                        )
+                    
+                    else:
+                    
+                        opzioni_istruttori = {
+                            f"{row['cognome']} {row['nome']}": int(
+                                row["id"]
+                            )
+                            for _, row in istruttori_df.iterrows()
+                        }
+                    
+                        istruttore_label = st.selectbox(
+                            "Seleziona istruttore",
+                            list(
+                                opzioni_istruttori.keys()
+                            ),
+                            key="riepilogo_presenze_istruttore"
+                        )
+                    
+                        istruttore_id = opzioni_istruttori[
+                            istruttore_label
+                        ]
+                    
+                        mesi_riepilogo_istruttori = [
+                            ("Settembre", 9),
+                            ("Ottobre", 10),
+                            ("Novembre", 11),
+                            ("Dicembre", 12),
+                            ("Gennaio", 1),
+                            ("Febbraio", 2),
+                            ("Marzo", 3),
+                            ("Aprile", 4),
+                            ("Maggio", 5),
+                            ("Giugno", 6),
+                            ("Luglio", 7),
+                            ("Agosto", 8)
+                        ]
+                    
+                        opzioni_mesi_istruttore = {
+                            nome: numero
+                            for nome, numero in mesi_riepilogo_istruttori
+                        }
+                    
+                        mese_label_istruttore = st.selectbox(
+                            "Seleziona mese",
+                            list(
+                                opzioni_mesi_istruttore.keys()
+                            ),
+                            key="mese_presenze_istruttore"
+                        )
+                    
+                        mese_numero_istruttore = opzioni_mesi_istruttore[
+                            mese_label_istruttore
+                        ]
+                    
+                        anno_inizio_istruttore = int(
+                            stagione_riepilogo.split("/")[0]
+                        )
+                    
+                        if mese_numero_istruttore >= 9:
+                    
+                            anno_mese_istruttore = anno_inizio_istruttore
+                    
+                        else:
+                    
+                            anno_mese_istruttore = anno_inizio_istruttore + 1
+                    
+                        data_inizio_mese = (
+                            f"{anno_mese_istruttore}-"
+                            f"{mese_numero_istruttore:02d}-01"
+                        )
+                    
+                        data_fine_mese = (
+                            f"{anno_mese_istruttore}-"
+                            f"{mese_numero_istruttore:02d}-"
+                            f"{monthrange(anno_mese_istruttore, mese_numero_istruttore)02d}"
+                        )
+                    
+                        data_inizio_stagione = (
+                            f"{anno_inizio_istruttore}-09-01"
+                        )
+                    
+                        data_fine_stagione = (
+                            f"{anno_inizio_istruttore + 1}-08-31"
+                        )
+                    
+                        df_presenze_mese = pd.read_sql(
+                            """
+                            SELECT
+                                data,
+                                presente,
+                                ore_lavorate,
+                                note
+                            FROM presenze_istruttori
+                            WHERE istruttore_id = ?
+                            AND data >= ?
+                            AND data <= ?
+                            ORDER BY data
+                            """,
+                            conn,
+                            params=(
+                                istruttore_id,
+                                data_inizio_mese,
+                                data_fine_mese
+                            )
+                        )
+                    
+                        df_presenze_stagione = pd.read_sql(
+                            """
+                            SELECT
+                                data,
+                                presente,
+                                ore_lavorate,
+                                note
+                            FROM presenze_istruttori
+                            WHERE istruttore_id = ?
+                            AND data >= ?
+                            AND data <= ?
+                            ORDER BY data
+                            """,
+                            conn,
+                            params=(
+                                istruttore_id,
+                                data_inizio_stagione,
+                                data_fine_stagione
+                            )
+                        )
+                    
+                        if not df_presenze_mese.empty:
+                    
+                            df_presenze_mese["presente_label"] = (
+                                df_presenze_mese["presente"]
+                                .map(
+                                    {
+                                        1: "Presente",
+                                        0: "Assente"
+                                    }
+                                )
+                            )
+                    
+                        else:
+                    
+                            df_presenze_mese["presente_label"] = []
+                    
+                        if not df_presenze_stagione.empty:
+                    
+                            df_presenze_stagione["presente_label"] = (
+                                df_presenze_stagione["presente"]
+                                .map(
+                                    {
+                                        1: "Presente",
+                                        0: "Assente"
+                                    }
+                                )
+                            )
+                    
+                        else:
+                    
+                            df_presenze_stagione["presente_label"] = []
+                    
+                        totale_ore_mese = 0.0
+                    
+                        if not df_presenze_mese.empty:
+                    
+                            totale_ore_mese = round(
+                                df_presenze_mese[
+                                    df_presenze_mese["presente"] == 1
+                                ]["ore_lavorate"].sum(),
+                                2
+                            )
+                    
+                        totale_ore_stagione = 0.0
+                    
+                        if not df_presenze_stagione.empty:
+                    
+                            totale_ore_stagione = round(
+                                df_presenze_stagione[
+                                    df_presenze_stagione["presente"] == 1
+                                ]["ore_lavorate"].sum(),
+                                2
+                            )
+                    
+                        col1, col2 = st.columns(2)
+                    
+                        with col1:
+                    
+                            st.metric(
+                                f"Ore {mese_label_istruttore}",
+                                totale_ore_mese
+                            )
+                    
+                        with col2:
+                    
+                            st.metric(
+                                "Ore stagione",
+                                totale_ore_stagione
+                            )
+                    
+                        st.markdown("---")
+                    
+                        st.subheader(
+                            f"📅 Dettaglio mese - {mese_label_istruttore}"
+                        )
+                    
+                        if df_presenze_mese.empty:
+                    
+                            st.info(
+                                "Nessuna presenza registrata per questo mese."
+                            )
+                    
+                        else:
+                    
+                            st.dataframe(
+                                df_presenze_mese[
+                                    [
+                                        "data",
+                                        "presente_label",
+                                        "ore_lavorate",
+                                        "note"
+                                    ]
+                                ].rename(
+                                    columns={
+                                        "data": "Data",
+                                        "presente_label": "Presenza",
+                                        "ore_lavorate": "Ore lavorate",
+                                        "note": "Note"
+                                    }
+                                ),
+                                use_container_width=True,
+                                hide_index=True
+                            )
+                    
+                        st.markdown("---")
+                    
+                        st.subheader(
+                            "📚 Dettaglio stagione"
+                        )
+                    
+                        if df_presenze_stagione.empty:
+                    
+                            st.info(
+                                "Nessuna presenza registrata per questa stagione."
+                            )
+                    
+                        else:
+                    
+                            st.dataframe(
+                                df_presenze_stagione[
+                                    [
+                                        "data",
+                                        "presente_label",
+                                        "ore_lavorate",
+                                        "note"
+                                    ]
+                                ].rename(
+                                    columns={
+                                        "data": "Data",
+                                        "presente_label": "Presenza",
+                                        "ore_lavorate": "Ore lavorate",
+                                        "note": "Note"
+                                    }
+                                ),
+                                use_container_width=True,
+                                hide_index=True
+                            )
+                    
+                        data_generazione_istruttore = datetime.now(
+                            ZoneInfo("Europe/Rome")
+                        ).strftime(
+                            "%d/%m/%Y"
+                        )
+                    
+                        pdf_istruttore = genera_pdf_presenze_istruttore(
+                            istruttore_label,
+                            stagione_riepilogo,
+                            mese_label_istruttore,
+                            df_presenze_mese,
+                            totale_ore_mese,
+                            df_presenze_stagione,
+                            totale_ore_stagione,
+                            data_generazione_istruttore
+                        )
+                    
+                        nome_file_istruttore = (
+                            istruttore_label
+                            .replace(
+                                " ",
+                                "_"
+                            )
+                            .replace(
+                                "/",
+                                "_"
+                            )
+                        )
+                    
+                        st.download_button(
+                            "📄 Scarica PDF riepilogo istruttore",
+                            pdf_istruttore,
+                            file_name=(
+                                f"riepilogo_istruttore_"
+                                f"{nome_file_istruttore}_"
+                                f"{mese_label_istruttore}_"
+                                f"{stagione_riepilogo.replace('/', '_')}.pdf"
+                            ),
+                            mime="application/pdf",
+                            key=f"pdf_presenze_istruttore_{istruttore_id}_{mese_numero_istruttore}"
+                        )
 
 if is_manager():
     with tab_chiusure:
