@@ -7227,7 +7227,7 @@ if is_manager():
                     else:
                     
                         opzioni_istruttori = {
-                            f"{row['cognome']} {row['nome']}": int(
+                            row["nome"]: int(
                                 row["id"]
                             )
                             for _, row in istruttori_df.iterrows()
