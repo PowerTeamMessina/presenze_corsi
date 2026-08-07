@@ -565,7 +565,7 @@ def invia_documentazione_email(
     ]
 
     msg["To"] = ", ".join(
-        EMAIL_DESTINATARI
+        st.secrets["EMAIL_DESTINATARI"]
     )
 
     testo = f"""
