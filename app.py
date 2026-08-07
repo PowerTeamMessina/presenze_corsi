@@ -2566,6 +2566,7 @@ def elimina_presenze_giornata(
     data_evento
 ):
 
+    # Presenze bambini
     c.execute(
         """
         DELETE FROM presenze
@@ -2578,11 +2579,32 @@ def elimina_presenze_giornata(
         )
     )
 
-    numero = c.rowcount
+    numero_bambini = c.rowcount
+
+    # Presenza istruttore
+    c.execute(
+        """
+        DELETE FROM presenze_istruttori
+        WHERE corso_id = ?
+        AND data = ?
+        """,
+        (
+            corso_id,
+            str(data_evento)
+        )
+    )
+
+    numero_istruttori = c.rowcount
 
     conn.commit()
 
-    return numero
+    upload_backup_github(
+        mostra_messaggio=False,
+        forza=True
+    )
+
+    return numero_bambini + numero_istruttori
+    
 # ============================================================
 # FUNZIONI UTENTI
 # ============================================================
