@@ -5101,8 +5101,8 @@ if not is_genitore():
                 ore_istruttore = col2.number_input(
                     "Ore lavorate",
                     min_value=0.0,
-                    max_value=12.0,
-                    step=0.5,
+                    max_value=6.0,
+                    step=1,
                     value=default_ore
                 )
                 
