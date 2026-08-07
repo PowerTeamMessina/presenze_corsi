@@ -5088,6 +5088,10 @@ if not is_genitore():
                 st.subheader(
                     "🧑‍🏫 Presenza istruttore"
                 )
+
+                st.markdown(
+                    f"**Istruttore:** {st.session_state['utente_nome']}"
+                )
                 
                 default_presente = True
                 default_ore = 1.0
