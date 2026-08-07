@@ -4612,6 +4612,8 @@ if not is_genitore():
     
             bambini_visual = bambini.copy()
     
+            st.write(bambini_visual.columns.tolist())
+            
             bambini_visual["data_nascita_bambino"] = pd.to_datetime(
                 bambini_visual["data_nascita_bambino"],
                 errors="coerce"
