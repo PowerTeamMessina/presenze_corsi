@@ -3448,49 +3448,6 @@ def ottieni_nome_stagione():
 
     return f"{oggi.year-1}-{oggi.year}"
 
-def crea_o_trova_cartella_drive(
-    nome_cartella,
-    parent_id
-):
-
-    service = get_drive_service()
-
-    query = (
-        f"name='{nome_cartella}' "
-        f"and '{parent_id}' in parents "
-        f"and mimeType='application/vnd.google-apps.folder' "
-        f"and trashed=false"
-    )
-
-    risultati = service.files().list(
-        q=query,
-        fields="files(id,name)"
-    ).execute()
-
-    cartelle = risultati.get(
-        "files",
-        []
-    )
-
-    # se esiste già
-    if len(cartelle) > 0:
-
-        return cartelle[0]["id"]
-
-    # altrimenti la crea
-    metadata = {
-        "name": nome_cartella,
-        "mimeType": "application/vnd.google-apps.folder",
-        "parents": [parent_id]
-    }
-
-    nuova = service.files().create(
-        body=metadata,
-        fields="id"
-    ).execute()
-
-    return nuova["id"]
-
 def carica_file_drive(
     uploaded_file,
     folder_id,
@@ -7657,61 +7614,6 @@ if is_genitore():
             # ==========================
             
             nome_stagione = stagione_corrente()
-            
-            cartella_stagione = crea_o_trova_cartella_drive(
-                nome_stagione,
-                st.secrets["DRIVE_FOLDER_ID"]
-            )
-            
-            # ==========================
-            # CARTELLA BAMBINO
-            # ==========================
-            
-            nome_cartella_bambino = (
-                f"{bambino.iloc[0]['cognome']}_"
-                f"{bambino.iloc[0]['nome']}"
-            )
-            
-            cartella_bambino = crea_o_trova_cartella_drive(
-                nome_cartella_bambino,
-                cartella_stagione
-            )
-            
-            # ==========================
-            # UPLOAD FILE
-            # ==========================
-            
-            carica_file_drive(
-                modulo_firmato,
-                cartella_bambino,
-                "modulo_firmato.pdf"
-            )
-            
-            if richiede_certificato_medico:
-            
-                carica_file_drive(
-                    certificato_medico,
-                    cartella_bambino,
-                    "certificato_medico.pdf"
-                )
-            
-            carica_file_drive(
-                documento_identita,
-                cartella_bambino,
-                "documento_identita.pdf"
-            )
-            
-            carica_file_drive(
-                tessera_sanitaria,
-                cartella_bambino,
-                "tessera_sanitaria.pdf"
-            )
-            
-            carica_file_drive(
-                documento_identita_genitore,
-                cartella_bambino,
-                "documento_identita_genitore.pdf"
-            )
 
             invia_documentazione_email(
                 bambino,
