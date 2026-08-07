@@ -4594,7 +4594,7 @@ if not is_genitore():
         
                         st.rerun()
     
-            st.markdown("---")
+        st.markdown("---")
     
         st.subheader("📋 Elenco bambini")
     
@@ -4612,8 +4612,8 @@ if not is_genitore():
     
             bambini_visual = bambini.copy()
     
-            bambini_visual["data_nascita"] = pd.to_datetime(
-                bambini_visual["data_nascita"],
+            bambini_visual["data_nascita_bambino"] = pd.to_datetime(
+                bambini_visual["data_nascita_bambino"],
                 errors="coerce"
             ).dt.strftime("%d/%m/%Y")
     
