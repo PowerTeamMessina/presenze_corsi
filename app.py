@@ -4767,7 +4767,6 @@ if not is_genitore():
             st.dataframe(
                 bambini_visual[
                     [
-                        "id",
                         "cognome",
                         "nome",
                         "email_genitore",
