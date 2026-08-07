@@ -79,18 +79,7 @@
             "ordine": 5
         }
     ],
-    "bambini": [
-        {
-            "id": 2,
-            "nome": "Gabriele",
-            "cognome": "Grifo'",
-            "corso_id": 1,
-            "email_genitore": "grifo@altamatematica.it",
-            "telefono_genitore": "3475569774",
-            "note": "",
-            "attivo": 1
-        }
-    ],
+    "bambini": [],
     "genitori_bambini": [
         {
             "id": 1,
