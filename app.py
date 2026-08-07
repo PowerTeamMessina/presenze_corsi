@@ -7202,17 +7202,24 @@ if is_manager():
                         "🧑‍🏫 Riepilogo presenze istruttori"
                     )
                     
-                    istruttori_df = pd.read_sql(
-                        """
-                        SELECT
-                            id,
-                            nome
-                        FROM istruttori
-                        ORDER BY
-                            nome
-                        """,
-                        conn
-                    )
+                    try:
+
+                        istruttori_df = pd.read_sql(
+                            """
+                            SELECT
+                                id,
+                                nome
+                            FROM istruttori
+                            ORDER BY nome
+                            """,
+                            conn
+                        )
+                    
+                    except Exception as e:
+                    
+                        st.error(str(e))
+                    
+                        st.stop()
                     
                     if istruttori_df.empty:
                     
