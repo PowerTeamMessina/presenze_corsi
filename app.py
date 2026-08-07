@@ -5338,7 +5338,7 @@ if not is_genitore():
                 
                 scadenza_certificato = None
                 
-                if ha_scadenza_certificato:
+                if scadenza_certificato:
                 
                     scadenza_certificato = st.date_input(
                         "Scadenza certificato medico"
