@@ -5865,13 +5865,16 @@ if is_manager():
         else:
 
             st.dataframe(
-                assegnazioni,
+                assegnazioni.drop(
+                    columns=["id"],
+                    errors="ignore"
+                ),
                 use_container_width=True,
                 hide_index=True
             )
 
             opzioni_ass = {
-                f"{row['id']} | {row['istruttore']} | {row['corso']} | {row['data_specifica']}": int(row["id"])
+                f"{row['istruttore']} | {row['corso']} | {row['data_specifica']}": int(row["id"])
                 for _, row in assegnazioni.iterrows()
             }
 
