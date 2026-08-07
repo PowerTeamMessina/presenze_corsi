@@ -7599,11 +7599,6 @@ if is_manager():
                             "ID selezionato:",
                             istruttore_id
                         )
-                        
-                        st.write(
-                            "ID presenti:",
-                            debug["istruttore_id"].unique().tolist()
-                        )
                     
                         mesi_riepilogo_istruttori = [
                             ("Settembre", 9),
