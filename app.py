@@ -4893,6 +4893,10 @@ if not is_genitore():
             if not genitore.empty:
                     
                 genitore_row = genitore.iloc[0]
+
+                genitore_id_selezionato = int(
+                    genitore_row["id"]
+                )
                     
                 st.text_input(
                     "Email account genitore",
@@ -7256,9 +7260,9 @@ if is_manager():
                 )
         
             else:
-        
+
                 elimina_genitore(
-                    int(genitore_row["id"])
+                    int(genitore.iloc[0]["id"])
                 )
         
                 st.success(
