@@ -7542,6 +7542,12 @@ if is_manager():
                     st.write(
                         f"Righe trovate: {len(debug)}"
                     )
+
+                    st.dataframe(
+                        debug,
+                        use_container_width=True,
+                        hide_index=True
+                    )
                     
                     try:
                     
