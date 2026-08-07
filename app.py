@@ -31,7 +31,8 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-
+import smtplib
+from email.message import EmailMessage
 from PyPDF2 import PdfReader, PdfWriter
 
 
@@ -541,6 +542,120 @@ conn.commit()
 # MIGRAZIONE CORSI VECCHI
 # ============================================================
 
+def invia_documentazione_email(
+    bambino,
+    modulo_firmato,
+    certificato_medico,
+    documento_identita,
+    tessera_sanitaria,
+    documento_identita_genitore
+):
+
+    msg = EmailMessage()
+
+    msg["Subject"] = (
+        f"Nuova iscrizione - "
+        f"{bambino.iloc[0]['cognome']} "
+        f"{bambino.iloc[0]['nome']}"
+    )
+    
+    msg["Subject"] = (
+        f"Nuova iscrizione - "
+        f"{bambino.iloc[0]['cognome']} "
+        f"{bambino.iloc[0]['nome']} "
+        f"- Stagione {stagione_corrente()}"
+    )
+
+    msg["From"] = st.secrets[
+        "GMAIL_USER"
+    ]
+
+    msg["To"] = ", ".join(
+        EMAIL_DESTINATARI
+    )
+
+    testo = f"""
+        È stata inviata una nuova pratica di iscrizione relativa a: Corsi Power Team Piscina Comunale.
+        
+        =========================================
+        DATI ATLETA
+        =========================================
+        
+        Nome:
+        {bambino.iloc[0]['nome']}
+        
+        Cognome:
+        {bambino.iloc[0]['cognome']}
+        
+        Email genitore:
+        {bambino.iloc[0]['email_genitore']}
+        
+        Telefono genitore:
+        {bambino.iloc[0]['telefono_genitore']}
+        
+        Stagione:
+        {stagione_corrente()}
+        
+        =========================================
+        DOCUMENTI ALLEGATI
+        =========================================
+        
+        - Modulo firmato
+        
+        - Documento identità bambino
+        
+        - Tessera sanitaria
+        
+        - Documento identità genitore
+        
+        {"- Certificato medico" if certificato_medico not in [None, True] else ""}
+        
+        =========================================
+        
+        Messaggio generato automaticamente dal gestionale Power Team Messina.
+        """
+
+    msg.set_content(
+        testo
+    )
+
+    files = [
+        ("modulo_firmato", modulo_firmato),
+        ("certificato_medico", certificato_medico),
+        ("documento_identita", documento_identita),
+        ("tessera_sanitaria", tessera_sanitaria),
+        ("documento_identita_genitore", documento_identita_genitore)
+    ]
+
+    for nome, file in files:
+
+        if (
+            file is None
+            or file is True
+        ):
+            continue
+
+        msg.add_attachment(
+            file.getvalue(),
+            maintype="application",
+            subtype="octet-stream",
+            filename=file.name
+        )
+
+    with smtplib.SMTP_SSL(
+        "smtp.gmail.com",
+        465
+    ) as smtp:
+
+        smtp.login(
+            st.secrets["GMAIL_USER"],
+            st.secrets["GMAIL_APP_PASSWORD"]
+        )
+
+        smtp.send_message(
+            msg
+        )
+        
 def crea_backup_completo():
 
     backup = {}
@@ -7596,6 +7711,15 @@ if is_genitore():
                 documento_identita_genitore,
                 cartella_bambino,
                 "documento_identita_genitore.pdf"
+            )
+
+            invia_documentazione_email(
+                bambino,
+                modulo_firmato,
+                certificato_medico,
+                documento_identita,
+                tessera_sanitaria,
+                documento_identita_genitore
             )
 
             c.execute(
