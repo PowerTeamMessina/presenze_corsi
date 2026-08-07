@@ -7375,10 +7375,6 @@ if is_manager():
                             istruttore_label
                         ]
 
-                        st.warning(
-                            f"ID istruttore selezionato = {istruttore_id}"
-                        )
-
                         st.subheader(
                             "DEBUG PRESENZE ISTRUTTORI"
                         )
