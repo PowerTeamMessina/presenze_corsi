@@ -6912,7 +6912,7 @@ if is_manager():
                 conn,
                 params=(
                     int(
-                        bambino_assoc.iloc[0]["id"]
+                        bambino_id
                     ),
                 )
             )
