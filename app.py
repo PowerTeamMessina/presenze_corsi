@@ -255,7 +255,7 @@ def verifica_password(password_inserita, password_hash, salt):
 def genera_password_casuale():
 
     return secrets.token_urlsafe(9)
-    
+
 # ============================================================
 # TABELLE
 # ============================================================
@@ -3556,12 +3556,13 @@ def elimina_genitore(
     genitore_id
 ):
 
-    conn = get_connection()
+    global conn
+
     c = conn.cursor()
 
     try:
 
-        # Elimina le associazioni genitore-bambino
+        # elimina associazioni genitore-bambino
 
         c.execute(
             """
@@ -3573,7 +3574,7 @@ def elimina_genitore(
             )
         )
 
-        # Elimina account genitore
+        # elimina account genitore
 
         c.execute(
             """
@@ -3599,10 +3600,6 @@ def elimina_genitore(
         )
 
         return False
-
-    finally:
-
-        conn.close()
 
 # ============================================================
 # FUNZIONI PRESENZE
@@ -7267,15 +7264,17 @@ if is_manager():
         
             else:
         
-                elimina_genitore(
+                ok = elimina_genitore(
                     genitore_id
                 )
         
-                st.success(
-                    "Account genitore eliminato."
-                )
+                if ok:
         
-                st.rerun()
+                    st.success(
+                        "Account genitore eliminato."
+                    )
+        
+                    st.rerun()
 
 ############## AREA PERSONALE #################
 
