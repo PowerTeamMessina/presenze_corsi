@@ -7384,12 +7384,23 @@ if is_manager():
                             "DEBUG PRESENZE ISTRUTTORI"
                         )
                         
-                        debug_presenze = pd.read_sql(
+                        df_presenze_mese = pd.read_sql(
                             """
                             SELECT *
                             FROM presenze_istruttori
                             """,
                             conn
+                        )
+                        
+                        st.write(
+                            "Numero righe trovate:",
+                            len(df_presenze_mese)
+                        )
+                        
+                        st.dataframe(
+                            df_presenze_mese,
+                            use_container_width=True,
+                            hide_index=True
                         )
 
                         st.write(
