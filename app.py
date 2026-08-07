@@ -7691,18 +7691,18 @@ if is_genitore():
                     data_invio = scheda.iloc[0]["data_invio"]
         
                     if pratica_inviata:
-        
+                    
                         st.success(
                             f"""
                             ✅ Pratica inviata
                     
                             Data invio:
                             {data_invio}
+                    
+                            Il modulo è stato inviato correttamente.
+                            La scheda è bloccata e non può più essere modificata.
                             """
-        
-                            La scheda è ora bloccata.
                         )
-            
     
             st.rerun()
 
