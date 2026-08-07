@@ -7539,46 +7539,30 @@ if is_manager():
                         conn
                     )
                     
-                    st.write(
-                        f"Righe trovate: {len(debug)}"
+                    istruttori_df = pd.read_sql(
+                        """
+                        SELECT DISTINCT
+                            p.istruttore_id,
+                            u.nome
+                        FROM presenze_istruttori p
+                        LEFT JOIN utenti u
+                            ON p.istruttore_id = u.id
+                        ORDER BY u.nome
+                        """,
+                        conn
                     )
-                    
-                    st.subheader(
-                        "DEBUG FORMATO DATE PRESENZE ISTRUTTORI"
-                    )
-                    
-                    st.dataframe(
-                        debug,
-                        use_container_width=True,
-                        hide_index=True
-                    )
-                    
-                    try:
-                    
-                        istruttori_df = get_istruttori(
-                            attivi_solo=False
-                        )
-                    
-                    except Exception as e:
-                    
-                        st.error(
-                            str(e)
-                        )
-                    
-                        st.stop()
-                    
                     
                     if istruttori_df.empty:
                     
                         st.info(
-                            "Nessun istruttore presente."
+                            "Nessuna presenza istruttore registrata."
                         )
                     
                     else:
                     
                         opzioni_istruttori = {
                             row["nome"]: int(
-                                row["id"]
+                                row["istruttore_id"]
                             )
                             for _, row in istruttori_df.iterrows()
                         }
