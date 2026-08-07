@@ -5866,7 +5866,10 @@ if is_manager():
 
             st.dataframe(
                 assegnazioni.drop(
-                    columns=["id"],
+                    columns=[
+                        "id",
+                        "corso_id"
+                    ],
                     errors="ignore"
                 ),
                 use_container_width=True,
