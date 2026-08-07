@@ -4963,7 +4963,7 @@ if not is_genitore():
                             str(data_evento)
                         )
                     )
-                    
+
                     c.execute(
                         """
                         INSERT INTO presenze_istruttori (
@@ -4977,9 +4977,8 @@ if not is_genitore():
                             note,
                     
                             ultima_modifica
-                    
+                        
                         )
-                    
                         VALUES(?,?,?,?,?,?,?)
                         """,
                         (
@@ -4993,6 +4992,13 @@ if not is_genitore():
                     
                             timestamp
                         )
+                    )
+                    
+                    conn.commit()
+                    
+                    upload_backup_github(
+                        mostra_messaggio=False,
+                        forza=True
                     )
                     
                     conn.commit()
