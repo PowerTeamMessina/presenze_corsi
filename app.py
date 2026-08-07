@@ -5088,22 +5088,6 @@ if not is_genitore():
                 st.subheader(
                     "🧑‍🏫 Presenza istruttore"
                 )
-
-                nome_istruttore = pd.read_sql(
-                    """
-                    SELECT nome
-                    FROM utenti
-                    WHERE id = ?
-                    """,
-                    conn,
-                    params=(
-                        st.session_state["utente_id"],
-                    )
-                )
-
-                st.info(
-                    f"Istruttore: {nome_istruttore}"
-                )
                 
                 default_presente = True
                 default_ore = 1.0
