@@ -6818,6 +6818,22 @@ if is_manager():
                 conn,
                 params=(genitore_id,)
             ).iloc[0]
+
+            bambino_id_df = pd.read_sql(
+                """
+                SELECT bambino_id
+                FROM genitori_bambini
+                WHERE utente_id = ?
+                """,
+                conn,
+                params=(genitore_id,)
+            )
+
+            if not bambino_id_df.empty:
+
+                bambino_id = int(
+                    bambino_id_df.iloc[0]["bambino_id"]
+                )
     
             bambino_assoc = (
                 get_bambino_associato_genitore(
@@ -6898,7 +6914,7 @@ if is_manager():
             if scheda.empty:
                 
                 st.warning(
-                    "Nessuna pratica inviata."
+                    "Il genitore non ha ancora inviato la pratica."
                 )
 
             else:
