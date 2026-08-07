@@ -4997,11 +4997,16 @@ if not is_genitore():
                     
                     conn.commit()
                     
-                    st.dataframe(
-                        debug_presenze,
-                        use_container_width=True,
-                        hide_index=True
+                    numero_presenze = pd.read_sql(
+                        """
+                        SELECT COUNT(*)
+                        AS totale
+                        FROM presenze_istruttori
+                        """,
+                        conn
                     )
+                    
+                    st.write(numero_presenze)
     
                     st.success(
                         "Presenze salvate correttamente."
@@ -7483,12 +7488,6 @@ if is_manager():
                         
                         st.subheader(
                             "DEBUG - Tutte le presenze istruttori salvate"
-                        )
-                        
-                        st.dataframe(
-                            df_presenze_mese,
-                            use_container_width=True,
-                            hide_index=True
                         )
                         
                         st.dataframe(
