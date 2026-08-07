@@ -141,18 +141,7 @@
             "inserito_da": 1
         }
     ],
-    "presenze_istruttori": [
-        {
-            "id": 1,
-            "istruttore_id": 1,
-            "corso_id": 1,
-            "data": "2026-09-02",
-            "presente": 1,
-            "ore_lavorate": 1.0,
-            "note": "",
-            "ultima_modifica": "07/08/2026 22:02:25"
-        }
-    ],
+    "presenze_istruttori": [],
     "stagioni": [
         {
             "id": 1,
