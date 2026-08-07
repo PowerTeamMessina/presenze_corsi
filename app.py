@@ -7981,12 +7981,18 @@ if is_genitore():
 
         st.subheader("✅ Invio pratica")
 
-        pratica_inviata = (
-            scheda.iloc[0].get(
-                "pratica_inviata",
-                0
+        if scheda.empty:
+
+            pratica_inviata = 0
+        
+        else:
+        
+            pratica_inviata = (
+                scheda.iloc[0].get(
+                    "pratica_inviata",
+                    0
+                )
             )
-        )
 
         completa = pratica_completa(
             scheda,
