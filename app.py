@@ -4963,6 +4963,8 @@ if not is_genitore():
                             str(data_evento)
                         )
                     )
+
+                    st.error("ARRIVATO ALL'INSERT")
                     
                     c.execute(
                         """
@@ -4994,8 +4996,12 @@ if not is_genitore():
                             timestamp
                         )
                     )
+
+                    st.error("INSERT ESEGUITA")
                     
                     conn.commit()
+
+                    st.error("COMMIT ESEGUITO")
 
                     st.subheader(
                         "DEBUG PRESENZE ISTRUTTORI"
