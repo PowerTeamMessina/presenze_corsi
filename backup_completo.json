@@ -79,39 +79,9 @@
             "ordine": 5
         }
     ],
-    "bambini": [
-        {
-            "id": 1,
-            "nome": "Gabriele",
-            "cognome": "Grifo'",
-            "corso_id": 1,
-            "email_genitore": "grifo@altamatematica.it",
-            "telefono_genitore": "3475569774",
-            "note": "Prova",
-            "attivo": 1
-        }
-    ],
-    "genitori_bambini": [
-        {
-            "id": 1,
-            "utente_id": 2,
-            "bambino_id": 2
-        },
-        {
-            "id": 2,
-            "utente_id": 3,
-            "bambino_id": 1
-        }
-    ],
-    "assegnazioni_istruttori": [
-        {
-            "id": 1,
-            "istruttore_id": 2,
-            "corso_id": 1,
-            "data_specifica": null,
-            "attiva": 1
-        }
-    ],
+    "bambini": [],
+    "genitori_bambini": [],
+    "assegnazioni_istruttori": [],
     "presenze": [],
     "stagioni": [
         {
@@ -120,11 +90,6 @@
             "attiva": 1
         }
     ],
-    "sistema": [
-        {
-            "chiave": "ultimo_backup_github",
-            "valore": "2026-08-03"
-        }
-    ],
+    "sistema": [],
     "chiusure": []
 }
