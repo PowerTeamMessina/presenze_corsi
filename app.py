@@ -7633,128 +7633,128 @@ if is_genitore():
             
                 # INSERT / UPDATE
         
-            else:
-        
-                if scheda.empty:
-        
-                    c.execute(
-                        """
-                        INSERT INTO schede_genitori (
-
-                            bambino_id,
-                            data_nascita_bambino,
-                        
-                            luogo_nascita_bambino,
-                            cf_bambino,
-                            indirizzo_bambino,
-                            comune_bambino,
-                            cap_bambino,
-                        
-                            nome_genitore,
-                            cognome_genitore,
-        
-                            luogo_nascita_genitore,
-                            data_nascita_genitore,
-        
-                            cf_genitore,
-        
-                            indirizzo_genitore,
-                            comune_genitore,
-                            cap_genitore,
-        
-                            ultima_modifica
-        
-                        )
-        
-                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                        """,
-                        (
-                            bambino_id,
-                            str(data_nascita_bambino),
-                        
-                            luogo_nascita_bambino,
-                            cf_bambino,
-                            indirizzo_bambino,
-                            comune_bambino,
-                            cap_bambino,
-                        
-                            nome_genitore,
-                            cognome_genitore,
-        
-                            luogo_nascita_genitore,
-                            data_nascita_genitore,
-        
-                            cf_genitore,
-        
-                            indirizzo_genitore,
-                            comune_genitore,
-                            cap_genitore,
-        
-                            datetime.now(
-                                ZoneInfo("Europe/Rome")
-                            ).strftime(
-                                "%d/%m/%Y %H:%M:%S"
-                            )
-                        )
-                    )
-        
                 else:
         
-                    c.execute(
-                        """
-                        UPDATE schede_genitori
-                        SET
-
-                            data_nascita_bambino = ?,
+                    if scheda.empty:
+            
+                        c.execute(
+                            """
+                            INSERT INTO schede_genitori (
+    
+                                bambino_id,
+                                data_nascita_bambino,
                             
-                            luogo_nascita_bambino = ?,
-                            cf_bambino = ?,
-                            indirizzo_bambino = ?,
-                            comune_bambino = ?,
-                            cap_bambino = ?,
+                                luogo_nascita_bambino,
+                                cf_bambino,
+                                indirizzo_bambino,
+                                comune_bambino,
+                                cap_bambino,
                             
-                            nome_genitore = ?,
-                            cognome_genitore = ?,
-        
-                            luogo_nascita_genitore = ?,
-                            data_nascita_genitore = ?,
-        
-                            cf_genitore = ?,
-        
-                            indirizzo_genitore = ?,
-                            comune_genitore = ?,
-                            cap_genitore = ?,
-        
-                            ultima_modifica = ?
-        
-                        WHERE bambino_id = ?
-                        """,
-                        (
-                            str(data_nascita_bambino),
-                        
-                            luogo_nascita_bambino,
-                            cf_bambino,
-                            indirizzo_bambino,
-                            comune_bambino,
-                            cap_bambino,
-                        
-                            nome_genitore,
-                            cognome_genitore,
-        
-                            luogo_nascita_genitore,
-                            data_nascita_genitore,
-        
-                            cf_genitore,
-        
-                            indirizzo_genitore,
-                            comune_genitore,
-                            cap_genitore,
-        
-                            str(datetime.now()),
-        
-                            bambino_id
+                                nome_genitore,
+                                cognome_genitore,
+            
+                                luogo_nascita_genitore,
+                                data_nascita_genitore,
+            
+                                cf_genitore,
+            
+                                indirizzo_genitore,
+                                comune_genitore,
+                                cap_genitore,
+            
+                                ultima_modifica
+            
+                            )
+            
+                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                            """,
+                            (
+                                bambino_id,
+                                str(data_nascita_bambino),
+                            
+                                luogo_nascita_bambino,
+                                cf_bambino,
+                                indirizzo_bambino,
+                                comune_bambino,
+                                cap_bambino,
+                            
+                                nome_genitore,
+                                cognome_genitore,
+            
+                                luogo_nascita_genitore,
+                                data_nascita_genitore,
+            
+                                cf_genitore,
+            
+                                indirizzo_genitore,
+                                comune_genitore,
+                                cap_genitore,
+            
+                                datetime.now(
+                                    ZoneInfo("Europe/Rome")
+                                ).strftime(
+                                    "%d/%m/%Y %H:%M:%S"
+                                )
+                            )
                         )
-                    )
+            
+                    else:
+            
+                        c.execute(
+                            """
+                            UPDATE schede_genitori
+                            SET
+    
+                                data_nascita_bambino = ?,
+                                
+                                luogo_nascita_bambino = ?,
+                                cf_bambino = ?,
+                                indirizzo_bambino = ?,
+                                comune_bambino = ?,
+                                cap_bambino = ?,
+                                
+                                nome_genitore = ?,
+                                cognome_genitore = ?,
+            
+                                luogo_nascita_genitore = ?,
+                                data_nascita_genitore = ?,
+            
+                                cf_genitore = ?,
+            
+                                indirizzo_genitore = ?,
+                                comune_genitore = ?,
+                                cap_genitore = ?,
+            
+                                ultima_modifica = ?
+            
+                            WHERE bambino_id = ?
+                            """,
+                            (
+                                str(data_nascita_bambino),
+                            
+                                luogo_nascita_bambino,
+                                cf_bambino,
+                                indirizzo_bambino,
+                                comune_bambino,
+                                cap_bambino,
+                            
+                                nome_genitore,
+                                cognome_genitore,
+            
+                                luogo_nascita_genitore,
+                                data_nascita_genitore,
+            
+                                cf_genitore,
+            
+                                indirizzo_genitore,
+                                comune_genitore,
+                                cap_genitore,
+            
+                                str(datetime.now()),
+            
+                                bambino_id
+                            )
+                        )
         
                 conn.commit()
         
