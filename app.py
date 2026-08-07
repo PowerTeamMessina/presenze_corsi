@@ -7261,7 +7261,7 @@ if is_manager():
                         data_fine_mese = (
                             f"{anno_mese_istruttore}-"
                             f"{mese_numero_istruttore:02d}-"
-                            f"{monthrange(anno_mese_istruttore, mese_numero_istruttore)02d}"
+                            f"{monthrange(anno_mese_istruttore, mese_numero_istruttore)[1]:02d}"
                         )
                     
                         data_inizio_stagione = (
