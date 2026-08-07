@@ -5332,7 +5332,7 @@ if not is_genitore():
                     "Telefono genitore (facoltativo)"
                 )
 
-                ha_scadenza_certificato = st.checkbox(
+                scadenza_certificato = st.checkbox(
                     "Inserisci scadenza certificato medico"
                 )
                 
