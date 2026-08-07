@@ -4996,6 +4996,25 @@ if not is_genitore():
                     )
                     
                     conn.commit()
+
+                    st.subheader(
+                        "DEBUG PRESENZE ISTRUTTORI"
+                    )
+                    
+                    debug_presenze = pd.read_sql(
+                        """
+                        SELECT *
+                        FROM presenze_istruttori
+                        ORDER BY id DESC
+                        """,
+                        conn
+                    )
+                    
+                    st.dataframe(
+                        debug_presenze,
+                        use_container_width=True,
+                        hide_index=True
+                    )
     
                     st.success(
                         "Presenze salvate correttamente."
@@ -7368,6 +7387,28 @@ if is_manager():
                         istruttore_id = opzioni_istruttori[
                             istruttore_label
                         ]
+
+                        st.warning(
+                            f"ID istruttore selezionato = {istruttore_id}"
+                        )
+
+                        st.subheader(
+                            "DEBUG PRESENZE ISTRUTTORI"
+                        )
+                        
+                        debug_presenze = pd.read_sql(
+                            """
+                            SELECT *
+                            FROM presenze_istruttori
+                            """,
+                            conn
+                        )
+                        
+                        st.dataframe(
+                            debug_presenze,
+                            use_container_width=True,
+                            hide_index=True
+                        )
                     
                         mesi_riepilogo_istruttori = [
                             ("Settembre", 9),
