@@ -7335,10 +7335,6 @@ if is_manager():
                         istruttori_df = get_istruttori(
                             attivi_solo=False
                         )
-
-                        st.write(
-                            istruttori_df.columns.tolist()
-                        )
                     
                     except Exception as e:
                     
