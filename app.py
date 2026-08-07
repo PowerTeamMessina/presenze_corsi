@@ -7204,15 +7204,12 @@ if is_manager():
                     
                     try:
 
-                        istruttori_df = pd.read_sql(
-                            """
-                            SELECT
-                                id,
-                                nome
-                            FROM istruttori
-                            ORDER BY nome
-                            """,
-                            conn
+                        istruttori_df = get_istruttori(
+                            attivi_solo=False
+                        )
+
+                        st.write(
+                            istruttori_df.columns.tolist()
                         )
                     
                     except Exception as e:
