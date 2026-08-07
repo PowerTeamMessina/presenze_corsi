@@ -7668,6 +7668,25 @@ if is_manager():
                                 data_fine_mese
                             )
                         )
+
+                        st.write(
+                            "ID istruttore selezionato:",
+                            istruttore_id
+                        )
+                        
+                        st.write(
+                            "Dal:",
+                            data_inizio_mese
+                        )
+                        
+                        st.write(
+                            "Al:",
+                            data_fine_mese
+                        )
+                        
+                        st.write(
+                            df_presenze_mese
+                        )
                     
                         df_presenze_stagione = pd.read_sql(
                             """
