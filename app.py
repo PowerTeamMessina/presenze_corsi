@@ -4851,9 +4851,9 @@ if not is_genitore():
                     
                         st.rerun()
                     
-                conferma_elimina = st.checkbox(
-                    "Confermo eliminazione definitiva bambino"
-                )
+            conferma_elimina = st.checkbox(
+                "Confermo eliminazione definitiva bambino"
+            )
     
             if st.button(
                 "🗑️ Elimina bambino"
