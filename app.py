@@ -36,30 +36,20 @@ import smtplib
 from email.message import EmailMessage
 from PyPDF2 import PdfReader, PdfWriter
 
-
 # ============================================================
 # CONFIGURAZIONE
 # ============================================================
 
-st.set_page_config(
-    page_title="Statino Corsi Nuoto",
-    page_icon="🏊",
-    layout="wide"
-)
+st.set_page_config(page_title="Statino Corsi Nuoto",page_icon="🏊",layout="wide")
 
 DB_NAME = "corsi_nuoto.db"
-
 BACKUP_ABILITATO = False
 
 # ============================================================
 # DATABASE
 # ============================================================
 
-conn = sqlite3.connect(
-    DB_NAME,
-    check_same_thread=False
-)
-
+conn = sqlite3.connect(DB_NAME,check_same_thread=False)
 c = conn.cursor()
 
 # ============================================================
@@ -68,7 +58,6 @@ c = conn.cursor()
 def crea_backup():
 
     backup = {}
-
     tabelle = [
         "utenti",
         "corsi",
@@ -83,34 +72,14 @@ def crea_backup():
     ]
 
     for tabella in tabelle:
-
         try:
-
-            df = pd.read_sql(
-                f"SELECT * FROM {tabella}",
-                conn
-            )
-
-            backup[tabella] = df.to_dict(
-                orient="records"
-            )
-
+            df = pd.read_sql(f"SELECT * FROM {tabella}",conn)
+            backup[tabella] = df.to_dict(orient="records")
         except:
-
             pass
 
-    with open(
-        "backup_completo.json",
-        "w",
-        encoding="utf-8"
-    ) as f:
-
-        json.dump(
-            backup,
-            f,
-            ensure_ascii=False,
-            indent=4
-        )
+    with open("backup_completo.json","w",encoding="utf-8") as f:
+        json.dump(backup,f,ensure_ascii=False,indent=4)
 
 def elimina_istruttore(istruttore_id):
 
