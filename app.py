@@ -6408,8 +6408,6 @@ if is_manager():
                     )
 
             st.markdown("---")
-
-            st.write("DEBUG ELIMINAZIONE")
             
             st.subheader("🗑️ Elimina istruttore")
             
