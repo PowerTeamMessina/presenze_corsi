@@ -712,6 +712,7 @@ def crea_backup_completo():
         "corso_giorni",
         "bambini",
         "genitori_bambini",
+        "schede_genitori",
         "assegnazioni_istruttori",
         "presenze",
         "presenze_istruttori",
@@ -8809,11 +8810,22 @@ if is_genitore():
                     )
             
                 conn.commit()
-            
+
+                # Aggiorna subito il backup GitHub
+                try:
+                    upload_backup_github(
+                        mostra_messaggio=False,
+                        forza=True
+                    )
+                except Exception as e:
+                    st.warning(
+                        f"Backup GitHub non aggiornato: {e}"
+                    )
+                
                 st.success(
                     "Anagrafica salvata."
                 )
-            
+                
                 st.rerun()
 
         st.markdown("---")
