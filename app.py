@@ -8124,14 +8124,6 @@ if is_manager():
                     st.rerun()
 
         st.markdown("---")
-
-        if genitore.empty:
-
-            st.warning(
-                "Nessun account genitore presente."
-            )
-        
-        else:
         
             # tutta la sezione account genitore
             st.subheader(
