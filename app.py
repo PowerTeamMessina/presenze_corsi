@@ -3832,7 +3832,6 @@ def elimina_bambino(
     bambino_id
 ):
 
-    conn = get_connection()
     c = conn.cursor()
 
     try:
