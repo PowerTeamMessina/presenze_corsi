@@ -8123,7 +8123,7 @@ if is_manager():
                     
                     st.rerun()
 
-        st.markdown("---")
+            st.markdown("---")
         
             # tutta la sezione account genitore
             st.subheader(
