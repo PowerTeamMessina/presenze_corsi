@@ -14,13 +14,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from email.mime.text import MIMEText
 from io import BytesIO
-from reportlab.platypus import (
-    SimpleDocTemplate,
-    Table,
-    TableStyle,
-    Paragraph,
-    Spacer
-)
+from reportlab.platypus import (SimpleDocTemplate,Table,TableStyle,Paragraph,Spacer)
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet
@@ -83,83 +77,32 @@ def crea_backup():
 
 def elimina_istruttore(istruttore_id):
 
-    c.execute(
-        """
-        DELETE FROM assegnazioni_istruttori
-        WHERE istruttore_id = ?
-        """,
-        (istruttore_id,)
-    )
-
-    c.execute(
-        """
-        DELETE FROM utenti
-        WHERE id = ?
-        AND ruolo = 'istruttore'
-        """,
-        (istruttore_id,)
-    )
-
+    c.execute("""DELETE FROM assegnazioni_istruttori WHERE istruttore_id = ?""",(istruttore_id,))
+    c.execute("""DELETE FROM utenti WHERE id = ? AND ruolo = 'istruttore'""",(istruttore_id,))
     conn.commit()
 
     try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-    
+        upload_backup_github(mostra_messaggio=False)   
     except Exception as e:
-    
-        print(
-            f"Errore backup GitHub: {e}"
-        )
+        print(f"Errore backup GitHub: {e}")
 
 def calcola_eta(data_nascita):
 
     oggi = date.today()
-
-    eta = (
-        oggi.year
-        - data_nascita.year
-        - (
-            (oggi.month, oggi.day)
-            <
-            (data_nascita.month, data_nascita.day)
-        )
-    )
-
+    eta = (oggi.year - data_nascita.year - ((oggi.month, oggi.day)<(data_nascita.month, data_nascita.day)))
     return eta
     
 def elimina_manager(manager_id):
 
-    c.execute(
-        """
-        DELETE FROM utenti
-        WHERE id = ?
-        AND ruolo = 'manager'
-        """,
-        (manager_id,)
-    )
-
+    c.execute("""DELETE FROM utenti WHERE id = ? AND ruolo = 'manager'""",(manager_id,))
     conn.commit()
-
     try:
-
-        upload_backup_github(
-            mostra_messaggio=False
-        )
-
+        upload_backup_github(mostra_messaggio=False)
     except:
         pass
         
 def ripristina_backup():
-
-    with open(
-        "backup_completo.json",
-        "r",
-        encoding="utf-8"
-    ) as f:
-
+    with open("backup_completo.json","r",encoding="utf-8") as f:
         backup = json.load(f)
 
     ordine = [
@@ -174,32 +117,17 @@ def ripristina_backup():
     ]
 
     for tabella in ordine:
-
         try:
-
-            c.execute(
-                f"DELETE FROM {tabella}"
-            )
-
+            c.execute(f"DELETE FROM {tabella}")
         except:
-
             pass
-
     conn.commit()
 
     for tabella, records in backup.items():
-
         if len(records) == 0:
             continue
-
         df = pd.DataFrame(records)
-
-        df.to_sql(
-            tabella,
-            conn,
-            if_exists="append",
-            index=False
-        )
+        df.to_sql(tabella,conn,if_exists="append",index=False)
 
 def hash_password(password, salt=None):
 
@@ -214,16 +142,10 @@ def hash_password(password, salt=None):
 
 
 def verifica_password(password_inserita, password_hash, salt):
-
-    nuovo_hash, _ = hash_password(
-        password_inserita,
-        salt
-    )
-
+    nuovo_hash, _ = hash_password(password_inserita,salt)
     return nuovo_hash == password_hash
 
 def genera_password_casuale():
-
     return secrets.token_urlsafe(9)
 
 # ============================================================
@@ -243,14 +165,8 @@ CREATE TABLE IF NOT EXISTS utenti (
 """)
 
 try:
-
-    c.execute("""
-    ALTER TABLE utenti
-    ADD COLUMN password_visibile TEXT
-    """)
-
+    c.execute("""ALTER TABLE utenti ADD COLUMN password_visibile TEXT""")
     conn.commit()
-
 except Exception:
     pass
 
@@ -290,14 +206,11 @@ CREATE TABLE IF NOT EXISTS bambini (
 )
 """)
 try:
-
     c.execute("""
         ALTER TABLE bambini
         ADD COLUMN corso_id INTEGER
     """)
-
     conn.commit()
-
 except Exception:
     pass
 
@@ -307,9 +220,7 @@ try:
         ALTER TABLE bambini
         ADD COLUMN email_genitore TEXT
     """)
-
     conn.commit()
-
 except:
     pass
 
@@ -319,9 +230,7 @@ try:
         ALTER TABLE bambini
         ADD COLUMN telefono_genitore TEXT
     """)
-
     conn.commit()
-
 except:
     pass
     
@@ -366,18 +275,14 @@ CREATE TABLE IF NOT EXISTS stagioni (
 """)
 
 try:
-
     c.execute(
         """
         ALTER TABLE stagioni
         ADD COLUMN attiva INTEGER DEFAULT 1
         """
     )
-
     conn.commit()
-
 except:
-
     pass
 
 c.execute("""
@@ -438,14 +343,11 @@ CREATE TABLE IF NOT EXISTS schede_genitori (
 """)
 
 try:
-
     c.execute("""
         ALTER TABLE schede_genitori
         ADD COLUMN data_nascita_bambino TEXT
     """)
-
     conn.commit()
-
 except:
     pass
 
